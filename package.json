@@ -1,0 +1,16 @@
+{
+  "name": "miniprogram-ts-less-quickstart",
+  "version": "1.0.0",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "tdesign-miniprogram": "^1.9.7"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "^4.1.0"
+  },
+  "main": "index.js",
+  "description": ""
+}
