@@ -1,70 +1,52 @@
 // pages/screen/screen.ts
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-
+    connected: false,
   },
-
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad() {
     wx.setKeepScreenOn({
-      keepScreenOn: true
+      keepScreenOn: true,
     })
   },
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
+  onReady() {},
   onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
     wx.setKeepScreenOn({
-      keepScreenOn: false
+      keepScreenOn: true,
     })
   },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
+  onHide() {},
+  onUnload() {
+    wx.closeBluetoothAdapter()
+    wx.setKeepScreenOn({
+      keepScreenOn: false,
+    })
   },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
+  async startListeningDevice() {
+    const res = await wx
+      .openBluetoothAdapter({
+        mode: 'peripheral',
+      })
+      .catch((err) => {
+        console.log('openBluetoothAdapter error', err)
+        if (err.errCode === 10001) {
+          wx.onBluetoothAdapterStateChange((res) => {
+            console.log('onBluetoothAdapterStateChange', res)
+            if (res.available) {
+              // this.startBluetoothDevicesDiscovery()
+              console.log('onBluetoothAdapterStateChange available')
+            }
+          })
+        }
+      })
+    console.log('openBluetoothAdapter success', res)
+    // 监听连接
+    wx.onBLEPeripheralConnectionStateChanged((res) => {
+      console.log('onBLEPeripheralConnectionStateChanged', res)
+      if (res.connected) {
+        this.setData({
+          connected: true,
+        })
+      }
+    })
   },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
-  }
 })

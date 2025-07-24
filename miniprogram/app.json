@@ -2,7 +2,8 @@
   "pages": [
     "pages/index/index",
     "pages/logs/logs",
-    "pages/screen/screen"
+    "pages/screen/screen",
+    "pages/remote/playing"
   ],
   "window": {
     "navigationBarBackgroundColor": "@navBgColor",
@@ -11,6 +12,18 @@
     "backgroundTextStyle": "@bgTxtStyle",
     "navigationBarTitleText": "MayScreen",
     "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/remote/playing",
+        "text": "正在展示"
+      },
+      {
+        "pagePath": "pages/logs/logs",
+        "text": "我的"
+      }
+    ]
   },
   "renderer": "skyline",
   "rendererOptions": {

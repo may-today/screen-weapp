@@ -1,2 +1,4 @@
-<!--pages/screen/screen.wxml-->
-<text>pages/screen/screen.wxml</text>
+<view class="container">
+  <text>{{connected ? '已连接' : '未连接'}}</text>
+  <button bind:tap="startListeningDevice">开始扫描</button>
+</view>
