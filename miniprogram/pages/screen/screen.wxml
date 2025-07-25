@@ -1,4 +1,4 @@
 <view class="container">
   <text>{{connected ? '已连接' : '未连接'}}</text>
-  <button bind:tap="startListeningDevice">开始扫描</button>
+  <button bind:tap="startListeningRemote">启用遥控器功能</button>
 </view>

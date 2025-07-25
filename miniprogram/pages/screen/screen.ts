@@ -21,7 +21,8 @@ Page({
       keepScreenOn: false,
     })
   },
-  async startListeningDevice() {
+  // 启用遥控器功能
+  async startListeningRemote() {
     const res = await wx
       .openBluetoothAdapter({
         mode: 'peripheral',

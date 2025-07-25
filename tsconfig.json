@@ -28,6 +28,7 @@
     "node_modules"
   ],
   "paths": {
-    "tdesign-miniprogram/*": ["./miniprogram/miniprogram_npm/tdesign-miniprogram/*"]
+    "tdesign-miniprogram/*": ["./miniprogram/miniprogram_npm/tdesign-miniprogram/*"],
+    "~/*": ["./miniprogram/*"]
   }
 }

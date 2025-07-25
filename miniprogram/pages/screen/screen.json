@@ -1,4 +1,5 @@
 {
   "usingComponents": {},
-  "pageOrientation": "landscape"
+  "pageOrientation": "landscape",
+  "backgroundColor": "#000000"
 }
