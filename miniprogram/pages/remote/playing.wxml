@@ -14,7 +14,7 @@ module.exports.len = function(arr) {
 </t-navbar>
 <scroll-view class="scroll-area" scroll-y type="list">
   <view class="container">
-    <button bind:tap="openBluetoothAdapter">开始扫描</button>
+    <button bind:tap="jumpToDeviceConnectPage">连接设备</button>
     <button bind:tap="stopBluetoothDevicesDiscovery">停止扫描</button>
     <button bind:tap="closeBluetoothAdapter">结束流程</button>
   </view>

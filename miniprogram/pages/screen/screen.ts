@@ -1,6 +1,7 @@
 // pages/screen/screen.ts
 Page({
   data: {
+    remoteStatus: 'off' as 'off' | 'waiting' | 'connected',
     connected: false,
   },
   onLoad() {
@@ -30,6 +31,7 @@ Page({
       .catch((err) => {
         console.log('openBluetoothAdapter error', err)
         if (err.errCode === 10001) {
+          // 手机蓝牙功能不可用，但此时小程序蓝牙模块已经初始化完成，监听蓝牙状态改变后可重新连入
           wx.onBluetoothAdapterStateChange((res) => {
             console.log('onBluetoothAdapterStateChange', res)
             if (res.available) {
@@ -40,6 +42,9 @@ Page({
         }
       })
     console.log('openBluetoothAdapter success', res)
+    this.setData({
+      remoteStatus: 'waiting',
+    })
     // 监听连接
     wx.onBLEPeripheralConnectionStateChanged((res) => {
       console.log('onBLEPeripheralConnectionStateChanged', res)
@@ -48,6 +53,17 @@ Page({
           connected: true,
         })
       }
+    })
+  },
+  stopListeningRemote() {
+    // TODO: if connected to a device, close the connection
+    // if (this.data.connected) {
+    //   wx.closeBLEConnection({
+    //     deviceId: this.data.deviceId,
+    //   })
+    // }
+    this.setData({
+      remoteStatus: 'off',
     })
   },
 })
