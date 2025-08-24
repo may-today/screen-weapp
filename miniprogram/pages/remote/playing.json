@@ -1,7 +1,0 @@
-{
-  "usingComponents": {
-    "t-navbar": "tdesign-miniprogram/navbar/navbar",
-    "t-button": "tdesign-miniprogram/button/button",
-    "t-image": "tdesign-miniprogram/image/image"
-  }
-}

@@ -1,10 +1,8 @@
 <!--index.wxml-->
 <scroll-view class="scroll-area" scroll-y type="list">
   <view class="container">
-    <button bind:tap="jumpToScreenPage">屏幕</button>
+    <button bind:tap="jumpToScreenPage" class="bg-blue-500 text-white p-2 rounded-md">屏幕</button>
     <button bind:tap="jumpToRemotePage">遥控器</button>
-    <view class="usermotto">
-      <text class="user-motto">{{motto}}</text>
-    </view>
+    <button bind:tap="jumpToTestPage">测试</button>
   </view>
 </scroll-view>

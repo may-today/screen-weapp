@@ -13,4 +13,9 @@ Page({
       url: '/pages/remote/playing',
     })
   },
+  jumpToTestPage() {
+    wx.navigateTo({
+      url: '/pages/test/index',
+    })
+  },
 })

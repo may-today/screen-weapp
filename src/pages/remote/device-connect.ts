@@ -1,3 +1,5 @@
+import { BleInstance } from '~/utils/ble'
+
 function inArray(arr, key, val) {
   for (let i = 0; i < arr.length; i++) {
     if (arr[i][key] === val) {
@@ -17,83 +19,59 @@ function ab2hex(buffer) {
 
 Page({
   data: {
-    devices: [],
+    deviceList: [] as WechatMiniprogram.BlueToothDevice[],
     connected: false,
     chs: [],
   },
-  state: {} as Record<string, any>,
+  state: {
+    bleInstance: BleInstance.getInstance(),
+    _discoveryStarted: false,
+  },
   onLoad() {
-    this.openBluetoothAdapter()
+    wx.showNavigationBarLoading()
+    this.state.bleInstance.openBluetoothAdapterAndRun(() => {
+      this.startSearchDevices()
+    })
   },
   onReady() {},
   onShow() {},
   onHide() {},
   onUnload() {
-    wx.stopBluetoothDevicesDiscovery()
-  },
-  async openBluetoothAdapter() {
-    const res = await wx.openBluetoothAdapter().catch((err) => {
-      console.log('openBluetoothAdapter error', err)
-      if (err.errCode === 10001) {
-        // 手机蓝牙功能不可用，但此时小程序蓝牙模块已经初始化完成，监听蓝牙状态改变后可重新连入
-        wx.onBluetoothAdapterStateChange((res) => {
-          if (res.available) {
-            this.startBluetoothDevicesDiscovery()
-          }
-        })
-      }
-    })
-    console.log('openBluetoothAdapter success', res)
-    this.startBluetoothDevicesDiscovery()
-  },
-  getBluetoothAdapterState() {
-    wx.getBluetoothAdapterState({
-      success: (res) => {
-        console.log('getBluetoothAdapterState', res)
-        if (res.discovering) {
-          this.onBluetoothDeviceFound()
-        } else if (res.available) {
-          this.startBluetoothDevicesDiscovery()
-        }
-      },
-    })
+    this.state.bleInstance.destroy()
   },
   // 开始扫描
-  startBluetoothDevicesDiscovery() {
+  startSearchDevices() {
     if (this.state._discoveryStarted) {
       return
     }
     this.state._discoveryStarted = true
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey: true,
-      success: (res) => {
-        console.log('startBluetoothDevicesDiscovery success', res)
-        this.onBluetoothDeviceFound()
-      },
+    }).catch((err) => {
+      console.error('startBluetoothDevicesDiscovery fail', err)
+      wx.showToast({
+        title: '搜索设备失败',
+        icon: 'none',
+      })
+      wx.hideNavigationBarLoading()
+    })
+    wx.onBluetoothDeviceFound((res) => {
+      const tempList = [] as WechatMiniprogram.BlueToothDevice[]
+      res.devices.forEach((device) => {
+        if (tempList.map((item) => item.deviceId).includes(device.deviceId)) {
+          return
+        }
+        tempList.push(device)
+      })
+      this.setData({
+        deviceList: tempList,
+      })
     })
   },
   // 停止扫描
   stopBluetoothDevicesDiscovery() {
     wx.stopBluetoothDevicesDiscovery()
     this.state._discoveryStarted = false
-  },
-  onBluetoothDeviceFound() {
-    wx.onBluetoothDeviceFound((res) => {
-      res.devices.forEach((device) => {
-        if (!device.name && !device.localName) {
-          return
-        }
-        const foundDevices = this.data.devices
-        const idx = inArray(foundDevices, 'deviceId', device.deviceId)
-        const data = {} as Record<string, WechatMiniprogram.BlueToothDevice>
-        if (idx === -1) {
-          data[`devices[${foundDevices.length}]`] = device
-        } else {
-          data[`devices[${idx}]`] = device
-        }
-        this.setData(data)
-      })
-    })
   },
   createBLEConnection(e) {
     const ds = e.currentTarget.dataset

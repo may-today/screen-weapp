@@ -1,16 +1,33 @@
 {
   "name": "miniprogram-ts-less-quickstart",
   "version": "1.0.0",
-  "scripts": {},
+  "type": "module",
+  "scripts": {
+    "dev": "weapp-vite dev",
+    "dev:open": "weapp-vite dev -o",
+    "build": "weapp-vite build",
+    "open": "weapp-vite open",
+    "g": "weapp-vite generate",
+    "postinstall": "weapp-tw patch"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "tdesign-miniprogram": "^1.9.7"
+    "tdesign-miniprogram": "^1.10.1"
   },
   "devDependencies": {
-    "miniprogram-api-typings": "^4.1.0"
-  },
-  "main": "index.js",
-  "description": ""
+    "@egoist/tailwindcss-icons": "^1.9.0",
+    "@iconify-json/lucide": "^1.2.63",
+    "@iconify-json/mdi": "^1.2.3",
+    "@types/node": "^24.3.0",
+    "autoprefixer": "^10.4.21",
+    "miniprogram-api-typings": "^4.1.0",
+    "postcss": "^8.5.6",
+    "sass": "^1.90.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.2",
+    "weapp-tailwindcss": "latest",
+    "weapp-vite": "5.1.0"
+  }
 }

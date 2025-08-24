@@ -12,7 +12,7 @@
     "backgroundColor": "@bgColor",
     "backgroundTextStyle": "@bgTxtStyle",
     "navigationBarTitleText": "MayScreen",
-    "navigationStyle": "custom"
+    "navigationStyle": "default"
   },
   "tabBar": {
     "list": [
@@ -33,5 +33,6 @@
   "enablePassiveEvent": true,
   "resolveAlias": {
     "~/*": "/*"
-  }
+  },
+  "componentFramework": "glass-easel"
 }

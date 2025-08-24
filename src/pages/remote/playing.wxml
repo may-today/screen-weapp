@@ -7,11 +7,6 @@ module.exports.len = function(arr) {
   return arr.length
 }
 </wxs>
-<t-navbar t-class-placeholder="t-navbar-placeholder" t-class-content="t-navbar-content">
-  <view slot="left">
-    <t-image t-class="logo" src="https://tdesign.gtimg.com/mobile/demos/image-dark.png" aria-label="logo" />
-  </view>
-</t-navbar>
 <scroll-view class="scroll-area" scroll-y type="list">
   <view class="container">
     <button bind:tap="jumpToDeviceConnectPage">连接设备</button>

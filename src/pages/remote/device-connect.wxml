@@ -1,0 +1,7 @@
+<text>pages/remote/device-connect.wxml</text>
+<scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
+  <view wx:for="{{deviceList}}" wx:key="deviceId" wx:for-item="item" class="device-list-item" hover-class="device-list-item-hover" bind:tap="handleDeviceClick(item)">
+    <text class="device-item-name">{{item.localName}}</text>
+    <!-- <text class="device-item-name">{{item.RSSI}}</text> -->
+  </view>
+</scroll-view>
