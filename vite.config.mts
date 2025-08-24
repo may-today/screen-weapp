@@ -23,11 +23,10 @@ export default defineConfig({
         component: 'src/components',
         page: 'src/pages',
       },
-      // 假如你想让默认生成的组件命名为 HelloWorld/index 而不是 HelloWorld/HelloWorld 可以下列选项
-      // filenames: {
-      //   component: 'index',
-      //   page: 'index',
-      // },
+      filenames: {
+        component: 'index',
+        page: 'index',
+      },
     },
   },
   css: {
@@ -39,7 +38,12 @@ export default defineConfig({
   },
   plugins: [
     UnifiedViteWeappTailwindcssPlugin({
-      rem2rpx: true,
+      rem2rpx: {
+        // @ts-expect-error
+        rootValue: 32,
+        propList: ['*'],
+        transformUnit: 'px',
+      },
       tailwindcss: {
         // 显示声明用的是 tailwindcss v4
         version: 4,

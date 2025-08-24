@@ -1,7 +1,16 @@
 <text>pages/remote/device-connect.wxml</text>
+<button bind:tap="handleSendData">发送数据</button>
 <scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
-  <view wx:for="{{deviceList}}" wx:key="deviceId" wx:for-item="item" class="device-list-item" hover-class="device-list-item-hover" bind:tap="handleDeviceClick(item)">
+  <view
+    wx:for="{{deviceList}}"
+    wx:key="deviceId"
+    wx:for-item="item"
+    class="flex flex-row items-center justify-between p-2 border"
+    hover-class="device-list-item-hover"
+    bind:tap="handleDeviceClick"
+    data-device-id="{{item.deviceId}}"
+  >
     <text class="device-item-name">{{item.localName}}</text>
-    <!-- <text class="device-item-name">{{item.RSSI}}</text> -->
+    <text class="device-item-name">{{item.RSSI}}</text>
   </view>
 </scroll-view>

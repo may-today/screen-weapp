@@ -1,39 +1,27 @@
-export class BleInstance {
-  private static instance: BleInstance | null = null
-  private constructor() {}
+export const MayScreenServiceUuid = '00619319-1997-0329-5525-EA95C2EE6000'
+export const MayScreenCharacteristicUuid = {
+  songId: '00001001-1000-1000-8000-00805F9B34FB',
+}
 
-  public static getInstance(): BleInstance {
-    if (!BleInstance.instance) {
-      BleInstance.instance = new BleInstance()
-    }
-    return BleInstance.instance
-  }
-
-  public destroy() {
-    wx.closeBluetoothAdapter()
-    BleInstance.instance = null
-  }
-
-  public async openBluetoothAdapterAndRun(callback: () => void) {
-    const res = await wx.openBluetoothAdapter().catch((err) => {
-      if (err.errCode === 10001) {
-        // 手机蓝牙功能不可用，但此时小程序蓝牙模块已经初始化完成，监听蓝牙状态改变后可重新连入
-        wx.onBluetoothAdapterStateChange((res) => {
-          if (res.available) {
-            callback()
-          }
-        })
-      }
-      console.log('openBluetoothAdapter error', err)
-      throw err
+export const openBluetoothAdapter = async (mode: 'central' | 'peripheral') => {
+  try {
+    const res = await wx.openBluetoothAdapter({
+      mode,
     })
     console.log('openBluetoothAdapter success', res)
-    callback()
-  }
-
-  public async startBluetoothDevicesDiscovery() {
-    const res = await wx.startBluetoothDevicesDiscovery().catch((err) => {
-      console.log('startBluetoothDevicesDiscovery error', err)
-    })
+    return
+  } catch (err: any) {
+    if (err.errCode === 10001) {
+      // 手机蓝牙功能不可用，但此时小程序蓝牙模块已经初始化完成，监听蓝牙状态改变后可重新连入
+      return new Promise<void>((resolve) => {
+        wx.onBluetoothAdapterStateChange((res) => {
+          if (res.available) {
+            resolve()
+          }
+        })
+      })
+    }
+    console.log('openBluetoothAdapter error', err)
+    throw err
   }
 }
