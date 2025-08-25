@@ -96,6 +96,25 @@ export class BleScreen {
     })
     server.onCharacteristicReadRequest((res) => {
       _log('received read request')
+      server.writeCharacteristicValue({
+        serviceId: res.serviceId,
+        characteristicId: res.characteristicId,
+        value: new Uint8Array([0, 0]),
+        needNotify: true,
+        callbackId: res.callbackId,
+        success: () => {
+          _log('writeCharacteristicValue success')
+        },
+        fail: (err) => {
+          _logError('writeCharacteristicValue fail', err)
+        },
+      })
+    })
+    server.onCharacteristicSubscribed((res) => {
+      _log('onCharacteristicSubscribed', res)
+    })
+    server.onCharacteristicUnsubscribed((res) => {
+      _log('onCharacteristicUnsubscribed', res)
     })
   }
 

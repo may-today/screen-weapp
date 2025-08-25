@@ -5,9 +5,9 @@
   bind:afterleave="handleAfterLeave"
   custom-style="width: 30%; margin-left: 70%; background-color: transparent;"
 >
-  <view class="h-full p-4">
-    <view class="bg-white rounded-lg p-4">
-      <button type="primary" bind:tap="handleCloseButtonTap">推出</button>
+  <view class="h-full p-2 pb-8 flex flex-col justify-end">
+    <view class="bg-stone-800 rounded-lg p-2">
+      <button bind:tap="handleCloseButtonTap">推出</button>
     </view>
   </view>
 </page-container>
