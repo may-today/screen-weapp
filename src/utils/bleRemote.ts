@@ -23,6 +23,7 @@ const _toastError = (err: BaseError, message: string) => {
 
 export class BleRemote {
   private static _instance: BleRemote | null = null
+  private _mtu: number = 20
   public static getInstance(): BleRemote {
     if (!BleRemote._instance) {
       BleRemote._instance = new BleRemote()
@@ -82,6 +83,18 @@ export class BleRemote {
     })
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
     wx.hideLoading()
+    // set MTU when connected
+    wx.setBLEMTU({
+      deviceId,
+      mtu: 512,
+      success: () => {
+        _log('setBLEMTU success')
+        this._mtu = 512
+      },
+      fail: (err) => {
+        _logError('setBLEMTU fail', err)
+      },
+    })
   }
 
   /** 断开与 Screen 设备的连接 */
