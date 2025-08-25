@@ -1,6 +1,5 @@
-<view class="container">
-  <text>{{connected ? '已连接' : '未连接'}}</text>
-  <text>remoteStatus: {{remoteStatus}}</text>
+<view class="container bg-black text-white">
   <button bind:tap="startListeningRemote">启用遥控器功能</button>
   <button bind:tap="stopListeningRemote">停止遥控器功能</button>
+  <float-control-bar />
 </view>

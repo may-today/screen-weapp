@@ -10,6 +10,7 @@ export class AppState {
   connectStatus = ConnectStatus.Disconnected
   connected = false
   deviceId = ''
+  showScreenFloatPanel = false
 
   constructor() {
     makeAutoObservable(this)
@@ -20,6 +21,9 @@ export class AppState {
   }
   setDeviceId(deviceId: string) {
     this.deviceId = deviceId
+  }
+  setShowScreenFloatPanel(showScreenFloatPanel: boolean) {
+    this.showScreenFloatPanel = showScreenFloatPanel
   }
 }
 

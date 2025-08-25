@@ -1,0 +1,13 @@
+<page-container 
+  show="{{showScreenFloatPanel}}"
+  overlay
+  position="right"
+  bind:afterleave="handleAfterLeave"
+  custom-style="width: 30%; margin-left: 70%; background-color: transparent;"
+>
+  <view class="h-full p-4">
+    <view class="bg-white rounded-lg p-4">
+      <button type="primary" bind:tap="handleCloseButtonTap">推出</button>
+    </view>
+  </view>
+</page-container>

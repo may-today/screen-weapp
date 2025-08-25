@@ -6,6 +6,10 @@ Page({
     bleInstance: BleScreen.getInstance(),
   },
   onLoad() {
+    // wx.setNavigationBarColor({
+    //   frontColor: '#ffffff',
+    //   backgroundColor: '#000000',
+    // })
     wx.setKeepScreenOn({
       keepScreenOn: true,
     })
