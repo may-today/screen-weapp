@@ -8,6 +8,7 @@ export default defineConfig({
     srcRoot: 'src',
     enhance: {
       autoImportComponents: {
+        globs: ['components/**/*'],
         resolvers: [TDesignResolver()],
       },
     },

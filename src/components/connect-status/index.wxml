@@ -1,0 +1,4 @@
+<view class="p-2 bg-gray-100">
+  <view>from src/components/ConnentStatus/index</view>
+  <text>deviceId: {{ deviceId }}</text>
+</view>

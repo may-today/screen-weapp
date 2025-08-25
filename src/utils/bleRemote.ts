@@ -1,4 +1,6 @@
+import { appState, ConnectStatus } from '@/stores/appState'
 import { openBluetoothAdapter, MayScreenServiceUuid, MayScreenCharacteristicUuid } from './ble'
+import type { BaseError } from './types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Remote]', ...args)
@@ -8,10 +10,19 @@ const _logError = (...args: any[]) => {
   console.error('[BLE:Remote]', ...args)
 }
 
+const _toastError = (err: BaseError, message: string) => {
+  const codePrefix = err?.errCode ? `[${err.errCode}] ` : ''
+  const errnoSuffix = err?.errno ? ` (errno: ${err.errno})` : ''
+  const title = `${codePrefix}${message}${errnoSuffix}`
+  _logError(title, err)
+  wx.showToast({
+    title,
+    icon: 'none',
+  })
+}
+
 export class BleRemote {
   private static _instance: BleRemote | null = null
-  private _isConnected: boolean = false
-
   public static getInstance(): BleRemote {
     if (!BleRemote._instance) {
       BleRemote._instance = new BleRemote()
@@ -36,11 +47,7 @@ export class BleRemote {
       services: [MayScreenServiceUuid],
       interval: 1000,
     }).catch((err) => {
-      _logError('startBluetoothDevicesDiscovery fail', err)
-      wx.showToast({
-        title: '搜索设备失败',
-        icon: 'none',
-      })
+      _toastError(err, '搜索设备失败')
       wx.hideNavigationBarLoading()
     })
     wx.onBluetoothDeviceFound((res) => {
@@ -57,19 +64,32 @@ export class BleRemote {
 
   /** 连接到某一个 Screen 设备 */
   public async connectDevice(deviceId: string): Promise<void> {
-    await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
-      _logError('createBLEConnection fail', e)
-      wx.showToast({
-        title: '连接设备失败',
-        icon: 'none',
-      })
+    appState.setConnectStatus(ConnectStatus.Connecting)
+    wx.showLoading({
+      title: '连接中',
     })
-    await wx.getBLEDeviceServices({ deviceId })
+    await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
+      _toastError(e, '连接设备失败')
+      wx.hideLoading()
+    })
+    appState.setConnectStatus(ConnectStatus.Connected)
+    _log('createBLEConnection success')
+    const servicesRes = await wx.getBLEDeviceServices({ deviceId })
+    _log('getBLEDeviceServices success', servicesRes.services)
+    const characteristicRes = await wx.getBLEDeviceCharacteristics({
+      deviceId,
+      serviceId: MayScreenServiceUuid,
+    })
+    _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
+    wx.hideLoading()
   }
 
   /** 断开与 Screen 设备的连接 */
   public async disconnectDevice(deviceId: string): Promise<void> {
-    await wx.closeBLEConnection({ deviceId })
+    await wx.closeBLEConnection({ deviceId }).catch((err) => {
+      _toastError(err, '断开连接失败')
+    })
+    appState.setConnectStatus(ConnectStatus.Disconnected)
   }
 
   /** 发送数据 */
@@ -85,6 +105,9 @@ export class BleRemote {
       characteristicId: MayScreenCharacteristicUuid.songId,
       // value: new TextEncoder().encode(data).buffer,
       value: buffer,
+    }).catch((err) => {
+      _toastError(err, '发送数据失败')
     })
+    _log('writeBLECharacteristicValue success')
   }
 }

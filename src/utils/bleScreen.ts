@@ -1,3 +1,4 @@
+import { appState, ConnectStatus } from '@/stores/appState'
 import { MayScreenCharacteristicUuid, MayScreenServiceUuid, openBluetoothAdapter } from './ble'
 
 const _log = (...args: any[]) => {
@@ -12,7 +13,6 @@ export class BleScreen {
   private static _instance: BleScreen | null = null
   private _server: WechatMiniprogram.BLEPeripheralServer | null = null
   private _isAdvertising: boolean = false
-  private _isConnected: boolean = false
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -104,7 +104,9 @@ export class BleScreen {
     wx.onBLEPeripheralConnectionStateChanged((res) => {
       _log(`connection state changed: ${res.connected}`)
       if (res.connected) {
-        this._isConnected = true
+        appState.setConnectStatus(ConnectStatus.Connected)
+      } else {
+        appState.setConnectStatus(ConnectStatus.Disconnected)
       }
     })
   }

@@ -1,0 +1,2 @@
+<text>deviceId: {{ deviceId }}</text>
+<button bind:tap="handleButtonTap">update deviceId</button>
