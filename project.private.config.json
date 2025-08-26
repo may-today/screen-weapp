@@ -19,5 +19,17 @@
     "bigPackageSizeSupport": false
   },
   "libVersion": "3.8.12",
-  "condition": {}
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "pages/remote/device-connect",
+          "pathName": "pages/remote/device-connect",
+          "query": "",
+          "scene": null,
+          "launchMode": "default"
+        }
+      ]
+    }
+  }
 }

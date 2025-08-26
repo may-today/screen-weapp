@@ -3,10 +3,23 @@
   scale: 1.5;
 }
 
+@theme {
+  --color-card: var(--color-white);
+}
+
+@layer theme {
+  :root, :host {
+    @variant dark {
+      --color-card: #262626;
+    }
+  }
+}
+
 page {
   height: 100vh;
   display: flex;
   flex-direction: column;
+  @apply bg-neutral-100 dark:bg-[#101010];
 }
 
 .container {

@@ -1,6 +1,3 @@
-<text>pages/remote/device-connect.wxml</text>
-<button bind:tap="handleSendData">发送数据</button>
-<connect-status />
 <device-list />
 <scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
   <view

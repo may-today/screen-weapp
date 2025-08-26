@@ -1,2 +1,6 @@
-<text>deviceId: {{ deviceId }}</text>
-<button bind:tap="handleButtonTap">update deviceId</button>
+<view class="p-4 rounded-lg">
+  <text>deviceId: {{ deviceId }}</text>
+  <button bind:tap="handleButtonTap">update deviceId</button>
+  <device-list-item />
+  <device-list-item />
+</view>

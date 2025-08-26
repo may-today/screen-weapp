@@ -10,7 +10,6 @@ module.exports.len = function(arr) {
 <scroll-view class="scroll-area" scroll-y type="list">
   <view class="container">
     <button bind:tap="jumpToDeviceConnectPage">连接设备</button>
-    <connect-status />
   </view>
   <view class="devices_summary">已发现 {{devices.length}} 个外围设备：</view>
   <view wx:for="{{devices}}" wx:key="index" data-device-id="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bind:tap="createBLEConnection" class="device_item" hover-class="device_item_hover">
