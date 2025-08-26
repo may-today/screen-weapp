@@ -1,5 +1,6 @@
 import { appState, ConnectStatus } from '@/stores/appState'
 import { openBluetoothAdapter, MayScreenServiceUuid, MayScreenCharacteristicUuid } from './ble'
+import { toChunks } from './packet'
 import type { BaseError } from './types'
 
 const _log = (...args: any[]) => {
@@ -105,22 +106,59 @@ export class BleRemote {
     appState.setConnectStatus(ConnectStatus.Disconnected)
   }
 
+  /** 延迟函数 */
+  private _delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+
+  /** 发送单个数据包，带重试机制 */
+  private async _sendChunk(
+    deviceId: string, 
+    chunk: ArrayBuffer, 
+    chunkIndex: number, 
+    totalChunks: number,
+    maxRetries: number = 3
+  ): Promise<void> {
+    let retryCount = 0
+    
+    while (retryCount <= maxRetries) {
+      try {
+        await wx.writeBLECharacteristicValue({
+          deviceId,
+          serviceId: MayScreenServiceUuid,
+          characteristicId: MayScreenCharacteristicUuid.songId,
+          writeType: 'write',
+          value: chunk,
+        })
+        _log(`包 ${chunkIndex + 1}/${totalChunks} 发送成功`)
+        return // 发送成功，退出重试循环
+      } catch (err) {
+        retryCount++
+        if (retryCount > maxRetries) {
+          _logError(`包 ${chunkIndex + 1}/${totalChunks} 发送失败，已重试 ${maxRetries} 次`, err)
+          _toastError(err as any, `发送第 ${chunkIndex + 1} 个数据包失败`)
+          throw err // 重新抛出错误，终止整个发送过程
+        } else {
+          _log(`包 ${chunkIndex + 1}/${totalChunks} 发送失败，正在重试第 ${retryCount} 次...`)
+          await this._delay(100) // 重试前延迟100ms
+        }
+      }
+    }
+  }
+
   /** 发送数据 */
   public async sendData(deviceId: string, data: string): Promise<void> {
-    const buffer = new ArrayBuffer(2)
-    const dataView = new DataView(buffer)
-    dataView.setUint8(0, (Math.random() * 255) | 0)
-    dataView.setUint8(1, (Math.random() * 255) | 0)
-    // TODO: 超过 20 字节的数据需要分包发送
-    await wx.writeBLECharacteristicValue({
-      deviceId,
-      serviceId: MayScreenServiceUuid,
-      characteristicId: MayScreenCharacteristicUuid.songId,
-      // value: new TextEncoder().encode(data).buffer,
-      value: buffer,
-    }).catch((err) => {
-      _toastError(err, '发送数据失败')
-    })
-    _log('writeBLECharacteristicValue success')
+    const chunks = toChunks(data)
+    _log(`sendData: ${data} (${chunks.length} chunks)`)
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i]
+      // 发送当前包（包含重试机制）
+      await this._sendChunk(deviceId, chunk, i, chunks.length)      
+      // 如果不是最后一个包，延迟100毫秒后发送下一个包
+      if (i < chunks.length - 1) {
+        await this._delay(100)
+      }
+    }
+    _log('sendData success')
   }
 }

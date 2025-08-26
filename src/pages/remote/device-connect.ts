@@ -115,6 +115,6 @@ Page({
   //   // })
   // },
   handleSendData() {
-    this.state.bleInstance.sendData(this.data.deviceId, '1234567890')
+    this.state.bleInstance.sendData(this.data.deviceId, '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
   },
 })

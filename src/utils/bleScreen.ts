@@ -1,5 +1,6 @@
 import { appState, ConnectStatus } from '@/stores/appState'
 import { MayScreenCharacteristicUuid, MayScreenServiceUuid, openBluetoothAdapter } from './ble'
+import { reassemble, parsePacket } from './packet'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Screen]', ...args)
@@ -13,6 +14,7 @@ export class BleScreen {
   private static _instance: BleScreen | null = null
   private _server: WechatMiniprogram.BLEPeripheralServer | null = null
   private _isAdvertising: boolean = false
+  private _chunkBuffer: Map<string, ArrayBuffer[]> = new Map() // 缓冲区，key为sessionId，value为chunks数组
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -23,6 +25,8 @@ export class BleScreen {
 
   public destroy() {
     wx.closeBluetoothAdapter()
+    // 清理缓冲区
+    this._chunkBuffer.clear()
     BleScreen._instance = null
     _log('destroy')
   }
@@ -80,6 +84,58 @@ export class BleScreen {
   /** 为 Service 绑定监听器 */
   private async _bindServiceListeners(server: WechatMiniprogram.BLEPeripheralServer): Promise<void> {
     server.onCharacteristicWriteRequest((res) => {
+      const info = parsePacket(res.value)
+      _log(`总包数=${info.totalPackets}, 当前包=${info.currentIndex}, 数据="${info.dataString}"`)
+
+      // 使用sessionId来区分不同的传输会话，这里简单使用totalPackets作为sessionId
+      // 在实际应用中，可能需要更复杂的sessionId生成策略
+      const sessionId = `${info.totalPackets}`
+
+      // 如果是第一个包，初始化缓冲区
+      if (info.currentIndex === 0) {
+        this._chunkBuffer.set(sessionId, [])
+        _log(`开始新的传输会话: ${sessionId}`)
+      }
+
+      // 查找对应的缓冲区（如果当前包不是第一个包，需要找到对应的session）
+      let targetSessionId = sessionId
+      if (info.currentIndex > 0) {
+        // 查找匹配的session（根据totalPackets匹配）
+        for (const [sid, chunks] of this._chunkBuffer.entries()) {
+          if (sid === sessionId && chunks.length === info.currentIndex) {
+            targetSessionId = sid
+            break
+          }
+        }
+      }
+
+      // 将当前包添加到缓冲区
+      const chunks = this._chunkBuffer.get(targetSessionId) || []
+      chunks.push(res.value)
+      this._chunkBuffer.set(targetSessionId, chunks)
+
+      _log(`已接收包 ${info.currentIndex + 1}/${info.totalPackets}`)
+
+      // 检查是否接收完所有包
+      if (chunks.length === info.totalPackets) {
+        try {
+          // 重组完整数据
+          const completeData = reassemble(chunks)
+          _log('========== 完整数据接收完成 ==========')
+          _log('重组后的完整数据:', completeData)
+          _log('=====================================')
+
+          // 清理缓冲区
+          this._chunkBuffer.delete(targetSessionId)
+          _log(`传输会话 ${targetSessionId} 完成，已清理缓冲区`)
+        } catch (error) {
+          _logError('重组数据失败:', error)
+          // 清理失败的缓冲区
+          this._chunkBuffer.delete(targetSessionId)
+        }
+      }
+
+      // 响应客户端
       server.writeCharacteristicValue({
         serviceId: res.serviceId,
         characteristicId: res.characteristicId,
@@ -87,7 +143,7 @@ export class BleScreen {
         needNotify: true,
         callbackId: res.callbackId,
         success: () => {
-          _log('writeCharacteristicValue success', res.value)
+          _log('writeCharacteristicValue success')
         },
         fail: (err) => {
           _logError('writeCharacteristicValue fail', err)
