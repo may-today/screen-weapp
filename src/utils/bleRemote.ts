@@ -51,15 +51,16 @@ export class BleRemote {
   public startScanning(onFound: (deviceList: WechatMiniprogram.BlueToothDevice[]) => void) {
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey: true,
-      services: [MayScreenServiceUuid],
-      interval: 1000,
+      // services: [MayScreenServiceUuid],
+      interval: 2000,
     }).catch((err) => {
       _toastError(err, '搜索设备失败')
       wx.hideNavigationBarLoading()
     })
     wx.onBluetoothDeviceFound((res) => {
-      if (res.devices && res.devices.length > 0) {
-        onFound(res.devices)
+      console.log('onBluetoothDeviceFound', res)
+      if (res.devices !== undefined) {
+        onFound(res.devices.sort((a, b) => b.RSSI - a.RSSI).filter(device => !!device.name))
       }
     })
   }

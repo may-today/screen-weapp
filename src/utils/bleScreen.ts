@@ -200,7 +200,7 @@ export class BleScreen {
       this._server.startAdvertising({
         advertiseRequest: {
           connectable: true,
-          deviceName: 'MayScr',
+          deviceName: 'MayScreen1234567890',
           serviceUuids: [MayScreenServiceUuid],
         },
         success: () => {

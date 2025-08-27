@@ -5,13 +5,13 @@
       return 'i-lucide-signal text-green-500'
     } else if (rssi >= -70) {
       // 强
-      return 'i-lucide-signal-high text-yellow-500'
+      return 'i-lucide-signal-high text-green-500'
     } else if (rssi >= -80) {
       // 中
-      return 'i-lucide-signal-medium text-orange-500'
+      return 'i-lucide-signal-medium text-yellow-500'
     } else if (rssi >= -90) {
       // 弱
-      return 'i-lucide-signal-low text-amber-500'
+      return 'i-lucide-signal-low text-orange-500'
     } else {
       // 非常弱
       return 'i-lucide-signal-zero text-red-500'
@@ -19,18 +19,21 @@
   }
 </wxs>
 
-<view class="bg-card p-3 rounded-xl border border-border flex flex-row items-center gap-3">
-  <view class="flex items-center justify-center size-14 p-2 rounded-md bg-gray-100">
-    <image src="../../assets/device-mobile.png" class="h-full w-full" mode="aspectFit" />
+<view class="bg-card p-3 pr-4 rounded-xl border border-border flex flex-row items-center gap-3">
+  <view class="flex items-center justify-center size-14 p-2 rounded-md bg-neutral-100 dark:bg-neutral-700/30">
+    <image src="../../assets/device-{{ 'pad' }}.png" class="h-full w-full" mode="aspectFit" />
   </view>
-  <view class="flex flex-col">
-    <text class="font-medium">Device Name</text>
+  <view class="flex-1 flex flex-col gap-1.5">
+    <text class="font-medium">{{ device.name }}</text>
     <view class="flex flex-row items-center gap-1.5 text-sm">
-      <view class="relative size-6">
-        <view class="absolute i-lucide-signal text-gray-300" />
-        <view class="absolute {{ class.getRssiClass(rssi) }}" />
+      <view class="relative size-5 text-xs">
+        <view class="absolute i-lucide-signal text-neutral-200 dark:text-neutral-700" />
+        <view class="absolute {{ class.getRssiClass(device.RSSI) }}" />
       </view>
-      <text class="text-gray-500">{{ rssi }}</text>
+      <text class="text-gray-500">{{ device.RSSI }}</text>
     </view>
   </view>
+  <button size="mini">
+    连接
+  </button>
 </view>

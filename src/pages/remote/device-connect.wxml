@@ -1,4 +1,15 @@
-<device-list />
+<view class="flex items-center p-4 gap-4">
+  <view>
+    <radar />
+  </view>
+  <view class="flex flex-col gap-1">
+    <text class="text-xl font-bold">搜索附近屏幕...</text>
+    <text class="text-sm text-muted-foreground">请确保设备处于可连接状态</text>
+  </view>
+</view>
+<scroll-view scroll-y enable-back-to-top class="flex-1 overflow-hidden">
+  <device-list list="{{deviceList}}" />
+</scroll-view>
 <!-- <scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
   <view
     wx:for="{{deviceList}}"

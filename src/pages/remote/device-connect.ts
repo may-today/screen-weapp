@@ -1,22 +1,5 @@
 import { BleRemote } from '@/utils/bleRemote'
 
-// function inArray(arr, key, val) {
-//   for (let i = 0; i < arr.length; i++) {
-//     if (arr[i][key] === val) {
-//       return i
-//     }
-//   }
-//   return -1
-// }
-
-// // ArrayBuffer转16进度字符串示例
-// function ab2hex(buffer) {
-//   var hexArr = Array.prototype.map.call(new Uint8Array(buffer), function (bit) {
-//     return ('00' + bit.toString(16)).slice(-2)
-//   })
-//   return hexArr.join('')
-// }
-
 Page({
   data: {
     deviceList: [] as WechatMiniprogram.BlueToothDevice[],
@@ -26,14 +9,14 @@ Page({
   },
   async onLoad() {
     // wx.showNavigationBarLoading()
-    // await this.state.bleInstance.prepare()
-    // this.startSearchDevices()
+    await this.state.bleInstance.prepare()
+    this.startSearchDevices()
   },
   onReady() {},
   onShow() {},
   onHide() {},
   onUnload() {
-    // this.state.bleInstance.stopScanning()
+    this.state.bleInstance.stopScanning()
   },
   // 开始扫描
   startSearchDevices() {

@@ -1,4 +1,5 @@
 {
   "usingComponents": {},
-  "navigationBarTitleText": "连接设备"
+  "navigationBarTitleText": "连接设备",
+  "disableScroll": true
 }

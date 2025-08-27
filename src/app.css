@@ -5,14 +5,18 @@
 
 @theme {
   --color-card: var(--color-white);
-  --color-border: oklch(0.9220 0 0);
+  --color-border: hsl(0 0% 89.8%);
+  --color-muted: hsl(0 0% 96.1%);
+  --color-muted-foreground: hsl(0 0% 45.1%);
 }
 
 @layer theme {
   :root, :host {
     @variant dark {
-      --color-card: #262626;
-      --color-border: oklch(0.2750 0 0);
+      --color-card: #202020;
+      --color-border: hsl(0 0% 14.9%);
+      --color-muted: hsl(0 0% 14.9%);
+      --color-muted-foreground: hsl(0 0% 63.9%);
     }
   }
 }
