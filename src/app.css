@@ -5,12 +5,14 @@
 
 @theme {
   --color-card: var(--color-white);
+  --color-border: oklch(0.9220 0 0);
 }
 
 @layer theme {
   :root, :host {
     @variant dark {
       --color-card: #262626;
+      --color-border: oklch(0.2750 0 0);
     }
   }
 }

@@ -24,6 +24,7 @@ const _toastError = (err: BaseError, message: string) => {
 
 export class BleRemote {
   private static _instance: BleRemote | null = null
+  private active = false
   private _mtu: number = 20
   public static getInstance(): BleRemote {
     if (!BleRemote._instance) {
@@ -39,6 +40,10 @@ export class BleRemote {
   }
 
   public async prepare(): Promise<void> {
+    if (this.active) {
+      return
+    }
+    this.active = true
     await openBluetoothAdapter('central')
   }
 
@@ -73,6 +78,7 @@ export class BleRemote {
     await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
       _toastError(e, '连接设备失败')
       wx.hideLoading()
+      throw e
     })
     appState.setConnectStatus(ConnectStatus.Connected)
     _log('createBLEConnection success')

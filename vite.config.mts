@@ -41,7 +41,7 @@ export default defineConfig({
     UnifiedViteWeappTailwindcssPlugin({
       rem2rpx: {
         // @ts-expect-error
-        rootValue: 32,
+        rootValue: 16,
         propList: ['*'],
         transformUnit: 'px',
       },

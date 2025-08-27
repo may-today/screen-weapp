@@ -1,5 +1,5 @@
 <device-list />
-<scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
+<!-- <scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
   <view
     wx:for="{{deviceList}}"
     wx:key="deviceId"
@@ -12,4 +12,4 @@
     <text class="device-item-name">{{item.localName}}</text>
     <text class="device-item-name">{{item.RSSI}}</text>
   </view>
-</scroll-view>
+</scroll-view> -->

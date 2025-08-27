@@ -1,6 +1,8 @@
-<view class="p-4 rounded-lg">
-  <text>deviceId: {{ deviceId }}</text>
-  <button bind:tap="handleButtonTap">update deviceId</button>
+<view class="flex flex-col p-4 gap-3">
   <device-list-item />
-  <device-list-item />
+  <device-list-item rssi="-35" />
+  <device-list-item rssi="-65" />
+  <device-list-item rssi="-75" />
+  <device-list-item rssi="-85" />
+  <device-list-item rssi="-95" />
 </view>

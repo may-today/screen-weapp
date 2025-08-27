@@ -20,23 +20,20 @@ import { BleRemote } from '@/utils/bleRemote'
 Page({
   data: {
     deviceList: [] as WechatMiniprogram.BlueToothDevice[],
-    connected: false,
-    deviceId: '',
   },
   state: {
     bleInstance: BleRemote.getInstance(),
   },
   async onLoad() {
-    wx.showNavigationBarLoading()
-    await this.state.bleInstance.prepare()
-    this.startSearchDevices()
+    // wx.showNavigationBarLoading()
+    // await this.state.bleInstance.prepare()
+    // this.startSearchDevices()
   },
   onReady() {},
   onShow() {},
   onHide() {},
   onUnload() {
-    this.state.bleInstance.stopScanning()
-    this.state.bleInstance.destroy()
+    // this.state.bleInstance.stopScanning()
   },
   // 开始扫描
   startSearchDevices() {
@@ -55,10 +52,7 @@ Page({
   async createBLEConnection(deviceId: string) {
     this.state.bleInstance.stopScanning()
     await this.state.bleInstance.connectDevice(deviceId)
-    this.setData({
-      connected: true,
-      deviceId,
-    })
+    wx.navigateBack()
   },
   // async getBLEDeviceCharacteristics(deviceId: string, serviceId: string) {
   //   const res = await wx.getBLEDeviceCharacteristics({
@@ -114,7 +108,7 @@ Page({
   //   //   this.setData(data)
   //   // })
   // },
-  handleSendData() {
-    this.state.bleInstance.sendData(this.data.deviceId, '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
-  },
+  // handleSendData() {
+  //   this.state.bleInstance.sendData(this.data.deviceId, '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
+  // },
 })
