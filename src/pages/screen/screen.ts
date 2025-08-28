@@ -1,9 +1,9 @@
-import { BleScreen } from '@/utils/bleScreen'
+import type { BleScreen } from '@/utils/bleScreen'
 
 Page({
   data: {},
   state: {
-    bleInstance: BleScreen.getInstance(),
+    bleInstance: getApp().globalData.bleScreen as BleScreen,
   },
   onLoad() {
     // wx.setNavigationBarColor({

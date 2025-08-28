@@ -58,7 +58,7 @@ export class BleRemote {
       wx.hideNavigationBarLoading()
     })
     wx.onBluetoothDeviceFound((res) => {
-      console.log('onBluetoothDeviceFound', res)
+      // console.log('onBluetoothDeviceFound', res)
       if (res.devices !== undefined) {
         onFound(res.devices.sort((a, b) => b.RSSI - a.RSSI).filter(device => !!device.name))
       }

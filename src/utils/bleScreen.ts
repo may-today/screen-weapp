@@ -38,13 +38,23 @@ export class BleScreen {
     if (!server) {
       throw new Error('createBLEPeripheralServer failed')
     }
-    await Promise.all([this._prepareService(server), this._bindServiceListeners(server)])
+    await Promise.all([
+      this._prepareService(server, {
+        uuid: MayScreenServiceUuid,
+      }),
+      this._bindServiceListeners(server),
+    ])
     this._server = server
     this._bindConnectionListeners()
   }
 
   /** 为服务创建 Service 和 Characteristics */
-  private async _prepareService(server: WechatMiniprogram.BLEPeripheralServer): Promise<void> {
+  private async _prepareService(
+    server: WechatMiniprogram.BLEPeripheralServer,
+    options: {
+      uuid: string
+    }
+  ): Promise<void> {
     const buffer = new ArrayBuffer(2)
     const dataView = new DataView(buffer)
     dataView.setUint8(0, 0)
@@ -52,7 +62,7 @@ export class BleScreen {
     return new Promise((resolve, reject) => {
       server.addService({
         service: {
-          uuid: MayScreenServiceUuid,
+          uuid: options.uuid,
           characteristics: [
             {
               uuid: MayScreenCharacteristicUuid.songId,

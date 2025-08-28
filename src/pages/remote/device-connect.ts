@@ -1,11 +1,11 @@
-import { BleRemote } from '@/utils/bleRemote'
+import type { BleRemote } from '@/utils/bleRemote'
 
 Page({
   data: {
     deviceList: [] as WechatMiniprogram.BlueToothDevice[],
   },
   state: {
-    bleInstance: BleRemote.getInstance(),
+    bleInstance: getApp().globalData.bleRemote as BleRemote,
   },
   async onLoad() {
     // wx.showNavigationBarLoading()
@@ -21,6 +21,7 @@ Page({
   // 开始扫描
   startSearchDevices() {
     this.state.bleInstance.startScanning((deviceList) => {
+      console.log('startScanning', deviceList)
       this.setData({
         deviceList,
       })
@@ -29,7 +30,6 @@ Page({
   handleDeviceClick(e: WechatMiniprogram.TouchEvent) {
     const ds = e.currentTarget.dataset
     const deviceId = ds.deviceId
-    console.log('handleDeviceClick', deviceId)
     this.createBLEConnection(deviceId)
   },
   async createBLEConnection(deviceId: string) {
