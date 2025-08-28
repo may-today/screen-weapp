@@ -1,12 +1,12 @@
-<view class="absolute bottom-2 right-2 flex gap-1 text-stone-600">
-  <view class="border border-stone-600 size-5 rounded-sm flex items-center justify-center">
+<view class="absolute bottom-4 right-4 flex gap-1 text-stone-600">
+  <view class="border border-stone-600 size-10 rounded-md flex items-center justify-center">
     <view class="i-lucide-chevron-left" />
   </view>
-  <view class="border border-stone-600 size-5 rounded-sm flex items-center justify-center">
+  <view class="border border-stone-600 size-10 rounded-md flex items-center justify-center">
     <view class="i-lucide-chevron-right" />
   </view>
   <view
-    class="border border-stone-600 size-5 rounded-sm flex items-center justify-center"
+    class="border border-stone-600 size-10 rounded-md flex items-center justify-center"
     hover-class="bg-stone-800"
     catch:tap="handleButtonTap"
   >

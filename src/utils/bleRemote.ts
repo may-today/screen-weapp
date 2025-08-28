@@ -1,5 +1,5 @@
 import { appState, ConnectStatus } from '@/stores/appState'
-import { openBluetoothAdapter, MayScreenServiceUuid, MayScreenCharacteristicUuid } from './ble'
+import { openBluetoothAdapter, MayScreenCharacteristicUuid } from './ble'
 import { toChunks } from './packet'
 import type { BaseError } from './types'
 
@@ -87,7 +87,7 @@ export class BleRemote {
     _log('getBLEDeviceServices success', servicesRes.services)
     const characteristicRes = await wx.getBLEDeviceCharacteristics({
       deviceId,
-      serviceId: MayScreenServiceUuid,
+      serviceId: 'MayScreenServiceUuid',
     })
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
     wx.hideLoading()
@@ -132,7 +132,7 @@ export class BleRemote {
       try {
         await wx.writeBLECharacteristicValue({
           deviceId,
-          serviceId: MayScreenServiceUuid,
+          serviceId: 'MayScreenServiceUuid',
           characteristicId: MayScreenCharacteristicUuid.songId,
           writeType: 'write',
           value: chunk,

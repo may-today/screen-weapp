@@ -1,5 +1,5 @@
 import { appState, ConnectStatus } from '@/stores/appState'
-import { MayScreenCharacteristicUuid, MayScreenServiceUuid, openBluetoothAdapter } from './ble'
+import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
 import { reassemble, parsePacket } from './packet'
 
 const _log = (...args: any[]) => {
@@ -15,6 +15,7 @@ export class BleScreen {
   private _server: WechatMiniprogram.BLEPeripheralServer | null = null
   private _isAdvertising: boolean = false
   private _chunkBuffer: Map<string, ArrayBuffer[]> = new Map() // 缓冲区，key为sessionId，value为chunks数组
+  private _serviceUuid: string = ''
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -32,6 +33,7 @@ export class BleScreen {
   }
 
   public async prepare(): Promise<void> {
+    this._serviceUuid = this._generateServiceUuid()
     await openBluetoothAdapter('peripheral')
     const serverRes = await wx.createBLEPeripheralServer()
     const server = serverRes?.server
@@ -40,7 +42,7 @@ export class BleScreen {
     }
     await Promise.all([
       this._prepareService(server, {
-        uuid: MayScreenServiceUuid,
+        uuid: this._serviceUuid,
       }),
       this._bindServiceListeners(server),
     ])
@@ -89,6 +91,41 @@ export class BleScreen {
         },
       })
     })
+  }
+
+  /**
+   * 生成 Service 的 UUID
+   * 
+   * sendAdvertising 传输自定义数据有较多限制，因此使用 uuid 来传输信息
+   */
+  private _generateServiceUuid(): string {
+    // 将设备较为固定的信息封装为 uuid 格式的字符串
+    // 结构：
+    // 19970329-[deviceType(1)|system(1)|00]-[screenWidth(4)]-[screenHeight(4)]-[userId(12)]
+    // 19970319: 固定值，便于根据前缀过滤为 Screen 设备
+    // deviceType: 设备类型，1-手机 2-平板 3-电脑 0-其他
+    // system: 系统类型，1-iOS 2-Android 3-HarmonyOS 4-PC 0-其他
+    // 00: 占位符，用于后续扩展
+    // screenWidth: 屏幕分辨率，4位 16进制
+    // screenHeight: 屏幕分辨率，4位 16进制
+    // userId: 用户id，12位 16进制
+
+    const deviceInfo = wx.getDeviceInfo()
+    const windowInfo = wx.getWindowInfo()
+    _log('deviceInfo', deviceInfo)
+    _log('windowInfo', windowInfo)
+
+    const platformType = {
+      'ios': 1,
+      'android': 2,
+      'ohos': 3,
+      'windows': 4,
+      'mac': 4,
+    }[deviceInfo.platform] || 0
+
+    const uuid = `19970329-0${platformType}00-0000-0000-000000000000`
+    _log('generated uuid', uuid)
+    return uuid
   }
 
   /** 为 Service 绑定监听器 */
@@ -211,7 +248,7 @@ export class BleScreen {
         advertiseRequest: {
           connectable: true,
           deviceName: 'MayScreen1234567890',
-          serviceUuids: [MayScreenServiceUuid],
+          serviceUuids: [this._serviceUuid],
         },
         success: () => {
           _log('startAdvertising success')
