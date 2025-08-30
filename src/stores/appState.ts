@@ -11,6 +11,7 @@ export class AppState {
   connected = false
   deviceId = ''
   showScreenFloatPanel = false
+  showConnectPanel = false
 
   constructor() {
     makeAutoObservable(this)
@@ -24,6 +25,9 @@ export class AppState {
   }
   setShowScreenFloatPanel(showScreenFloatPanel: boolean) {
     this.showScreenFloatPanel = showScreenFloatPanel
+  }
+  setShowConnectPanel(showConnectPanel: boolean) {
+    this.showConnectPanel = showConnectPanel
   }
 }
 

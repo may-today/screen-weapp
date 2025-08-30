@@ -15,6 +15,7 @@
   "license": "ISC",
   "dependencies": {
     "lottie-miniprogram": "^1.0.12",
+    "miniprogram-computed": "^7.0.0",
     "miniprogram-text-decoder": "^2.0.0",
     "miniprogram-text-encoder": "^2.0.0",
     "mobx-miniprogram": "^6.12.3",

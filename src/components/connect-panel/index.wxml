@@ -1,0 +1,12 @@
+<page-container 
+  show="{{showConnectPanel}}"
+  overlay
+  round
+  position="bottom"
+  bind:afterleave="handleAfterLeave"
+  custom-style="height: 60%"
+>
+  <view class="h-full flex flex-col p-4 bg-card">
+    <button bind:tap="handleCloseButtonTap">推出</button>
+  </view>
+</page-container>

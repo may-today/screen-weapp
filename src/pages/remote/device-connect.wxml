@@ -10,17 +10,4 @@
 <scroll-view scroll-y enable-back-to-top class="flex-1 overflow-hidden">
   <device-list list="{{deviceList}}" />
 </scroll-view>
-<!-- <scroll-view class="inner-scroll-view inner-box" type="list" scroll-y>
-  <view
-    wx:for="{{deviceList}}"
-    wx:key="deviceId"
-    wx:for-item="item"
-    class="flex flex-row items-center justify-between p-2 border"
-    hover-class="device-list-item-hover"
-    bind:tap="handleDeviceClick"
-    data-device-id="{{item.deviceId}}"
-  >
-    <text class="device-item-name">{{item.localName}}</text>
-    <text class="device-item-name">{{item.RSSI}}</text>
-  </view>
-</scroll-view> -->
+<connect-panel />

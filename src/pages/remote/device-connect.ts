@@ -27,16 +27,6 @@ Page({
       })
     })
   },
-  handleDeviceClick(e: WechatMiniprogram.TouchEvent) {
-    const ds = e.currentTarget.dataset
-    const deviceId = ds.deviceId
-    this.createBLEConnection(deviceId)
-  },
-  async createBLEConnection(deviceId: string) {
-    this.state.bleInstance.stopScanning()
-    await this.state.bleInstance.connectDevice(deviceId)
-    wx.navigateBack()
-  },
   // async getBLEDeviceCharacteristics(deviceId: string, serviceId: string) {
   //   const res = await wx.getBLEDeviceCharacteristics({
   //     deviceId,

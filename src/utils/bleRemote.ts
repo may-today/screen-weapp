@@ -1,7 +1,7 @@
 import { appState, ConnectStatus } from '@/stores/appState'
 import { openBluetoothAdapter, MayScreenCharacteristicUuid } from './ble'
 import { toChunks } from './packet'
-import type { BaseError } from './types'
+import type { BaseError } from '@/types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Remote]', ...args)
@@ -60,7 +60,22 @@ export class BleRemote {
     wx.onBluetoothDeviceFound((res) => {
       // console.log('onBluetoothDeviceFound', res)
       if (res.devices !== undefined) {
-        onFound(res.devices.sort((a, b) => b.RSSI - a.RSSI).filter(device => !!device.name))
+        onFound(
+          res.devices
+            .filter((device) => {
+              if (!device.name) {
+                return false
+              }
+              if (device.advertisServiceUUIDs?.length !== 1) {
+                return false
+              }
+              if (!device.advertisServiceUUIDs[0].startsWith('19970329-')) {
+                return false
+              }
+              return true
+            })
+            .sort((a, b) => b.RSSI - a.RSSI)
+        )
       }
     })
   }
@@ -73,36 +88,36 @@ export class BleRemote {
   /** 连接到某一个 Screen 设备 */
   public async connectDevice(deviceId: string): Promise<void> {
     appState.setConnectStatus(ConnectStatus.Connecting)
-    wx.showLoading({
-      title: '连接中',
-    })
-    await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
-      _toastError(e, '连接设备失败')
-      wx.hideLoading()
-      throw e
-    })
-    appState.setConnectStatus(ConnectStatus.Connected)
-    _log('createBLEConnection success')
-    const servicesRes = await wx.getBLEDeviceServices({ deviceId })
-    _log('getBLEDeviceServices success', servicesRes.services)
-    const characteristicRes = await wx.getBLEDeviceCharacteristics({
-      deviceId,
-      serviceId: 'MayScreenServiceUuid',
-    })
-    _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    wx.hideLoading()
-    // set MTU when connected
-    wx.setBLEMTU({
-      deviceId,
-      mtu: 512,
-      success: () => {
-        _log('setBLEMTU success')
-        this._mtu = 512
-      },
-      fail: (err) => {
-        _logError('setBLEMTU fail', err)
-      },
-    })
+    // wx.showLoading({
+    //   title: '连接中',
+    // })
+    // await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
+    //   _toastError(e, '连接设备失败')
+    //   // wx.hideLoading()
+    //   throw e
+    // })
+    // appState.setConnectStatus(ConnectStatus.Connected)
+    // _log('createBLEConnection success')
+    // const servicesRes = await wx.getBLEDeviceServices({ deviceId })
+    // _log('getBLEDeviceServices success', servicesRes.services)
+    // const characteristicRes = await wx.getBLEDeviceCharacteristics({
+    //   deviceId,
+    //   serviceId: 'MayScreenServiceUuid',
+    // })
+    // _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
+    // // wx.hideLoading()
+    // // set MTU when connected
+    // wx.setBLEMTU({
+    //   deviceId,
+    //   mtu: 512,
+    //   success: () => {
+    //     _log('setBLEMTU success')
+    //     this._mtu = 512
+    //   },
+    //   fail: (err) => {
+    //     _logError('setBLEMTU fail', err)
+    //   },
+    // })
   }
 
   /** 断开与 Screen 设备的连接 */
@@ -115,19 +130,19 @@ export class BleRemote {
 
   /** 延迟函数 */
   private _delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+    return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
   /** 发送单个数据包，带重试机制 */
   private async _sendChunk(
-    deviceId: string, 
-    chunk: ArrayBuffer, 
-    chunkIndex: number, 
+    deviceId: string,
+    chunk: ArrayBuffer,
+    chunkIndex: number,
     totalChunks: number,
     maxRetries: number = 3
   ): Promise<void> {
     let retryCount = 0
-    
+
     while (retryCount <= maxRetries) {
       try {
         await wx.writeBLECharacteristicValue({
@@ -160,7 +175,7 @@ export class BleRemote {
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
       // 发送当前包（包含重试机制）
-      await this._sendChunk(deviceId, chunk, i, chunks.length)      
+      await this._sendChunk(deviceId, chunk, i, chunks.length)
       // 如果不是最后一个包，延迟100毫秒后发送下一个包
       if (i < chunks.length - 1) {
         await this._delay(100)
