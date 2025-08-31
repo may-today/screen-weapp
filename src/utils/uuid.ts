@@ -75,6 +75,7 @@ export const generateServiceUuid = (): string => {
 }
 
 export const getDeviceInfoFromUuid = (uuid: string): {
+  serviceUuid: string
   device: ScreenDevice
   system: ScreenSystem
   screenMax: number
@@ -117,9 +118,17 @@ export const getDeviceInfoFromUuid = (uuid: string): {
   // 将16进制的屏幕尺寸转换为10进制
   const screenMaxNum = parseInt(screenMax, 16)
   const screenMinNum = parseInt(screenMin, 16)
-  const displayName = [systemDisplayName, deviceDisplayName].filter(Boolean).join(' ')
-  
+  let displayName = [systemDisplayName, deviceDisplayName].filter(Boolean).join(' ')
+  if (systemType === ScreenSystem.iOS && deviceType === ScreenDevice.Phone) {
+    displayName = 'iPhone' 
+  } else if (systemType === ScreenSystem.iOS && deviceType === ScreenDevice.Pad) {
+    displayName = 'iPad'
+  } else if (systemType === ScreenSystem.Mac && deviceType === ScreenDevice.Computer) {
+    displayName = 'Mac'
+  }
+
   return {
+    serviceUuid: uuid,
     device: deviceType as ScreenDevice,
     system: systemType as ScreenSystem,
     screenMax: screenMaxNum,

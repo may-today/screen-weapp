@@ -21,7 +21,6 @@ Page({
   // 开始扫描
   startSearchDevices() {
     this.state.bleInstance.startScanning((deviceList) => {
-      console.log('startScanning', deviceList)
       this.setData({
         deviceList,
       })

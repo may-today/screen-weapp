@@ -1,0 +1,6 @@
+<view
+  class="w-full px-6 py-4 bg-primary text-white rounded-full text-center"
+  hover-class="bg-primary/90"
+>
+  <slot />
+</view>

@@ -1,29 +1,36 @@
-import { ComponentWithStore } from 'mobx-miniprogram-bindings'
+import { ComponentWithComputed } from 'miniprogram-computed'
 import { appState } from '@/stores/appState'
 
 type Data = {
   list: WechatMiniprogram.BlueToothDevice[]
+  // connectingDevice: WechatMiniprogram.BlueToothDevice | null
+  connectingDeviceId: string | null
 }
 
-ComponentWithStore({
+ComponentWithComputed({
+  options: {
+    pureDataPattern: /^_/,
+  },
   properties: {
     list: {
       type: Array,
       value: <Data['list']>[],
     },
   },
-  data: <Data>{},
-  storeBindings: {
-    store: appState,
-    fields: ['deviceId'] as const,
-    actions: ['setDeviceId'] as const,
-    // actions: {
-    //   buttonTap: 'update',
-    // } as const,
+  computed: {
+    connectingDevice(data): WechatMiniprogram.BlueToothDevice | null {
+      if (!data.connectingDeviceId) return null
+      const device = data.list.find(item => item.deviceId === data.connectingDeviceId)
+      return device || null
+    },
   },
+  data: <Data>{},
   methods: {
-    handleButtonTap() {
-      this.setDeviceId('aaaaaaa')
+    handleSelectItem(e: WechatMiniprogram.CustomEvent<{ deviceId: string }>) {
+      this.setData({
+        connectingDeviceId: e.detail.deviceId,
+      })
+      appState.setShowConnectPanel(true)
     },
   },
 })

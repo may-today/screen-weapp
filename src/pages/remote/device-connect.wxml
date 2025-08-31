@@ -10,4 +10,3 @@
 <scroll-view scroll-y enable-back-to-top class="flex-1 overflow-hidden">
   <device-list list="{{deviceList}}" />
 </scroll-view>
-<connect-panel />

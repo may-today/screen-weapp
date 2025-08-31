@@ -1,0 +1,14 @@
+<page-container show="{{show}}" overlay round position="bottom" bind:afterleave="handleAfterLeave" custom-style="{{customStyle}}">
+  <view class="h-full w-full flex flex-col bg-card pb-[env(safe-area-inset-bottom)]">
+    <view class="flex flex-row items-center justify-between px-6 h-16">
+      <text class="flex-1 text-lg font-medium" overflow="ellipsis">{{ title }}</text>
+      <view
+        class="flex-shrink-0 flex items-center justify-center size-10 rounded-full bg-neutral-100 dark:bg-neutral-700/30"
+        bind:tap="handleCloseButtonTap"
+      >
+        <view class="i-lucide-x text-base" />
+      </view>
+    </view>
+    <slot />
+  </view>
+</page-container>

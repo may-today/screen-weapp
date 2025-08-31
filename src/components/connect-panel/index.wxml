@@ -1,12 +1,20 @@
-<page-container 
-  show="{{showConnectPanel}}"
-  overlay
-  round
-  position="bottom"
-  bind:afterleave="handleAfterLeave"
-  custom-style="height: 60%"
->
-  <view class="h-full flex flex-col p-4 bg-card">
-    <button bind:tap="handleCloseButtonTap">推出</button>
+<m-dialog show="{{showConnectPanel}}" custom-style="height: 72%" bind:close="handleDialogClose" title="连接到 {{ device.name }}">
+  <view hidden="{{ !!parsedDeviceInfo }}" class="flex-1">
+    <template is="no-device" />
   </view>
-</page-container>
+  <view hidden="{{ !parsedDeviceInfo }}" class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+    <view class="flex-1 w-full border border-border p-8">
+      <image src="../../assets/device-{{ parsedDeviceInfo.device }}.png" class="h-full w-full" mode="aspectFit" />
+    </view>
+    <view class="flex flex-row items-center gap-1.5 text-sm">
+      <signal-icon rssi="{{ device.RSSI }}" />
+      <text class="text-muted-foreground text-xs">{{ parsedDeviceInfo.displayName }}</text>
+    </view>
+    <m-button class="w-full mt-4" bind:tap="handleClickConnectButton">连接</m-button>
+  </view>
+</m-dialog>
+<template name="no-device">
+  <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+    <text class="text-muted-foreground text-xs">未找到设备信息</text>
+  </view>
+</template>

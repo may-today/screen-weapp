@@ -8,6 +8,7 @@
   --color-border: hsl(0 0% 89.8%);
   --color-muted: hsl(0 0% 96.1%);
   --color-muted-foreground: hsl(0 0% 45.1%);
+  --color-primary: #171717;
 }
 
 @layer theme {
@@ -17,6 +18,7 @@
       --color-border: hsl(0 0% 14.9%);
       --color-muted: hsl(0 0% 14.9%);
       --color-muted-foreground: hsl(0 0% 63.9%);
+      --color-primary: #e5e5e5;
     }
   }
 }

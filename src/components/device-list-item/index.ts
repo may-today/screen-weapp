@@ -5,12 +5,11 @@ import { getDeviceInfoFromUuid } from '@/utils/uuid'
 
 type Data = {
   device: WechatMiniprogram.BlueToothDevice
-  _bleInstance: BleRemote
 }
 
 ComponentWithComputed({
   options: {
-    pureDataPattern: /^_/
+    pureDataPattern: /^_/,
   },
   properties: {
     device: {
@@ -18,9 +17,7 @@ ComponentWithComputed({
       value: {},
     },
   },
-  data: <Data>{
-    _bleInstance: getApp().globalData.bleRemote as BleRemote,
-  },
+  data: <Data>{},
   computed: {
     parsedDeviceInfo(data): ReturnType<typeof getDeviceInfoFromUuid> {
       if (data.device?.advertisServiceUUIDs?.length === 1) {
@@ -31,15 +28,10 @@ ComponentWithComputed({
     },
   },
   methods: {
-    handleClickConnectButton(e: WechatMiniprogram.CustomEvent<{ deviceId: string }>) {
-      const deviceId = e.currentTarget.dataset?.deviceId
-      if (!deviceId) {
-        return
-      }
-
+    handleClickConnectButton(e: WechatMiniprogram.CustomEvent) {
       // const bleInstance = getApp().globalData.bleRemote as BleRemote
       // bleInstance.connectDevice(deviceId)
-      appState.setShowConnectPanel(true)
+      this.triggerEvent('select', { deviceId: this.data.device.deviceId })
     },
   },
 })
