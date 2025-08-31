@@ -1,7 +1,7 @@
-import { appState, ConnectStatus } from '@/stores/appState'
+import { appState } from '@/stores/appState'
 import { openBluetoothAdapter, MayScreenCharacteristicUuid } from './ble'
 import { toChunks } from './packet'
-import type { BaseError } from '@/types'
+import { type BaseError, ConnectStatus } from '@/types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Remote]', ...args)
@@ -91,33 +91,36 @@ export class BleRemote {
     // wx.showLoading({
     //   title: '连接中',
     // })
-    // await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
-    //   _toastError(e, '连接设备失败')
-    //   // wx.hideLoading()
-    //   throw e
-    // })
-    // appState.setConnectStatus(ConnectStatus.Connected)
-    // _log('createBLEConnection success')
-    // const servicesRes = await wx.getBLEDeviceServices({ deviceId })
-    // _log('getBLEDeviceServices success', servicesRes.services)
-    // const characteristicRes = await wx.getBLEDeviceCharacteristics({
-    //   deviceId,
-    //   serviceId: 'MayScreenServiceUuid',
-    // })
-    // _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    // // wx.hideLoading()
-    // // set MTU when connected
-    // wx.setBLEMTU({
-    //   deviceId,
-    //   mtu: 512,
-    //   success: () => {
-    //     _log('setBLEMTU success')
-    //     this._mtu = 512
-    //   },
-    //   fail: (err) => {
-    //     _logError('setBLEMTU fail', err)
-    //   },
-    // })
+    await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
+      _toastError(e, '连接设备失败')
+      // wx.hideLoading()
+      throw e
+    })
+    appState.setConnectStatus(ConnectStatus.Authorizing)
+    // TODO: 授权流程，需要在 Screen 端确认授权
+    await this._delay(3000)
+    appState.setConnectStatus(ConnectStatus.Connected)
+    _log('createBLEConnection success')
+    const servicesRes = await wx.getBLEDeviceServices({ deviceId })
+    _log('getBLEDeviceServices success', servicesRes.services)
+    const characteristicRes = await wx.getBLEDeviceCharacteristics({
+      deviceId,
+      serviceId: 'MayScreenServiceUuid',
+    })
+    _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
+    // wx.hideLoading()
+    // set MTU when connected
+    wx.setBLEMTU({
+      deviceId,
+      mtu: 512,
+      success: () => {
+        _log('setBLEMTU success')
+        this._mtu = 512
+      },
+      fail: (err) => {
+        _logError('setBLEMTU fail', err)
+      },
+    })
   }
 
   /** 断开与 Screen 设备的连接 */

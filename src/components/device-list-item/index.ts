@@ -1,6 +1,4 @@
 import { ComponentWithComputed } from 'miniprogram-computed'
-import type { BleRemote } from '@/utils/bleRemote'
-import { appState } from '@/stores/appState'
 import { getDeviceInfoFromUuid } from '@/utils/uuid'
 
 type Data = {
@@ -29,8 +27,6 @@ ComponentWithComputed({
   },
   methods: {
     handleClickConnectButton(e: WechatMiniprogram.CustomEvent) {
-      // const bleInstance = getApp().globalData.bleRemote as BleRemote
-      // bleInstance.connectDevice(deviceId)
       this.triggerEvent('select', { deviceId: this.data.device.deviceId })
     },
   },

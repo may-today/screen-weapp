@@ -1,17 +1,38 @@
 <m-dialog show="{{showConnectPanel}}" custom-style="height: 72%" bind:close="handleDialogClose" title="连接到 {{ device.name }}">
-  <view hidden="{{ !!parsedDeviceInfo }}" class="flex-1">
-    <template is="no-device" />
-  </view>
-  <view hidden="{{ !parsedDeviceInfo }}" class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
-    <view class="flex-1 w-full border border-border p-8">
-      <image src="../../assets/device-{{ parsedDeviceInfo.device }}.png" class="h-full w-full" mode="aspectFit" />
+  <!-- ConnectStatus.Disconnected -->
+  <block wx:if="{{ connectStatus === 0 }}">
+    <view hidden="{{ !!parsedDeviceInfo }}" class="flex-1">
+      <template is="no-device" />
     </view>
-    <view class="flex flex-row items-center gap-1.5 text-sm">
-      <signal-icon rssi="{{ device.RSSI }}" />
-      <text class="text-muted-foreground text-xs">{{ parsedDeviceInfo.displayName }}</text>
+    <view hidden="{{ !parsedDeviceInfo }}" class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+      <view class="flex-1 w-full border border-border p-8">
+        <image src="../../assets/device-{{ parsedDeviceInfo.device }}.png" class="h-full w-full" mode="aspectFit" />
+      </view>
+      <view class="flex flex-row items-center gap-1.5 text-sm">
+        <signal-icon rssi="{{ device.RSSI }}" />
+        <text class="text-muted-foreground text-xs">{{ parsedDeviceInfo.displayName }}</text>
+      </view>
+      <m-button class="w-full mt-4" bind:tap="handleClickConnectButton">连接</m-button>
     </view>
-    <m-button class="w-full mt-4" bind:tap="handleClickConnectButton">连接</m-button>
-  </view>
+  </block>
+  <!-- ConnectStatus.Connecting -->
+  <block wx:if="{{ connectStatus === 1 }}">
+    <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+      <text class="text-muted-foreground text-xs">连接中...</text>
+    </view>
+  </block>
+  <!-- ConnectStatus.Authorizing -->
+  <block wx:if="{{ connectStatus === 2 }}">
+    <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+      <text class="text-muted-foreground text-xs">授权中...</text>
+    </view>
+  </block>
+  <!-- ConnectStatus.Connected -->
+  <block wx:if="{{ connectStatus === 3 }}">
+    <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
+      <text class="text-muted-foreground text-xs">已连接</text>
+    </view>
+  </block>
 </m-dialog>
 <template name="no-device">
   <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">

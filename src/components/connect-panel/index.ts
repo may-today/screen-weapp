@@ -1,6 +1,7 @@
 import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { appState } from '@/stores/appState'
 import { getDeviceInfoFromUuid } from '@/utils/uuid'
+import type { BleRemote } from '@/utils/bleRemote'
 
 type Data = {
   device: WechatMiniprogram.BlueToothDevice | null
@@ -36,7 +37,7 @@ ComponentWithStore({
   },
   storeBindings: {
     store: appState,
-    fields: ['showConnectPanel'] as const,
+    fields: ['showConnectPanel', 'connectStatus'] as const,
     actions: ['setShowConnectPanel'] as const,
     // actions: {
     //   buttonTap: 'update',
@@ -47,7 +48,9 @@ ComponentWithStore({
       this.setShowConnectPanel(false)
     },
     handleClickConnectButton() {
-      this.setShowConnectPanel(false)
+      if (!this.data.device) return
+      const bleInstance = getApp().globalData.bleRemote as BleRemote
+      bleInstance.connectDevice(this.data.device.deviceId)
     },
   },
 })

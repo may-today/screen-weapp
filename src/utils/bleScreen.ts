@@ -1,7 +1,8 @@
-import { appState, ConnectStatus } from '@/stores/appState'
+import { appState } from '@/stores/appState'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
 import { reassemble, parsePacket } from './packet'
 import { generateServiceUuid } from './uuid'
+import { ConnectStatus } from '@/types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Screen]', ...args)

@@ -1,10 +1,5 @@
 import { makeAutoObservable } from 'mobx-miniprogram'
-
-export enum ConnectStatus {
-  Disconnected = 0,
-  Connecting,
-  Connected,
-}
+import { ConnectStatus } from '@/types'
 
 export class AppState {
   connectStatus = ConnectStatus.Disconnected

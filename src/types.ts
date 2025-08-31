@@ -7,6 +7,13 @@ export type BaseError = {
   errno?: number
 }
 
+export enum ConnectStatus {
+  Disconnected = 0,
+  Connecting,
+  Authorizing,
+  Connected,
+}
+
 export enum ScreenDevice {
   Phone = 1,
   Pad = 2,
