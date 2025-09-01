@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx-miniprogram'
 import { ConnectStatus } from '@/types'
 
-export class AppState {
+export class AppStateStore {
   connectStatus = ConnectStatus.Disconnected
   connected = false
   deviceId = ''
@@ -26,24 +26,4 @@ export class AppState {
   }
 }
 
-export const appState = new AppState()
-
-// export const appStateStore = observable({
-//   connected: false,
-//   deviceId: '',
-
-//   // 计算属性
-//   // get sum() {
-//   //   return this.deviceId
-//   // },
-
-//   // actions
-//   // update: action(function () {
-//   //   const sum = this.sum
-//   //   this.numA = this.numB
-//   //   this.numB = sum
-//   // }),
-//   setDeviceId: action((deviceId: string) => {
-//     appStateStore.deviceId = deviceId
-//   }),
-// })
+export const appState = new AppStateStore()
