@@ -26,6 +26,13 @@ Page({
       })
     })
   },
+  async handleConnectSuccess() {
+    await this.state.bleInstance.stopScanning()
+    wx.navigateBack()
+    // wx.switchTab({
+    //   url: '/pages/remote/playing',
+    // })
+  },
   // async getBLEDeviceCharacteristics(deviceId: string, serviceId: string) {
   //   const res = await wx.getBLEDeviceCharacteristics({
   //     deviceId,

@@ -29,9 +29,10 @@
   </block>
   <!-- ConnectStatus.Connected -->
   <block wx:if="{{ connectStatus === 3 }}">
-    <view class="flex-1 flex flex-col items-center justify-center gap-3 px-6 py-4">
-      <text class="text-muted-foreground text-xs">已连接</text>
-    </view>
+      <view class="flex flex-row items-center gap-1.5 text-sm">
+        <text class="text-muted-foreground text-xs">已连接</text>
+      </view>
+      <m-button class="w-full mt-4" bind:tap="handleClickConfirmButton">去使用</m-button>
   </block>
 </m-dialog>
 <template name="no-device">

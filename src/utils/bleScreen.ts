@@ -69,17 +69,25 @@ export class BleScreen {
           uuid: options.uuid,
           characteristics: [
             {
-              uuid: MayScreenCharacteristicUuid.songId,
+              uuid: MayScreenCharacteristicUuid.read,
               properties: {
                 read: true,
-                write: true,
                 notify: true,
               },
               permission: {
                 readable: true,
-                writeable: true,
               },
               value: buffer,
+            },
+            {
+              uuid: MayScreenCharacteristicUuid.write,
+              properties: {
+                write: true,
+                writeNoResponse: true,
+              },
+              permission: {
+                writeable: true,
+              },
             },
           ],
         },

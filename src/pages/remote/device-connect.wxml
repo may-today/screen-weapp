@@ -8,5 +8,5 @@
   </view>
 </view>
 <scroll-view scroll-y enable-back-to-top class="flex-1 overflow-hidden">
-  <device-list list="{{deviceList}}" />
+  <device-list list="{{deviceList}}" bind:connect="handleConnectSuccess" />
 </scroll-view>

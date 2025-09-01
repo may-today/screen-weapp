@@ -7,4 +7,4 @@
     bind:select="handleSelectItem"
   />
 </view>
-<connect-panel device="{{connectingDevice}}" />
+<connect-panel device="{{connectingDevice}}" bind:connect="handleConnectSuccess" />

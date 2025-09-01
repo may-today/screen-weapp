@@ -52,5 +52,11 @@ ComponentWithStore({
       const bleInstance = getApp().globalData.bleRemote as BleRemote
       bleInstance.connectDevice(this.data.device.deviceId)
     },
+    async handleClickConfirmButton() {
+      this.setShowConnectPanel(false)
+      setTimeout(() => {
+        this.triggerEvent('connect')
+      }, 200)
+    },
   },
 })

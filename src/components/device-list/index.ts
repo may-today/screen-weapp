@@ -32,5 +32,8 @@ ComponentWithComputed({
       })
       appState.setShowConnectPanel(true)
     },
+    handleConnectSuccess() {
+      this.triggerEvent('connect')
+    },
   },
 })

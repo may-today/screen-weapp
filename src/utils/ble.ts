@@ -1,5 +1,7 @@
 export const MayScreenCharacteristicUuid = {
   songId: '00001001-1000-1000-8000-00805F9B34FB',
+  read: '00001001-1000-1000-8000-00805F9B34FB',
+  write: '00001002-1000-1000-8000-00805F9B34FB',
 }
 
 export const openBluetoothAdapter = async (mode: 'central' | 'peripheral') => {
