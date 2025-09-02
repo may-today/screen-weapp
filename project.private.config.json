@@ -23,11 +23,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/remote/device-connect",
-          "pathName": "pages/remote/device-connect",
+          "name": "pages/screen/screen",
+          "pathName": "pages/screen/screen",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/remote/device-connect",
+          "pathName": "pages/remote/device-connect",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         }
       ]
     }
