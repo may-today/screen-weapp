@@ -8,7 +8,6 @@ Page({
     bleInstance: getApp().globalData.bleRemote as BleRemote,
   },
   async onLoad() {
-    // wx.showNavigationBarLoading()
     await this.state.bleInstance.prepare()
     this.startSearchDevices()
   },
@@ -21,17 +20,14 @@ Page({
   // 开始扫描
   startSearchDevices() {
     this.state.bleInstance.startScanning((deviceList) => {
+      console.log('deviceList', deviceList)
       this.setData({
         deviceList,
       })
     })
   },
   async handleConnectSuccess() {
-    await this.state.bleInstance.stopScanning()
     wx.navigateBack()
-    // wx.switchTab({
-    //   url: '/pages/remote/playing',
-    // })
   },
   // async getBLEDeviceCharacteristics(deviceId: string, serviceId: string) {
   //   const res = await wx.getBLEDeviceCharacteristics({
@@ -87,7 +83,7 @@ Page({
   //   //   this.setData(data)
   //   // })
   // },
-  // handleSendData() {
-  //   this.state.bleInstance.sendData(this.data.deviceId, '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
+  // handleSendLargeData() {
+  //   this.state.bleInstance.sendLargeData(this.data.deviceId, '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
   // },
 })

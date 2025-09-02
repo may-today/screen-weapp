@@ -1,8 +1,8 @@
 import { appState } from '@/stores/appState'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
-import { reassemble, parsePacket } from './packet'
+import { reassembleLargeData, parseLargeDataPacket, parseShortPacket, shortCommandToPacket } from './packet'
 import { generateServiceUuid } from './uuid'
-import { ConnectStatus } from '@/types'
+import { type BaseError, Command, ConnectStatus } from '@/types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Screen]', ...args)
@@ -12,12 +12,27 @@ const _logError = (...args: any[]) => {
   console.error('[BLE:Screen]', ...args)
 }
 
+const _toastError = (err: BaseError, message: string) => {
+  const codePrefix = err?.errCode ? `[${err.errCode}] ` : ''
+  const errnoSuffix = err?.errno ? ` (errno: ${err.errno})` : ''
+  const title = `${codePrefix}${message}${errnoSuffix}`
+  _logError(title, err)
+  wx.showToast({
+    title,
+    icon: 'none',
+  })
+}
+
+/** BLE Screen，指令接收端 */
 export class BleScreen {
   private static _instance: BleScreen | null = null
   private _server: WechatMiniprogram.BLEPeripheralServer | null = null
   private _isAdvertising: boolean = false
-  private _chunkBuffer: Map<string, ArrayBuffer[]> = new Map() // 缓冲区，key为sessionId，value为chunks数组
+  /** 缓冲区，key为sessionId，value为chunks数组 */
+  private _chunkBuffer: Map<string, ArrayBuffer[]> = new Map()
   private _serviceUuid: string = ''
+  private _mtu: number = 20
+  private _remoteDeviceId: string = ''
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -28,7 +43,6 @@ export class BleScreen {
 
   public destroy() {
     wx.closeBluetoothAdapter()
-    // 清理缓冲区
     this._chunkBuffer.clear()
     BleScreen._instance = null
     _log('destroy')
@@ -52,7 +66,7 @@ export class BleScreen {
     this._bindConnectionListeners()
   }
 
-  /** 为服务创建 Service 和 Characteristics */
+  /** 为服务创建 Service */
   private async _prepareService(
     server: WechatMiniprogram.BLEPeripheralServer,
     options: {
@@ -69,7 +83,29 @@ export class BleScreen {
           uuid: options.uuid,
           characteristics: [
             {
+              uuid: MayScreenCharacteristicUuid.status,
+              properties: {
+                read: true,
+                notify: true,
+              },
+              permission: {
+                readable: true,
+              },
+              value: buffer,
+            },
+            {
               uuid: MayScreenCharacteristicUuid.read,
+              properties: {
+                read: true,
+                notify: true,
+              },
+              permission: {
+                readable: true,
+              },
+              value: buffer,
+            },
+            {
+              uuid: MayScreenCharacteristicUuid.readLarge,
               properties: {
                 read: true,
                 notify: true,
@@ -88,6 +124,18 @@ export class BleScreen {
               permission: {
                 writeable: true,
               },
+              value: buffer,
+            },
+            {
+              uuid: MayScreenCharacteristicUuid.writeLarge,
+              properties: {
+                write: true,
+                writeNoResponse: true,
+              },
+              permission: {
+                writeable: true,
+              },
+              value: buffer,
             },
           ],
         },
@@ -106,55 +154,16 @@ export class BleScreen {
   /** 为 Service 绑定监听器 */
   private async _bindServiceListeners(server: WechatMiniprogram.BLEPeripheralServer): Promise<void> {
     server.onCharacteristicWriteRequest((res) => {
-      const info = parsePacket(res.value)
-      _log(`总包数=${info.totalPackets}, 当前包=${info.currentIndex}, 数据="${info.dataString}"`)
-
-      // 使用sessionId来区分不同的传输会话，这里简单使用totalPackets作为sessionId
-      // 在实际应用中，可能需要更复杂的sessionId生成策略
-      const sessionId = `${info.totalPackets}`
-
-      // 如果是第一个包，初始化缓冲区
-      if (info.currentIndex === 0) {
-        this._chunkBuffer.set(sessionId, [])
-        _log(`开始新的传输会话: ${sessionId}`)
-      }
-
-      // 查找对应的缓冲区（如果当前包不是第一个包，需要找到对应的session）
-      let targetSessionId = sessionId
-      if (info.currentIndex > 0) {
-        // 查找匹配的session（根据totalPackets匹配）
-        for (const [sid, chunks] of this._chunkBuffer.entries()) {
-          if (sid === sessionId && chunks.length === info.currentIndex) {
-            targetSessionId = sid
-            break
-          }
-        }
-      }
-
-      // 将当前包添加到缓冲区
-      const chunks = this._chunkBuffer.get(targetSessionId) || []
-      chunks.push(res.value)
-      this._chunkBuffer.set(targetSessionId, chunks)
-
-      _log(`已接收包 ${info.currentIndex + 1}/${info.totalPackets}`)
-
-      // 检查是否接收完所有包
-      if (chunks.length === info.totalPackets) {
-        try {
-          // 重组完整数据
-          const completeData = reassemble(chunks)
-          _log('========== 完整数据接收完成 ==========')
-          _log('重组后的完整数据:', completeData)
-          _log('=====================================')
-
-          // 清理缓冲区
-          this._chunkBuffer.delete(targetSessionId)
-          _log(`传输会话 ${targetSessionId} 完成，已清理缓冲区`)
-        } catch (error) {
-          _logError('重组数据失败:', error)
-          // 清理失败的缓冲区
-          this._chunkBuffer.delete(targetSessionId)
-        }
+      if (res.characteristicId === MayScreenCharacteristicUuid.write) {
+        // 短指令
+        const commandDetail = parseShortPacket(res.value)
+        _log(`receiveCommand: ${Command[commandDetail.command] || 'unknown'} (${commandDetail.payload || null})`)
+      } else if (res.characteristicId === MayScreenCharacteristicUuid.writeLarge) {
+        // 长数据
+        this._handleParseLargeData(res.value)
+      } else {
+        _logError('unknown characteristicId', res.characteristicId)
+        return
       }
 
       // 响应客户端
@@ -206,6 +215,63 @@ export class BleScreen {
         appState.setConnectStatus(ConnectStatus.Disconnected)
       }
     })
+    wx.onBLEMTUChange((res) => {
+      _log(`setBLEMTU success (mtu=${res.mtu})`)
+      this._mtu = res.mtu
+    })
+  }
+
+  private async _handleParseLargeData(data: ArrayBuffer): Promise<void> {
+    const info = parseLargeDataPacket(data)
+    _log(`总包数=${info.totalPackets}, 当前包=${info.currentIndex}, 数据="${info.dataString}"`)
+
+    // 使用sessionId来区分不同的传输会话，这里简单使用totalPackets作为sessionId
+    // 在实际应用中，可能需要更复杂的sessionId生成策略
+    const sessionId = `${info.totalPackets}`
+
+    // 如果是第一个包，初始化缓冲区
+    if (info.currentIndex === 0) {
+      this._chunkBuffer.set(sessionId, [])
+      _log(`开始新的传输会话: ${sessionId}`)
+    }
+
+    // 查找对应的缓冲区（如果当前包不是第一个包，需要找到对应的session）
+    let targetSessionId = sessionId
+    if (info.currentIndex > 0) {
+      // 查找匹配的session（根据totalPackets匹配）
+      for (const [sid, chunks] of this._chunkBuffer.entries()) {
+        if (sid === sessionId && chunks.length === info.currentIndex) {
+          targetSessionId = sid
+          break
+        }
+      }
+    }
+
+    // 将当前包添加到缓冲区
+    const chunks = this._chunkBuffer.get(targetSessionId) || []
+    chunks.push(data)
+    this._chunkBuffer.set(targetSessionId, chunks)
+
+    _log(`已接收包 ${info.currentIndex + 1}/${info.totalPackets}`)
+
+    // 检查是否接收完所有包
+    if (chunks.length === info.totalPackets) {
+      try {
+        // 重组完整数据
+        const completeData = reassembleLargeData(chunks)
+        _log('========== 完整数据接收完成 ==========')
+        _log('重组后的完整数据:', completeData)
+        _log('=====================================')
+
+        // 清理缓冲区
+        this._chunkBuffer.delete(targetSessionId)
+        _log(`传输会话 ${targetSessionId} 完成，已清理缓冲区`)
+      } catch (error) {
+        _logError('重组数据失败:', error)
+        // 清理失败的缓冲区
+        this._chunkBuffer.delete(targetSessionId)
+      }
+    }
   }
 
   /** 开始广播，此时遥控器可以搜索到该设备 */
@@ -222,7 +288,7 @@ export class BleScreen {
       this._server.startAdvertising({
         advertiseRequest: {
           connectable: true,
-          deviceName: 'MayScreen1234567890',
+          deviceName: 'MAYSCRN',
           serviceUuids: [this._serviceUuid],
         },
         success: () => {
@@ -261,7 +327,47 @@ export class BleScreen {
     })
   }
 
-  public async connectDevice(deviceId: string) {
-    await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {})
+  /** 延迟函数 */
+  private _delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+  }
+
+  /** 发送单个数据包，带重试机制 */
+  private async _sendChunk(
+    deviceId: string,
+    chunk: ArrayBuffer,
+    maxRetries: number = 3,
+  ): Promise<void> {
+    let retryCount = 0
+
+    while (retryCount <= maxRetries) {
+      try {
+        await wx.writeBLECharacteristicValue({
+          deviceId,
+          serviceId: this._serviceUuid,
+          characteristicId: MayScreenCharacteristicUuid.read,
+          writeType: 'write',
+          value: chunk,
+        })
+        return // 发送成功，退出重试循环
+      } catch (err) {
+        retryCount++
+        if (retryCount > maxRetries) {
+          _logError(`包发送失败，已重试 ${maxRetries} 次`, err)
+          _toastError(err as any, `发送数据包失败`)
+          throw err // 重新抛出错误，终止整个发送过程
+        } else {
+          _log(`包发送失败，正在重试第 ${retryCount} 次...`)
+          await this._delay(100) // 重试前延迟100ms
+        }
+      }
+    }
+  }
+
+  /** 发送短指令 */
+  public async sendCommand(deviceId: string, command: Command, payload: string): Promise<void> {
+    const chunks = shortCommandToPacket(command, payload)
+    _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
+    await this._sendChunk(deviceId, chunks)
   }
 }

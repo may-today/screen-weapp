@@ -1,7 +1,8 @@
 import { appState } from '@/stores/appState'
 import { openBluetoothAdapter, MayScreenCharacteristicUuid } from './ble'
-import { toChunks } from './packet'
-import { type BaseError, ConnectStatus } from '@/types'
+import { largeDataToChunks, shortCommandToPacket } from './packet'
+import { getDeviceInfoFromUuid } from './uuid'
+import { type BaseError, ConnectStatus, Command, ScreenSystem } from '@/types'
 
 const _log = (...args: any[]) => {
   console.log('[BLE:Remote]', ...args)
@@ -22,10 +23,13 @@ const _toastError = (err: BaseError, message: string) => {
   })
 }
 
+/** BLE Remote，指令发送端 */
 export class BleRemote {
   private static _instance: BleRemote | null = null
-  private active = false
+  private _screenDeviceId: string = ''
+  private _screenServiceUuid: string = ''
   private _mtu: number = 20
+
   public static getInstance(): BleRemote {
     if (!BleRemote._instance) {
       BleRemote._instance = new BleRemote()
@@ -40,10 +44,6 @@ export class BleRemote {
   }
 
   public async prepare(): Promise<void> {
-    if (this.active) {
-      return
-    }
-    this.active = true
     await openBluetoothAdapter('central')
   }
 
@@ -87,40 +87,52 @@ export class BleRemote {
 
   /** 连接到某一个 Screen 设备 */
   public async connectDevice(deviceId: string): Promise<void> {
+    // 阶段1. 建立连接
     appState.setConnectStatus(ConnectStatus.Connecting)
-    // wx.showLoading({
-    //   title: '连接中',
-    // })
     await wx.createBLEConnection({ deviceId, timeout: 10000 }).catch(async (e) => {
       _toastError(e, '连接设备失败')
       // wx.hideLoading()
       throw e
     })
+    _log('createBLEConnection success')
+
+    // 阶段2. 前期数据交换、授权阶段
     appState.setConnectStatus(ConnectStatus.Authorizing)
     // TODO: 授权流程，需要在 Screen 端确认授权
-    await this._delay(3000)
-    appState.setConnectStatus(ConnectStatus.Connected)
-    _log('createBLEConnection success')
     const servicesRes = await wx.getBLEDeviceServices({ deviceId })
     _log('getBLEDeviceServices success', servicesRes.services)
+    const serviceUuid = servicesRes.services.find((service) => service.uuid.startsWith('19970329-'))?.uuid
+    if (!serviceUuid) {
+      throw new Error('服务UUID不存在')
+    }
+    _log(`screen serviceUuid: ${serviceUuid}`)
+    const deviceInfo = getDeviceInfoFromUuid(serviceUuid)
+    _log(`screen deviceInfo: ${JSON.stringify(deviceInfo)}`)
+    this._screenServiceUuid = serviceUuid
+    this._screenDeviceId = deviceId
     const characteristicRes = await wx.getBLEDeviceCharacteristics({
       deviceId,
-      serviceId: 'MayScreenServiceUuid',
+      serviceId: serviceUuid,
     })
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    // wx.hideLoading()
-    // set MTU when connected
-    wx.setBLEMTU({
-      deviceId,
-      mtu: 512,
-      success: () => {
-        _log('setBLEMTU success')
-        this._mtu = 512
-      },
-      fail: (err) => {
-        _logError('setBLEMTU fail', err)
-      },
-    })
+    await this._delay(3000)
+
+    // 阶段3. 连接成功、设置 MTU
+    appState.setConnectStatus(ConnectStatus.Connected)
+    if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {
+      _log(`setBLEMTU begin`)
+      wx.setBLEMTU({
+        deviceId,
+        mtu: 512,
+        success: () => {
+          _log(`setBLEMTU success (mtu=512)`)
+          this._mtu = 512
+        },
+        fail: (err) => {
+          _logError('setBLEMTU fail', err)
+        },
+      })
+    }
   }
 
   /** 断开与 Screen 设备的连接 */
@@ -140,9 +152,12 @@ export class BleRemote {
   private async _sendChunk(
     deviceId: string,
     chunk: ArrayBuffer,
-    chunkIndex: number,
-    totalChunks: number,
-    maxRetries: number = 3
+    maxRetries: number = 3,
+    options: {
+      largeData?: boolean
+    } = {
+      largeData: false,
+    }
   ): Promise<void> {
     let retryCount = 0
 
@@ -150,40 +165,51 @@ export class BleRemote {
       try {
         await wx.writeBLECharacteristicValue({
           deviceId,
-          serviceId: 'MayScreenServiceUuid',
-          characteristicId: MayScreenCharacteristicUuid.songId,
+          serviceId: this._screenServiceUuid,
+          characteristicId: options.largeData
+            ? MayScreenCharacteristicUuid.writeLarge
+            : MayScreenCharacteristicUuid.write,
           writeType: 'write',
           value: chunk,
         })
-        _log(`包 ${chunkIndex + 1}/${totalChunks} 发送成功`)
         return // 发送成功，退出重试循环
       } catch (err) {
         retryCount++
         if (retryCount > maxRetries) {
-          _logError(`包 ${chunkIndex + 1}/${totalChunks} 发送失败，已重试 ${maxRetries} 次`, err)
-          _toastError(err as any, `发送第 ${chunkIndex + 1} 个数据包失败`)
+          _logError(`包发送失败，已重试 ${maxRetries} 次`, err)
+          _toastError(err as any, `发送数据包失败`)
           throw err // 重新抛出错误，终止整个发送过程
         } else {
-          _log(`包 ${chunkIndex + 1}/${totalChunks} 发送失败，正在重试第 ${retryCount} 次...`)
+          _log(`包发送失败，正在重试第 ${retryCount} 次...`)
           await this._delay(100) // 重试前延迟100ms
         }
       }
     }
   }
 
-  /** 发送数据 */
-  public async sendData(deviceId: string, data: string): Promise<void> {
-    const chunks = toChunks(data)
-    _log(`sendData: ${data} (${chunks.length} chunks)`)
+  /** 发送长数据 */
+  public async sendLargeData(data: string): Promise<void> {
+    const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
+    _log(`sendLargeData: ${data} (${chunks.length} chunks)`)
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
       // 发送当前包（包含重试机制）
-      await this._sendChunk(deviceId, chunk, i, chunks.length)
+      await this._sendChunk(this._screenDeviceId, chunk, 3, {
+        largeData: true,
+      })
+      _log(`sendLargeData success, chunk ${i + 1}/${chunks.length}`)
       // 如果不是最后一个包，延迟100毫秒后发送下一个包
       if (i < chunks.length - 1) {
         await this._delay(100)
       }
     }
-    _log('sendData success')
+    _log('sendLargeData success')
+  }
+
+  /** 发送短指令 */
+  public async sendCommand(command: Command, payload: string): Promise<void> {
+    const chunks = shortCommandToPacket(command, payload)
+    _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
+    await this._sendChunk(this._screenDeviceId, chunks)
   }
 }

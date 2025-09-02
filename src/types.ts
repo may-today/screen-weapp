@@ -28,3 +28,20 @@ export enum ScreenSystem {
   Windows = 4,
   Mac = 5,
 }
+
+export enum Command {
+  /** 连接授权请求 */
+  Authorize = 1,
+  /** 连接授权响应 */
+  ReplyAuthorize = 2,
+  /** 切换歌曲id */
+  ChangeSongId = 11,
+  /** 歌词上一句 */
+  LyricPreviousLine = 12,
+  /** 歌词下一句 */
+  LyricNextLine = 13,
+  /** 歌词自动播放 */
+  LyricAutoPlay = 14,
+  /** 屏幕黑屏 */
+  ScreenBlackScreen = 21,
+}
