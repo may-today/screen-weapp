@@ -3,4 +3,5 @@
   <button bind:tap="stopListeningRemote">停止遥控器功能</button>
   <float-control-bar />
   <float-status-bar />
+  <test-screen-control />
 </view>

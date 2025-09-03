@@ -2,8 +2,6 @@ import { makeAutoObservable } from 'mobx-miniprogram'
 import type { Command } from '@/types'
 
 type MessageData = {
-  /** 消息持续时间 */
-  duration: number
   /** 消息指令 */
   command: Command
   /** 消息附加数据 */
@@ -16,9 +14,13 @@ type Message = {
     timestamp: number
     /** 消息等级 */
     level: 'debug' | 'info' | 'error'
+    /** 消息持续时间 */
+    duration: number
   }
   data: MessageData
 }
+
+// const defaultDurations
 
 // 消息种类：
 // 1. 连接状态消息（连接授权、连接成功、连接中、连接断开）
@@ -31,12 +33,17 @@ export class MessageStore {
   constructor() {
     makeAutoObservable(this)
   }
+
+  get latestMessage() {
+    return this.messageList.length > 0 ? this.messageList[this.messageList.length - 1] : null
+  }
   
   addMessage(data: MessageData, level: 'debug' | 'info' | 'error' = 'info') {
     this.messageList.push({
       meta: {
         timestamp: Date.now(),
         level,
+        duration: 3000,
       },
       data,
     })
