@@ -33,6 +33,8 @@ export class BleScreen {
   private _serviceUuid: string = ''
   private _mtu: number = 20
   private _remoteDeviceId: string = ''
+  private commandListener: ((command: Command, payload: string) => void) | null = null
+  private largeDataListener: ((data: string) => void) | null = null
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -43,6 +45,8 @@ export class BleScreen {
 
   public destroy() {
     wx.closeBluetoothAdapter()
+    this.commandListener = null
+    this.largeDataListener = null
     this._chunkBuffer.clear()
     BleScreen._instance = null
     _log('destroy')
@@ -158,6 +162,7 @@ export class BleScreen {
         // 短指令
         const commandDetail = parseShortPacket(res.value)
         _log(`receiveCommand: ${Command[commandDetail.command] || 'unknown'} (${commandDetail.payload || null})`)
+        this.commandListener?.(commandDetail.command, commandDetail.payload)
       } else if (res.characteristicId === MayScreenCharacteristicUuid.writeLarge) {
         // 长数据
         this._handleParseLargeData(res.value)
@@ -221,6 +226,7 @@ export class BleScreen {
     })
   }
 
+  /** 长数据处理器 */
   private async _handleParseLargeData(data: ArrayBuffer): Promise<void> {
     const info = parseLargeDataPacket(data)
     _log(`总包数=${info.totalPackets}, 当前包=${info.currentIndex}, 数据="${info.dataString}"`)
@@ -266,6 +272,7 @@ export class BleScreen {
         // 清理缓冲区
         this._chunkBuffer.delete(targetSessionId)
         _log(`传输会话 ${targetSessionId} 完成，已清理缓冲区`)
+        this.largeDataListener?.(completeData)
       } catch (error) {
         _logError('重组数据失败:', error)
         // 清理失败的缓冲区
@@ -325,6 +332,15 @@ export class BleScreen {
         },
       })
     })
+  }
+
+  /** 设置命令监听器 */
+  public setCommandListener(listener: (command: Command, payload: string) => void): void {
+    this.commandListener = listener
+  }
+  /** 设置长数据监听器 */
+  public setLargeDataListener(listener: (data: string) => void): void {
+    this.largeDataListener = listener
   }
 
   /** 延迟函数 */
