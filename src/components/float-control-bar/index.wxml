@@ -1,16 +1,16 @@
-<view class="absolute bottom-4 right-4 flex gap-1 text-stone-600">
-  <view class="border border-stone-600 size-10 rounded-md flex items-center justify-center">
-    <view class="i-lucide-chevron-left" />
+<view class="absolute bottom-4 right-4 flex gap-2 text-stone-600">
+  <view class="border border-stone-600 size-8 rounded-md flex items-center justify-center">
+    <view class="i-lucide-chevron-left text-sm" />
   </view>
-  <view class="border border-stone-600 size-10 rounded-md flex items-center justify-center">
-    <view class="i-lucide-chevron-right" />
+  <view class="border border-stone-600 size-8 rounded-md flex items-center justify-center">
+    <view class="i-lucide-chevron-right text-sm" />
   </view>
   <view
-    class="border border-stone-600 size-10 rounded-md flex items-center justify-center"
+    class="border border-stone-600 size-8 rounded-md flex items-center justify-center"
     hover-class="bg-stone-800"
     catch:tap="handleButtonTap"
   >
-    <view class="i-lucide-menu" />
+    <view class="i-lucide-menu text-sm" />
   </view>
 </view>
 <float-control-panel />

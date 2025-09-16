@@ -1,13 +1,25 @@
-<page-container 
-  show="{{showScreenFloatPanel}}"
-  overlay
-  position="right"
-  bind:afterleave="handleAfterLeave"
-  custom-style="width: 30%; margin-left: 70%; background-color: transparent;"
->
-  <view class="h-full p-2 pb-8 flex flex-col justify-end">
-    <view class="bg-stone-800 rounded-lg p-2">
-      <button bind:tap="handleCloseButtonTap">推出</button>
+<page-container show="{{showScreenFloatPanel}}" overlay position="right" bind:afterleave="handleAfterLeave" custom-style="width: 50%; margin-left: 50%; background-color: transparent;">
+  <view class="h-full w-full bg-stone-900 flex flex-col">
+    <!-- <view class="flex flex-row items-center pl-2 border-b border-stone-800" style="height: {{headerHeight}}px; padding-right: {{rightMargin}}px;">
+      <view class="size-8 rounded-md flex items-center justify-center" hover-class="bg-stone-800" bind:tap="handleCloseButtonTap">
+        <view class="i-lucide-x text-sm" />
+      </view>
+    </view> -->
+    <view class="flex-1 flex flex-row">
+      <view class="p-2 border-r">
+        <view class="flex flex-col items-center justify-center gap-0.5 mb-1 p-0.5 rounded-md border">
+          <view class="i-lucide-monitor text-sm" />
+          <text class="text-[10px]">正在展示</text>
+        </view>
+        <view class="flex flex-col items-center justify-center gap-0.5 mb-1 p-0.5 rounded-md border">
+          <view class="i-lucide-monitor text-sm" />
+          <text class="text-[10px]">内容库</text>
+        </view>
+      </view>
+      <view class="flex-1 p-2">
+        <text>{{ headerHeight }}px</text>
+        <text>{{ rightMargin }}px</text>
+      </view>
     </view>
   </view>
 </page-container>

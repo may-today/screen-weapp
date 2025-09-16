@@ -338,6 +338,7 @@ export class BleScreen {
   public setCommandListener(listener: (command: Command, payload: string) => void): void {
     this.commandListener = listener
   }
+
   /** 设置长数据监听器 */
   public setLargeDataListener(listener: (data: string) => void): void {
     this.largeDataListener = listener
