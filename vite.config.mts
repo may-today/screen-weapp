@@ -40,10 +40,12 @@ export default defineConfig({
   plugins: [
     UnifiedViteWeappTailwindcssPlugin({
       rem2rpx: {
-        // @ts-expect-error
         rootValue: 16,
         propList: ['*'],
         transformUnit: 'px',
+      },
+      customAttributes: {
+        '*': [ /[A-Za-z-]*-class/ ]
       },
       tailwindcss: {
         // 显示声明用的是 tailwindcss v4

@@ -1,0 +1,4 @@
+<view class="flex flex-col items-center justify-center gap-0.5 mb-1 p-0.5 rounded-md border" hover-class="bg-primary-hover">
+  <view class="{{ iconClass }} text-sm" />
+  <text class="text-[10px]">{{ title }}</text>
+</view>

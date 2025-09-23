@@ -7,14 +7,8 @@
     </view> -->
     <view class="flex-1 flex flex-row">
       <view class="p-2 border-r">
-        <view class="flex flex-col items-center justify-center gap-0.5 mb-1 p-0.5 rounded-md border">
-          <view class="i-lucide-monitor text-sm" />
-          <text class="text-[10px]">正在展示</text>
-        </view>
-        <view class="flex flex-col items-center justify-center gap-0.5 mb-1 p-0.5 rounded-md border">
-          <view class="i-lucide-monitor text-sm" />
-          <text class="text-[10px]">内容库</text>
-        </view>
+        <float-control-panel-nav-button icon-class="i-lucide-monitor" title="正在展示" />
+        <float-control-panel-nav-button icon-class="i-lucide-library" title="内容库" />
       </view>
       <view class="flex-1 p-2">
         <text>{{ headerHeight }}px</text>
