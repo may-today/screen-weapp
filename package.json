@@ -28,6 +28,7 @@
     "@iconify-json/mdi": "^1.2.3",
     "@tailwindcss/postcss": "^4.1.13",
     "@types/node": "^24.5.2",
+    "@weapp-tailwindcss/merge": "^1.2.3",
     "miniprogram-api-typings": "^4.1.0",
     "miniprogram-ci": "^2.1.26",
     "postcss": "^8.5.6",

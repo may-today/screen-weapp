@@ -4,8 +4,12 @@
 }
 
 @theme {
-  --color-card: var(--color-white);
-  --color-border: hsl(0 0% 89.8%);
+  --color-background: #fcfcfc;
+  --color-foreground: #171717;
+  --color-accent: #ededed;
+  --color-accent-foreground: #202020;
+  --color-card: #fcfcfc;
+  --color-border: #dfdfdf;
   --color-muted: hsl(0 0% 96.1%);
   --color-muted-foreground: hsl(0 0% 45.1%);
   --color-primary: #171717;
@@ -16,18 +20,56 @@
 }
 
 @layer theme {
-  :root, :host {
+  :root {
+    --dark-color-background: #121212;
+    --dark-color-foreground: #e2e8f0;
+    --dark-color-accent: #313131;
+    --dark-color-accent-foreground: #fafafa;
+    --dark-color-card: #171717;
+    --dark-color-border: #292929;
+    --dark-color-muted: hsl(0 0% 14.9%);
+    --dark-color-muted-foreground: hsl(0 0% 63.9%);
+    --dark-color-primary: #e5e5e5;
+    --dark-color-primary-hover: rgba(229, 229, 229, 0.9);
+    --dark-color-primary-foreground: #171717;
+    --dark-color-secondary: #262626;
+    --dark-color-secondary-foreground: #fafafa;
+  }
+
+  :root,
+  :host {
     @variant dark {
-      --color-card: #202020;
-      --color-border: hsl(0 0% 14.9%);
-      --color-muted: hsl(0 0% 14.9%);
-      --color-muted-foreground: hsl(0 0% 63.9%);
-      --color-primary: #e5e5e5;
-      --color-primary-hover: rgba(229, 229, 229, 0.9);
-      --color-primary-foreground: #171717;
-      --color-secondary: #262626;
-      --color-secondary-foreground: #fafafa;
+      --color-background: var(--dark-color-background);
+      --color-foreground: var(--dark-color-foreground);
+      --color-accent: var(--dark-color-accent);
+      --color-accent-foreground: var(--dark-color-accent-foreground);
+      --color-card: var(--dark-color-card);
+      --color-border: var(--dark-color-border);
+      --color-muted: var(--dark-color-muted);
+      --color-muted-foreground: var(--dark-color-muted-foreground);
+      --color-primary: var(--dark-color-primary);
+      --color-primary-hover: var(--dark-color-primary-hover);
+      --color-primary-foreground: var(--dark-color-primary-foreground);
+      --color-secondary: var(--dark-color-secondary);
+      --color-secondary-foreground: var(--dark-color-secondary-foreground);
     }
+  }
+
+  /* 手动切换暗色模式的类选择器 */
+  .dark {
+    --color-background: var(--dark-color-background);
+    --color-foreground: var(--dark-color-foreground);
+    --color-accent: var(--dark-color-accent);
+    --color-accent-foreground: var(--dark-color-accent-foreground);
+    --color-card: var(--dark-color-card);
+    --color-border: var(--dark-color-border);
+    --color-muted: var(--dark-color-muted);
+    --color-muted-foreground: var(--dark-color-muted-foreground);
+    --color-primary: var(--dark-color-primary);
+    --color-primary-hover: var(--dark-color-primary-hover);
+    --color-primary-foreground: var(--dark-color-primary-foreground);
+    --color-secondary: var(--dark-color-secondary);
+    --color-secondary-foreground: var(--dark-color-secondary-foreground);
   }
 }
 
@@ -35,7 +77,7 @@ page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  @apply bg-neutral-100 dark:bg-[#101010];
+  @apply bg-background text-foreground;
 }
 
 .container {

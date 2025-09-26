@@ -5,6 +5,7 @@ ComponentWithStore({
   data: {
     headerHeight: 0,
     rightMargin: 0,
+    currentTab: 'show',
   },
   storeBindings: {
     store: appState,
@@ -34,6 +35,12 @@ ComponentWithStore({
     },
     handleCloseButtonTap() {
       this.setShowScreenFloatPanel(false)
+    },
+    handleTabTap(e: WechatMiniprogram.CustomEvent) {
+      const { tab } = e.currentTarget.dataset
+      this.setData({
+        currentTab: tab,
+      })
     },
   },
 })

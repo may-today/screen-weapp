@@ -1,14 +1,41 @@
-<page-container show="{{showScreenFloatPanel}}" overlay position="right" bind:afterleave="handleAfterLeave" custom-style="width: 50%; margin-left: 50%; background-color: transparent;">
-  <view class="h-full w-full bg-stone-900 flex flex-col">
+<page-container
+  show="{{showScreenFloatPanel}}"
+  overlay
+  position="right"
+  bind:afterleave="handleAfterLeave"
+  custom-style="width: 50%; margin-left: 50%; background-color: transparent;"
+>
+  <view class="h-full w-full bg-card flex flex-col text-foreground opacity-80">
     <!-- <view class="flex flex-row items-center pl-2 border-b border-stone-800" style="height: {{headerHeight}}px; padding-right: {{rightMargin}}px;">
       <view class="size-8 rounded-md flex items-center justify-center" hover-class="bg-stone-800" bind:tap="handleCloseButtonTap">
         <view class="i-lucide-x text-sm" />
       </view>
     </view> -->
     <view class="flex-1 flex flex-row">
-      <view class="p-2 border-r">
-        <float-control-panel-nav-button icon-class="i-lucide-monitor" title="正在展示" />
-        <float-control-panel-nav-button icon-class="i-lucide-library" title="内容库" />
+      <view class="flex flex-col p-2 border-r border-border">
+        <view class="flex-1">
+          <float-control-panel-nav-button
+            icon-class="i-lucide-monitor"
+            title="正在展示"
+            active="{{currentTab === 'show'}}"
+            data-tab="show"
+            bind:tap="handleTabTap"
+          />
+          <float-control-panel-nav-button
+            icon-class="i-lucide-library"
+            title="内容库"
+            active="{{currentTab === 'library'}}"
+            data-tab="library"
+            bind:tap="handleTabTap"
+          />
+        </view>
+        <float-control-panel-nav-button
+          icon-class="i-lucide-blend"
+          title="未连接"
+          active="{{currentTab === 'remote'}}"
+          data-tab="remote"
+          bind:tap="handleTabTap"
+        />
       </view>
       <view class="flex-1 p-2">
         <text>{{ headerHeight }}px</text>
