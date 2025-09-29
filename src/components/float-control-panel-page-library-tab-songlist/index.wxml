@@ -1,0 +1,19 @@
+<wxs module="wxs" lang="ts">
+  export const inArr = function (arr: string[], item: string) {
+    return arr.indexOf(item) !== -1
+  }
+</wxs>
+
+<view class="px-4 py-3 space-y-2">
+  <view
+    wx:for="{{dataset}}"
+    wx:key="id"
+    class="flex items-center justify-between px-3 py-2 bg-secondary text-secondary-foreground text-sm rounded-md"
+    hover-class="bg-primary-hover"
+    data-id="{{item.id}}"
+    bind:tap="handleSelect"
+  >
+    <text>{{item.name}}</text>
+    <view wx:if="{{!wxs.inArr(cacheKeys, item.id)}}" class="i-lucide-arrow-down-to-line text-muted-foreground text-xs" />
+  </view>
+</view>

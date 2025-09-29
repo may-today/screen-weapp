@@ -1,0 +1,9 @@
+<view>
+  <view wx:for="{{metaGroupList}}" wx:key="index">
+    <text>{{item.index}}</text>
+    <view wx:for="{{item.list}}" wx:for-index="songIndex" wx:for-item="songItem" wx:key="slug">
+      <text>{{songItem.title}}</text>
+      <text>{{songItem.slug}}</text>
+    </view>
+  </view>
+</view>

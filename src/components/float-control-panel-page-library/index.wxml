@@ -1,0 +1,25 @@
+<float-control-panel-page title="内容库">
+  <view class="flex-1">
+    <float-control-panel-page-library-tab-songlist />
+    <!-- <button bind:tap="handleSetList">set list</button>
+    <all-song-list /> -->
+  </view>
+  <view class="flex flex-row items-center h-12 px-3 border-t border-border gap-2 text-sm">
+    <view
+      class="px-2 py-1.5 rounded-md {{ currentTab === 'song-list' ? 'bg-secondary text-secondary-foreground font-medium' : 'text-muted-foreground' }}"
+      hover-class="bg-accent text-accent-foreground"
+      data-tab="song-list"
+      bind:tap="handleTabTap"
+    >
+      <text>曲库</text>
+    </view>
+    <view
+      class="px-2 py-1.5 rounded-md {{ currentTab === 'web-search' ? 'bg-secondary text-secondary-foreground font-medium' : 'text-muted-foreground' }}"
+      hover-class="bg-accent text-accent-foreground"
+      data-tab="web-search"
+      bind:tap="handleTabTap"
+    >
+      <text>网络搜索</text>
+    </view>
+  </view>
+</float-control-panel-page>

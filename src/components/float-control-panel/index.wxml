@@ -17,8 +17,8 @@
           <float-control-panel-nav-button
             icon-class="i-lucide-monitor"
             title="正在展示"
-            active="{{currentTab === 'show'}}"
-            data-tab="show"
+            active="{{currentTab === 'playing'}}"
+            data-tab="playing"
             bind:tap="handleTabTap"
           />
           <float-control-panel-nav-button
@@ -37,9 +37,9 @@
           bind:tap="handleTabTap"
         />
       </view>
-      <view class="flex-1 p-2">
-        <text>{{ headerHeight }}px</text>
-        <text>{{ rightMargin }}px</text>
+      <view class="flex-1">
+        <float-control-panel-page-playing wx:if="{{currentTab === 'playing'}}" />
+        <float-control-panel-page-library wx:if="{{currentTab === 'library'}}" />
       </view>
     </view>
   </view>

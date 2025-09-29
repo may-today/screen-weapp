@@ -1,0 +1,9 @@
+<view class="flex flex-col h-full">
+  <view class="flex flex-row items-center h-12 border-b border-border px-4">
+    <text class="font-semibold text-sm">{{ title }}</text>
+    <slot name="header" />
+  </view>
+  <view class="flex-1 flex flex-col">
+    <slot />
+  </view>
+</view>

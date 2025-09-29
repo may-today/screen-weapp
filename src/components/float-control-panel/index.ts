@@ -5,7 +5,7 @@ ComponentWithStore({
   data: {
     headerHeight: 0,
     rightMargin: 0,
-    currentTab: 'show',
+    currentTab: 'playing' as 'playing' | 'library' | 'remote',
   },
   storeBindings: {
     store: appState,

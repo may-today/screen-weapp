@@ -1,3 +1,36 @@
+export interface SongMeta {
+  title: string
+  slug: string
+  index: string
+  meta: {
+    artist?: string
+    year?: number
+    album?: string
+    lyricist?: string
+    composer?: string
+    banlam?: boolean
+    length?: number
+    showTitle?: string
+  }
+}
+
+export interface GroupListItem {
+  index: string
+  list: SongMeta[]
+}
+
+export type SongDetail = SongMeta & {
+  detail: LyricLine[]
+}
+
+export interface LyricLine {
+  time: number
+  text: string
+  isHighlight: boolean
+  toneText?: string
+  toneText2?: string
+}
+
 export type BaseError = {
   /** 错误码 */
   errCode: number
