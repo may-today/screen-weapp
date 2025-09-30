@@ -47,7 +47,6 @@ ComponentWithComputed({
       const searchValue = event.detail.value.trim()
       this.setData({
         searchInputValue: searchValue,
-        // filteredList: searchByString(searchValue, this.data.detailList),
       })
     },
   },

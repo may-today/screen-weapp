@@ -1,6 +1,6 @@
 <view class="flex flex-col h-full">
   <view class="flex-1 overflow-hidden">
-    <float-control-panel-page-library-tab-songlist wx:if="{{currentTab === 'song-list'}}" />
+    <float-control-panel-page-library-tab-songlist hidden="{{currentTab !== 'song-list'}}" />
     <!-- <button bind:tap="handleSetList">set list</button>
     <all-song-list />-->
   </view>

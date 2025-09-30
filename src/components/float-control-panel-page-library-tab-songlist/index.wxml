@@ -4,7 +4,7 @@
   }
 </wxs>
 
-<float-control-panel-page title="曲库">
+<float-control-panel-page title="曲库" hidden="{{hidden}}">
   <view
     slot="header"
     wx:if="{{currentDatasetId}}"

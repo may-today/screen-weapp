@@ -40,6 +40,12 @@ ComponentWithStore({
     currentDatasetName: '',
     detailList: [] as SongDetail[],
   },
+  properties: {
+    hidden: {
+      type: Boolean,
+      value: false,
+    },
+  },
   storeBindings: {
     store: data,
     fields: [] as const,
