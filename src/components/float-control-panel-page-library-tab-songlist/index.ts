@@ -36,9 +36,6 @@ ComponentWithStore({
   data: {
     dataset,
     cacheKeys: [] as string[],
-    currentDatasetId: '',
-    currentDatasetName: '',
-    detailList: [] as SongDetail[],
   },
   properties: {
     hidden: {
@@ -48,8 +45,8 @@ ComponentWithStore({
   },
   storeBindings: {
     store: data,
-    fields: [] as const,
-    actions: [] as const,
+    fields: ['currentDatasetId', 'currentDatasetName'] as const,
+    actions: ['saveDetailList'] as const,
   },
   lifetimes: {
     created() {
@@ -69,10 +66,9 @@ ComponentWithStore({
       if (this.data.cacheKeys.includes(id)) {
         const detailList = wx.getStorageSync<SongDetail[]>(`dataset:${id}`)
         if (Array.isArray(detailList)) {
-          this.setData({
-            detailList,
-            currentDatasetId: id,
-            currentDatasetName: datasetDict[id].name,
+          this.saveDetailList(detailList, {
+            id,
+            name: datasetDict[id].name,
           })
           return
         }
@@ -85,10 +81,9 @@ ComponentWithStore({
         success: async (res) => {
           wx.hideLoading()
           if (Array.isArray(res.data)) {
-            this.setData({
-              detailList: res.data,
-              currentDatasetId: id,
-              currentDatasetName: datasetDict[id].name,
+            this.saveDetailList(res.data, {
+              id,
+              name: datasetDict[id].name,
             })
             await wx.setStorage({
               key: `dataset:${id}`,
@@ -117,11 +112,7 @@ ComponentWithStore({
       })
     },
     handleResetDataset() {
-      this.setData({
-        currentDatasetId: '',
-        currentDatasetName: '',
-        detailList: [] as SongDetail[],
-      })
+      this.saveDetailList([])
     },
   },
 })

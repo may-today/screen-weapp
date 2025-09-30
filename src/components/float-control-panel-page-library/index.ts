@@ -8,7 +8,7 @@ ComponentWithStore({
   storeBindings: {
     store: data,
     fields: [] as const,
-    actions: ['saveDetailList'] as const,
+    actions: [] as const,
   },
   methods: {
     handleTabTap(e: WechatMiniprogram.CustomEvent) {
@@ -16,19 +16,6 @@ ComponentWithStore({
       console.log('handleTabTap', e.currentTarget.dataset)
       this.setData({
         currentTab: tab,
-      })
-    },
-    handleSetList() {
-      wx.request({
-        url: 'https://wx-static.ddiu.site/dataset/mayday.json',
-        success: (res) => {
-          if (Array.isArray(res.data)) {
-            this.saveDetailList(res.data)
-          }
-        },
-        fail: (err) => {
-          console.log('request failed', err)
-        },
       })
     },
   },

@@ -34,6 +34,6 @@
   </view>
   <!-- 歌曲列表 -->
   <view wx:else class="flex-1 overflow-hidden">
-    <all-song-list detail-list="{{detailList}}" />
+    <song-list />
   </view>
 </float-control-panel-page>
