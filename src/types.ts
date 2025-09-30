@@ -31,6 +31,14 @@ export interface LyricLine {
   toneText2?: string
 }
 
+export interface SearchItem {
+  slug: string
+  data: SongDetail
+  matchType: 'title' | 'lyric'
+  matchLines: string
+  highlightLines: string
+}
+
 export type BaseError = {
   /** 错误码 */
   errCode: number

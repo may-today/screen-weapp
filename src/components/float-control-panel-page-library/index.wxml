@@ -1,8 +1,8 @@
-<float-control-panel-page title="内容库">
-  <view class="flex-1">
-    <float-control-panel-page-library-tab-songlist />
+<view class="flex flex-col h-full">
+  <view class="flex-1 overflow-hidden">
+    <float-control-panel-page-library-tab-songlist wx:if="{{currentTab === 'song-list'}}" />
     <!-- <button bind:tap="handleSetList">set list</button>
-    <all-song-list /> -->
+    <all-song-list />-->
   </view>
   <view class="flex flex-row items-center h-12 px-3 border-t border-border gap-2 text-sm">
     <view
@@ -22,4 +22,4 @@
       <text>网络搜索</text>
     </view>
   </view>
-</float-control-panel-page>
+</view>

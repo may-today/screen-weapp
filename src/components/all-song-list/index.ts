@@ -1,13 +1,54 @@
-import { ComponentWithStore } from 'mobx-miniprogram-bindings'
-import { data } from '@/stores/data'
+import { ComponentWithComputed } from 'miniprogram-computed'
+import { generateDataDict, generateMetaGroupList, searchByString } from '@/utils/songList'
+import type { SongDetail, SearchItem } from '@/types'
 
-ComponentWithStore({
-  data: {},
-  storeBindings: {
-    store: data,
-    fields: ['metaGroupList'] as const,
-    actions: [] as const,
+type Data = {
+  detailList: SongDetail[]
+  searchInputValue: string
+  filteredList: SearchItem[]
+}
+
+ComponentWithComputed({
+  options: {
+    pureDataPattern: /^_/,
+  },
+  data: <Data>{
+    searchInputValue: '',
+    filteredList: [] as SearchItem[],
+  },
+  properties: {
+    detailList: {
+      type: Array,
+      value: <Data['detailList']>[],
+    },
+  },
+  computed: {
+    allDataDict(data) {
+      return generateDataDict(data.detailList)
+    },
+    metaGroupList(data) {
+      return generateMetaGroupList(data.detailList)
+    },
   },
   methods: {
+    handleSearch(event: WechatMiniprogram.Input) {
+      const searchValue = event.detail.value.trim()
+      this.setData({
+        filteredList: searchByString(searchValue, this.data.detailList),
+      })
+    },
+    handleClearSearch() {
+      this.setData({
+        searchInputValue: '',
+        filteredList: [],
+      })
+    },
+    handleSearchValueChange(event: WechatMiniprogram.Input) {
+      const searchValue = event.detail.value.trim()
+      this.setData({
+        searchInputValue: searchValue,
+        // filteredList: searchByString(searchValue, this.data.detailList),
+      })
+    },
   },
 })

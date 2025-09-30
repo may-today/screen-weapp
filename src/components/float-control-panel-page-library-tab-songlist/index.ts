@@ -1,5 +1,6 @@
 import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { data } from '@/stores/data'
+import type { SongDetail } from '@/types'
 
 const datasetDict = {
   mayday: {
@@ -35,11 +36,14 @@ ComponentWithStore({
   data: {
     dataset,
     cacheKeys: [] as string[],
+    currentDatasetId: '',
+    currentDatasetName: '',
+    detailList: [] as SongDetail[],
   },
   storeBindings: {
     store: data,
     fields: [] as const,
-    actions: ['saveDetailList'] as const,
+    actions: [] as const,
   },
   lifetimes: {
     created() {
@@ -49,18 +53,37 @@ ComponentWithStore({
   methods: {
     handleSelect(e: WechatMiniprogram.CustomEvent) {
       const { id } = e.currentTarget.dataset
-      console.log('handleSelect', id)
       this.handleSetList(id)
     },
     handleSetList(id: string) {
-      if (!datasetDict[id]) {
+      if (id && !datasetDict[id]) {
         return
       }
+      // read cache
+      if (this.data.cacheKeys.includes(id)) {
+        const detailList = wx.getStorageSync<SongDetail[]>(`dataset:${id}`)
+        if (Array.isArray(detailList)) {
+          this.setData({
+            detailList,
+            currentDatasetId: id,
+            currentDatasetName: datasetDict[id].name,
+          })
+          return
+        }
+      }
+      wx.showLoading({
+        title: '加载中',
+      })
       wx.request({
         url: datasetDict[id].downUrl,
         success: async (res) => {
+          wx.hideLoading()
           if (Array.isArray(res.data)) {
-            this.saveDetailList(res.data)
+            this.setData({
+              detailList: res.data,
+              currentDatasetId: id,
+              currentDatasetName: datasetDict[id].name,
+            })
             await wx.setStorage({
               key: `dataset:${id}`,
               data: res.data,
@@ -69,20 +92,29 @@ ComponentWithStore({
           }
         },
         fail: (err) => {
+          wx.showToast({
+            title: '加载失败',
+            icon: 'error',
+          })
           console.log('request failed', err)
         },
       })
     },
     async refreshCacheKeys() {
       const storageInfo = await wx.getStorageInfo()
-      console.log('storageInfo', storageInfo)
       const storageKeys = storageInfo.keys
       const datasetKeys = storageKeys
         .filter((key) => key.startsWith('dataset:'))
         .map((key) => key.replace('dataset:', ''))
-      console.log('datasetKeys', datasetKeys)
       this.setData({
         cacheKeys: datasetKeys,
+      })
+    },
+    handleResetDataset() {
+      this.setData({
+        currentDatasetId: '',
+        currentDatasetName: '',
+        detailList: [] as SongDetail[],
       })
     },
   },

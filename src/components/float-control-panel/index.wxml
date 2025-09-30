@@ -11,7 +11,7 @@
         <view class="i-lucide-x text-sm" />
       </view>
     </view> -->
-    <view class="flex-1 flex flex-row">
+    <view class="flex-1 flex flex-row overflow-hidden">
       <view class="flex flex-col p-2 border-r border-border">
         <view class="flex-1">
           <float-control-panel-nav-button

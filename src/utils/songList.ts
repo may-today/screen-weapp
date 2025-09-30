@@ -1,18 +1,4 @@
-import type { SongMeta, SongDetail } from '@/types'
-
-// export const datasetConfig = {
-//   mayday: {
-//     name: '五月天',
-//     downUrl: 'https://wx-static.ddiu.site/dataset/mayday.json',
-//   },
-//   jayzhou: {
-//     name: '周杰伦',
-//     downUrl: 'https://wx-static.ddiu.site/dataset/jayzhou.json',
-//   },
-// } as Record<string, {
-//   name: string
-//   downUrl: string
-// }>
+import type { SongMeta, SongDetail, SearchItem } from '@/types'
 
 export const generateDataDict = (list: SongDetail[]) => {
   const dict: Record<string, SongDetail> = {}
@@ -40,4 +26,39 @@ export const generateMetaGroupList = (list: SongDetail[]) => {
     list: indexGroup[index],
   }))
   return groupList
+}
+
+export const searchByString = (str: string, list: SongDetail[]) => {
+  const searchValue = str.replace(/\s*/g, '').toLowerCase()
+  if (!searchValue) {
+    return [] as SearchItem[]
+  }
+  const filteredList = list.map(item => {
+    const pureLyricArr = item.detail.map(line => line.text)
+    const lyricLinesText = pureLyricArr.join('|').replace(/\s*/g, '').toLowerCase()
+    if (!item.title.toLowerCase().includes(searchValue) && !lyricLinesText.includes(searchValue)) {
+      return null
+    }
+    const matchType = item.title.toLowerCase().includes(searchValue) ? 'title' : 'lyric'
+    const matchLinesBefore = pureLyricArr.filter(line => line.replace(/\s*/g, '').toLowerCase().includes(searchValue))
+    const matchLines = Array.from(new Set(matchLinesBefore)).join('/')
+    const highlightLines = item.detail.filter(line => line.isHighlight).map(line => line.text).join('/')
+    return {
+      slug: item.slug,
+      data: item,
+      matchType,
+      matchLines,
+      highlightLines,
+    } as SearchItem
+  }).filter((item) => item !== null) as SearchItem[]
+  filteredList.sort((a, b) => {
+    if (a.matchType === 'title' && b.matchType === 'lyric') {
+      return -1
+    }
+    if (a.matchType === 'lyric' && b.matchType === 'title') {
+      return 1
+    }
+    return 0
+  })
+  return filteredList
 }

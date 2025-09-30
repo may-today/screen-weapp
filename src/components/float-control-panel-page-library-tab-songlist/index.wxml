@@ -1,19 +1,39 @@
 <wxs module="wxs" lang="ts">
   export const inArr = function (arr: string[], item: string) {
-    return arr.indexOf(item) !== -1
+  return arr.indexOf(item) !== -1
   }
 </wxs>
 
-<view class="px-4 py-3 space-y-2">
+<float-control-panel-page title="曲库">
   <view
-    wx:for="{{dataset}}"
-    wx:key="id"
-    class="flex items-center justify-between px-3 py-2 bg-secondary text-secondary-foreground text-sm rounded-md"
+    slot="header"
+    wx:if="{{currentDatasetId}}"
+    class="flex flex-row items-center gap-0.5 px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs"
     hover-class="bg-primary-hover"
-    data-id="{{item.id}}"
-    bind:tap="handleSelect"
+    bind:tap="handleResetDataset"
   >
-    <text>{{item.name}}</text>
-    <view wx:if="{{!wxs.inArr(cacheKeys, item.id)}}" class="i-lucide-arrow-down-to-line text-muted-foreground text-xs" />
+    <text>{{currentDatasetName}}曲库</text>
+    <view class="i-lucide-chevrons-up-down text-muted-foreground text-[10px]" />
   </view>
-</view>
+  <!-- 曲库选择 -->
+  <view wx:if="{{!currentDatasetId}}" class="flex-1 px-4 py-3 space-y-2">
+    <view
+      wx:for="{{dataset}}"
+      wx:key="id"
+      class="flex items-center justify-between px-3 py-2 bg-secondary text-secondary-foreground text-sm rounded-md"
+      hover-class="bg-primary-hover"
+      data-id="{{item.id}}"
+      bind:tap="handleSelect"
+    >
+      <text>{{item.name}}</text>
+      <view
+        wx:if="{{!wxs.inArr(cacheKeys, item.id)}}"
+        class="i-lucide-arrow-down-to-line text-muted-foreground text-xs"
+      />
+    </view>
+  </view>
+  <!-- 歌曲列表 -->
+  <view wx:else class="flex-1 overflow-hidden">
+    <all-song-list detail-list="{{detailList}}" />
+  </view>
+</float-control-panel-page>

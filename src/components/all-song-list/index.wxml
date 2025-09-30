@@ -1,9 +1,74 @@
-<view>
-  <view wx:for="{{metaGroupList}}" wx:key="index">
-    <text>{{item.index}}</text>
-    <view wx:for="{{item.list}}" wx:for-index="songIndex" wx:for-item="songItem" wx:key="slug">
-      <text>{{songItem.title}}</text>
-      <text>{{songItem.slug}}</text>
+<view class="h-full flex flex-col">
+  <scroll-view
+    wx:if="{{!filteredList.length}}"
+    class="flex-1 overflow-hidden"
+    scroll-y
+    enable-passive
+    enable-back-to-top
+  >
+    <view wx:for="{{metaGroupList}}" wx:key="index" class="px-2 py-1">
+      <text class="text-xs font-medium text-muted-foreground my-1 px-2">{{item.index}}</text>
+      <view
+        wx:for="{{item.list}}"
+        wx:for-index="songIndex"
+        wx:for-item="songItem"
+        wx:key="slug"
+        class="flex flex-row items-center gap-1.5 px-2 py-1.5 rounded-md"
+        hover-class="bg-accent text-accent-foreground"
+      >
+        <text class="text-sm flex-1 shrink-0">{{songItem.title}}</text>
+        <view
+          wx:if="{{songItem.meta && songItem.meta.banlam}}"
+          class="flex items-center justify-center size-5 rounded-sm bg-accent text-accent-foreground"
+        >
+          <text class="text-xs">闽</text>
+        </view>
+        <text
+          wx:if="{{songItem.meta && songItem.meta.year}}"
+          class="text-xs text-muted-foreground max-w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+        >{{songItem.meta.year}}</text>
+      </view>
     </view>
+  </scroll-view>
+  <scroll-view wx:else class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
+    <view
+      wx:for="{{filteredList}}"
+      wx:key="slug"
+      class="flex flex-col items-stretch justify-center mx-2 px-2 py-1.5 rounded-md min-h-10 first:mt-1.5 last:mb-1.5"
+      hover-class="bg-accent text-accent-foreground"
+    >
+      <view class="flex flex-row items-center gap-1.5">
+        <text class="text-sm flex-1 shrink-0">{{item.data.title}}</text>
+        <view
+          wx:if="{{item.data.meta && item.data.meta.banlam}}"
+          class="flex items-center justify-center size-5 rounded-sm bg-accent text-accent-foreground"
+        >
+          <text class="text-xs">闽</text>
+        </view>
+        <text
+          wx:if="{{item.data.meta && item.data.meta.year}}"
+          class="text-xs text-muted-foreground max-w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+        >{{item.data.meta.year}}</text>
+      </view>
+      <text class="text-xs text-muted-foreground leading-4">{{item.matchLines}}</text>
+    </view>
+  </scroll-view>
+  <view class="flex items-center gap-1.5 h-10 border-t border-border px-4 text-sm">
+    <view class="i-lucide-search text-xs text-muted-foreground" />
+    <input
+      class="flex-1"
+      value="{{searchInputValue}}"
+      placeholder="搜索歌名或歌词"
+      confirm-type="search"
+      bind:confirm="handleSearch"
+      bind:blur="handleSearch"
+      bind:input="handleSearchValueChange"
+    />
+    <view
+      wx:if="{{filteredList.length}}"
+      class="i-lucide-circle-x text-xs text-muted-foreground"
+      hover-class="text-accent-foreground"
+      bind:tap="handleClearSearch"
+    />
   </view>
 </view>
