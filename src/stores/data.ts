@@ -26,6 +26,7 @@ export class DataStore {
   }
 
   setCurrentSongData(data: SongDetail | null) {
+    console.log('setCurrentSongData', data)
     this.currentSongData = data
   }
 }

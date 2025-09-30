@@ -18,7 +18,7 @@ ComponentWithStore({
   },
   storeBindings: {
     store: data,
-    fields: ['metaGroupList', 'allDataList', 'currentSongData'] as const,
+    fields: ['metaGroupList', 'allDataList', 'allDataDict', 'currentSongData'] as const,
     actions: ['setCurrentSongData'] as const,
   },
   methods: {
@@ -41,8 +41,9 @@ ComponentWithStore({
       })
     },
     handleSelectSong(event: WechatMiniprogram.CustomEvent) {
-      const songItem = event.currentTarget.dataset.item
-      this.setCurrentSongData(songItem)
+      const slug = event.currentTarget.dataset.slug
+      const songData = this.data.allDataDict[slug] || null
+      this.setCurrentSongData(songData)
     },
   },
 })

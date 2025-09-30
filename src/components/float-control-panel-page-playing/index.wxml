@@ -1,8 +1,21 @@
+<wxs module="wxs" src="index.wxs.ts" />
+
 <float-control-panel-page title="正在展示">
-  <view class="flex-1">
-    <text>asdasdasds</text>
-  </view>
+  <!-- <view class="flex-1 flex flex-col"> -->
+  <scroll-view class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
+    <view
+      class="flex flex-row items-center gap-2 mx-2 px-2 py-1.5 min-h-8 rounded-md first:mt-2 last:mb-2"
+      hover-class="bg-accent text-accent-foreground"
+      wx:for="{{currentSongData.detail}}"
+      wx:key="time"
+    >
+      <text wx:if="{{item.time >= 0}}" class="text-xs font-mono">{{wxs.parseTime(item.time)}}</text>
+      <text class="text-sm">{{item.text || ''}}</text>
+    </view>
+  </scroll-view>
+  <!-- <text>asdasdasds</text> -->
+  <!-- </view> -->
   <view class="flex flex-row items-center h-12 px-4 border-t border-border">
-    <text>footer</text>
+    <text wx:if="{{currentSongData}}" class="text-xs">{{currentSongData.title}}</text>
   </view>
 </float-control-panel-page>

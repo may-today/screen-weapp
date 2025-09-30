@@ -5,7 +5,7 @@
     scroll-y
     enable-passive
     enable-back-to-top
-    scroll-into-view="{{currentSongData && currentSongData.slug}}"
+    scroll-into-view="id:{{currentSongData && currentSongData.slug}}"
     scroll-into-view-offset="{{-60}}"
     scroll-into-view-alignment="center"
     scroll-with-animation
@@ -17,10 +17,10 @@
         wx:for-index="songIndex"
         wx:for-item="songItem"
         wx:key="slug"
-        id="{{songItem.slug}}"
+        id="id:{{songItem.slug}}"
         active="{{currentSongData && currentSongData.slug === songItem.slug}}"
         detail="{{songItem}}"
-        data-item="{{songItem}}"
+        data-slug="{{songItem.slug}}"
         bind:tap="handleSelectSong"
       />
     </block>
@@ -32,7 +32,7 @@
       active="{{currentSongData && currentSongData.slug === item.slug}}"
       detail="{{item.data}}"
       extra-info="{{item.matchLines}}"
-      data-item="{{item}}"
+      data-slug="{{item.slug}}"
       bind:tap="handleSelectSong"
     />
   </scroll-view>
