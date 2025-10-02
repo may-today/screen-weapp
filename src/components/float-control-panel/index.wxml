@@ -40,6 +40,7 @@
       <view class="flex-1">
         <float-control-panel-page-playing wx:if="{{currentTab === 'playing'}}" />
         <float-control-panel-page-library wx:if="{{currentTab === 'library'}}" />
+        <float-control-panel-page-remote wx:if="{{currentTab === 'remote'}}" />
       </view>
     </view>
   </view>

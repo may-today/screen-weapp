@@ -5,8 +5,15 @@ ComponentWithStore({
   data: {},
   storeBindings: {
     store: data,
-    fields: ['currentSongData'] as const,
+    fields: ['currentSongData', 'currentLyricIndex'] as const,
     actions: [] as const,
   },
-  methods: {},
+  methods: {
+    handleLyricLineTap(e: WechatMiniprogram.TouchEvent) {
+      const index = e.currentTarget.dataset.index
+      if (typeof index === 'number') {
+        data.setCurrentLyricIndex(index)
+      }
+    },
+  },
 })

@@ -1,10 +1,5 @@
-import type { BleScreen } from '@/utils/bleScreen'
-
 Page({
   data: {},
-  state: {
-    bleInstance: getApp().globalData.bleScreen as BleScreen,
-  },
   onLoad() {
     // wx.setNavigationBarColor({
     //   frontColor: '#ffffff',
@@ -22,17 +17,8 @@ Page({
   },
   onHide() {},
   onUnload() {
-    this.state.bleInstance.destroy()
     wx.setKeepScreenOn({
       keepScreenOn: false,
     })
-  },
-  // 启用遥控器功能
-  async startListeningRemote() {
-    await this.state.bleInstance.prepare()
-    await this.state.bleInstance.startAdvertising()
-  },
-  stopListeningRemote() {
-    this.state.bleInstance.destroy()
-  },
+  },  
 })

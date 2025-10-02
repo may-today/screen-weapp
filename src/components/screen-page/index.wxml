@@ -1,0 +1,12 @@
+<view class="screen">
+  <block wx:if="{{currentSongData}}">
+    <block wx:if="{{currentLyricIndex < 0}}">
+      <text wx:if="{{currentSongData.meta && currentSongData.meta.year}}" class="subtitle-text">{{currentSongData.meta.year}}</text>
+      <text class="title-text">{{currentSongData.title}}</text>
+    </block>
+    <block wx:if="{{currentLyricIndex >= 0 && currentLyricLine}}">
+      <text class="lyric-text">{{currentLyricLine.text}}</text>
+    </block>
+  </block>
+  <screen-page-full-control-layer />
+</view>

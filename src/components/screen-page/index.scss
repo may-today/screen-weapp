@@ -1,0 +1,34 @@
+.screen {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+  padding-left: 40px;
+  padding-right: 20px;
+  padding-top: 4vh;
+  padding-bottom: 4vh;
+  overflow: hidden;
+}
+
+.subtitle-text {
+  display: block;
+  font-size: 16vh;
+  line-height: 1.25;
+  color: #ffffff;
+}
+
+.title-text {
+  display: block;
+  font-size: 28vh;
+  line-height: 1.25;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.lyric-text {
+  display: block;
+  font-size: 24vh;
+  line-height: 1.25;
+  text-align: center;
+  color: #ffffff;
+  font-weight: 700;
+}

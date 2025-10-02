@@ -30,7 +30,6 @@ ComponentWithStore({
       })
     },
     handleAfterLeave() {
-      console.log('handleAfterLeave')
       this.setShowScreenFloatPanel(false)
     },
     handleCloseButtonTap() {

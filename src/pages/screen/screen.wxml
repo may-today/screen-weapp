@@ -1,7 +1,5 @@
 <view class="dark h-screen w-screen bg-black text-white">
-  <button bind:tap="startListeningRemote">启用遥控器功能</button>
-  <button bind:tap="stopListeningRemote">停止遥控器功能</button>
+  <screen-page />
   <float-control-bar />
   <float-status-bar />
-  <test-screen-control />
 </view>

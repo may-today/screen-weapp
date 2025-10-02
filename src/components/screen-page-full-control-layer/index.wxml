@@ -1,0 +1,5 @@
+<view class="full-control-area" bind:touchstart="handleTouchStart" bind:touchend="handleTouchEnd">
+  <view class="control-area control-area-left" catch:tap="handleClickAreaLeft" />
+  <view class="control-area control-area-middle" />
+  <view class="control-area control-area-right" catch:tap="handleClickAreaRight" />
+</view>
