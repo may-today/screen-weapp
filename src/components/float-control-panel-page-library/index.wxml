@@ -1,12 +1,13 @@
 <view class="flex flex-col h-full">
   <view class="flex-1 overflow-hidden">
-    <float-control-panel-page-library-tab-songlist hidden="{{currentTab !== 'song-list'}}" />
+    <float-control-panel-page-library-tab-dataset hidden="{{currentTab !== 'dataset'}}" />
+    <float-control-panel-page-library-tab-websearch hidden="{{currentTab !== 'web-search'}}" />
   </view>
   <view class="flex flex-row items-center h-12 px-3 border-t border-border gap-2 text-sm">
     <view
-      class="px-2 py-1.5 rounded-md {{ currentTab === 'song-list' ? 'bg-secondary text-secondary-foreground font-medium' : 'text-muted-foreground' }}"
+      class="px-2 py-1.5 rounded-md {{ currentTab === 'dataset' ? 'bg-secondary text-secondary-foreground font-medium' : 'text-muted-foreground' }}"
       hover-class="bg-accent text-accent-foreground"
-      data-tab="song-list"
+      data-tab="dataset"
       bind:tap="handleTabTap"
     >
       <text>曲库</text>

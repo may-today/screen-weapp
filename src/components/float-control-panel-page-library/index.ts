@@ -3,7 +3,7 @@ import { data } from '@/stores/data'
 
 ComponentWithStore({
   data: {
-    currentTab: 'song-list' as 'song-list' | 'web-search',
+    currentTab: 'dataset' as 'dataset' | 'web-search',
   },
   storeBindings: {
     store: data,

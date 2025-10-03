@@ -12,7 +12,7 @@
       </view>
     </view> -->
     <view class="flex-1 flex flex-row overflow-hidden">
-      <view class="flex flex-col p-2 border-r border-border">
+      <view class="flex flex-col p-2 border-r border-border shrink-0">
         <view class="flex-1">
           <float-control-panel-nav-button
             icon-class="i-lucide-monitor"
@@ -37,7 +37,7 @@
           bind:tap="handleTabTap"
         />
       </view>
-      <view class="flex-1">
+      <view class="flex-1 overflow-hidden">
         <float-control-panel-page-playing wx:if="{{currentTab === 'playing'}}" />
         <float-control-panel-page-library wx:if="{{currentTab === 'library'}}" />
         <float-control-panel-page-remote wx:if="{{currentTab === 'remote'}}" />

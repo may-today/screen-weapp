@@ -13,7 +13,7 @@
     </view>
     <text
       wx:if="{{detail.meta && detail.meta.year}}"
-      class="text-xs text-muted-foreground max-w-24 overflow-hidden text-ellipsis whitespace-nowrap"
+      class="text-xs text-muted-foreground max-w-24"
     >{{detail.meta.year}}</text>
   </view>
   <text wx:if="{{extraInfo}}" class="text-xs text-muted-foreground leading-4">{{extraInfo}}</text>

@@ -1,0 +1,37 @@
+<float-control-panel-page title="网络搜索" hidden="{{hidden}}">
+  <view class="h-full flex flex-col">
+    <view
+      wx:if="{{!searchInputValue}}"
+      class="flex-1 overflow-hidden"
+    >
+      <text>placeholder</text>
+    </view>
+    <scroll-view wx:else class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
+      <web-search-list-item
+        wx:for="{{webSearchResultList}}"
+        wx:key="id"
+        info="{{item}}"
+        data-item="{{item}}"
+        bind:tap="handleSelectSong"
+      />
+    </scroll-view>
+    <view class="flex items-center gap-1.5 h-10 border-t border-border px-4 text-sm">
+      <view class="i-lucide-search text-xs text-muted-foreground" />
+      <input
+        class="flex-1"
+        value="{{searchInputValue}}"
+        placeholder="输入歌名查询全网歌词"
+        confirm-type="search"
+        bind:confirm="handleSearch"
+        bind:blur="handleSearch"
+        bind:input="handleSearchValueChange"
+      />
+      <view
+        wx:if="{{searchInputValue}}"
+        class="i-lucide-circle-x text-xs text-muted-foreground"
+        hover-class="text-accent-foreground"
+        bind:tap="handleClearSearch"
+      />
+    </view>
+  </view>
+</float-control-panel-page>
