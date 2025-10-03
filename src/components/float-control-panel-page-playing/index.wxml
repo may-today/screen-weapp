@@ -1,7 +1,10 @@
 <wxs module="wxs" src="index.wxs.ts" />
 
 <float-control-panel-page title="正在展示">
-  <scroll-view class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
+  <view hidden="{{currentSongData}}" class="flex-1">
+    <empty text="没有正在展示的歌曲" type="none" extra-class="flex-1" />
+  </view>
+  <scroll-view hidden="{{!currentSongData}}" class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
     <view
       class="{{wxs.getLyricLineClass(item.isHighlight, currentLyricIndex === index)}}"
       hover-class="bg-accent text-accent-foreground"

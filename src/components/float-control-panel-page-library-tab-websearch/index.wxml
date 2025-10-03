@@ -1,12 +1,17 @@
 <float-control-panel-page title="网络搜索" hidden="{{hidden}}">
   <view class="h-full flex flex-col">
-    <view
-      wx:if="{{!searchInputValue}}"
-      class="flex-1 overflow-hidden"
-    >
-      <text>placeholder</text>
+    <view wx:if="{{webSearchResultList.length === 0 || !searchInputValue}}" class="flex-1 overflow-hidden">
+      <empty wx:if="{{!searchInputValue}}" text="输入歌名查询全网歌词" type="none" />
+      <empty wx:if="{{(searchInputValue && searching)}}" text="正在搜索" type="loading" />
+      <empty wx:if="{{(searchInputValue && !searching)}}" text="没有搜索结果" type="error" />
     </view>
-    <scroll-view wx:else class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
+    <scroll-view
+      wx:else
+      class="flex-1 overflow-hidden"
+      scroll-y
+      enable-passive
+      enable-back-to-top
+    >
       <web-search-list-item
         wx:for="{{webSearchResultList}}"
         wx:key="id"

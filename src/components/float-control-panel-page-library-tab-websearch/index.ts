@@ -26,6 +26,7 @@ ComponentWithStore({
   data: <Data>{
     searchInputValue: '',
     webSearchResultList: [] as WebSearchTrackItem[],
+    searching: false,
   },
   storeBindings: {
     store: data,
@@ -35,21 +36,28 @@ ComponentWithStore({
   methods: {
     async handleSearch(event: WechatMiniprogram.Input) {
       const searchValue = event.detail.value.trim()
+      this.setData({
+        searching: true,
+      })
       const trackList = await getTrackListByKeyword(searchValue)
       this.setData({
         webSearchResultList: trackList,
+        searching: false,
       })
     },
     handleClearSearch() {
       this.setData({
         searchInputValue: '',
         webSearchResultList: [],
+        searching: false,
       })
     },
     handleSearchValueChange(event: WechatMiniprogram.Input) {
       const searchValue = event.detail.value.trim()
       this.setData({
         searchInputValue: searchValue,
+        webSearchResultList: [],
+        searching: false,
       })
     },
     async handleSelectSong(event: WechatMiniprogram.CustomEvent) {

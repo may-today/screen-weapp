@@ -27,6 +27,9 @@ interface WebSearchLyricResponse {
 const screenApiHost = 'https://mayscreen-api.ddiu.site'
 
 export const getTrackListByKeyword = async (keyword: string) => {
+  if (!keyword) {
+    return []
+  }
   return new Promise<WebSearchTrackItem[]>((resolve) => {
     wx.request({
       url: `${screenApiHost}/v1/search?keyword=${keyword}`,
