@@ -17,6 +17,7 @@
   --color-primary-foreground: #fafafa;
   --color-secondary: #f5f5f5;
   --color-secondary-foreground: #171717;
+  --color-theme-foreground: #0369a1;
 }
 
 @layer theme {
@@ -34,6 +35,7 @@
     --dark-color-primary-foreground: #171717;
     --dark-color-secondary: #262626;
     --dark-color-secondary-foreground: #fafafa;
+    --dark-color-theme-foreground: #7dd3fc;
   }
 
   :root,
@@ -52,6 +54,7 @@
       --color-primary-foreground: var(--dark-color-primary-foreground);
       --color-secondary: var(--dark-color-secondary);
       --color-secondary-foreground: var(--dark-color-secondary-foreground);
+      --color-theme-foreground: var(--dark-color-theme-foreground);
     }
   }
 
@@ -70,6 +73,7 @@
     --color-primary-foreground: var(--dark-color-primary-foreground);
     --color-secondary: var(--dark-color-secondary);
     --color-secondary-foreground: var(--dark-color-secondary-foreground);
+    --color-theme-foreground: var(--dark-color-theme-foreground);
   }
 }
 

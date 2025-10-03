@@ -5,7 +5,7 @@
   bind:afterleave="handleAfterLeave"
   custom-style="width: 50%; margin-left: 50%; background-color: transparent;"
 >
-  <view class="h-full w-full bg-card flex flex-col text-foreground opacity-80">
+  <view class="h-full w-full bg-card flex flex-col text-foreground opacity-85">
     <!-- <view class="flex flex-row items-center pl-2 border-b border-stone-800" style="height: {{headerHeight}}px; padding-right: {{rightMargin}}px;">
       <view class="size-8 rounded-md flex items-center justify-center" hover-class="bg-stone-800" bind:tap="handleCloseButtonTap">
         <view class="i-lucide-x text-sm" />
