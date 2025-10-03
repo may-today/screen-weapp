@@ -1,3 +1,5 @@
+import { hooks } from '@/utils/hook'
+
 Page({
   data: {},
   onLoad() {
@@ -20,5 +22,6 @@ Page({
     wx.setKeepScreenOn({
       keepScreenOn: false,
     })
+    hooks.removeAllHooks()
   },  
 })

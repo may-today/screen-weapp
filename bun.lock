@@ -4,6 +4,7 @@
     "": {
       "name": "miniprogram-ts-less-quickstart",
       "dependencies": {
+        "hookable": "^5.5.3",
         "lottie-miniprogram": "^1.0.12",
         "miniprogram-computed": "^7.1.0",
         "miniprogram-text-decoder": "^2.0.0",

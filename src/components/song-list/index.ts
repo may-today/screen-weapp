@@ -2,6 +2,7 @@ import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { searchByString } from '@/utils/songList'
 import type { SearchItem } from '@/types'
 import { data } from '@/stores/data'
+import { hooks } from '@/utils/hook'
 
 type Data = {
   searchInputValue: string
@@ -44,6 +45,7 @@ ComponentWithStore({
       const slug = event.currentTarget.dataset.slug as string || ''
       const songData = this.data.allDataDict[slug] || null
       data.setCurrentSongData(songData)
+      hooks.callHook('trigger-tab', { tab: 'playing' })
     },
   },
 })

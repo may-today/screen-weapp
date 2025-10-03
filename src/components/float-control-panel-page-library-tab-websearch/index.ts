@@ -2,6 +2,7 @@ import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { data } from '@/stores/data'
 import { getTrackListByKeyword, getLyricBySongId } from '@/utils/webSearch'
 import { parseRawLRCFile } from '@/utils/lyric'
+import { hooks } from '@/utils/hook'
 import type { SongDetail } from '@/types'
 
 export interface WebSearchTrackItem {
@@ -74,6 +75,7 @@ ComponentWithStore({
         detail: parseRawLRCFile(lyricText),
       }
       data.setCurrentSongData(singleTrack)
+      hooks.callHook('trigger-tab', { tab: 'playing' })
     },
   },
 })
