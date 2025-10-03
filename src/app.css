@@ -13,7 +13,6 @@
   --color-muted: hsl(0 0% 96.1%);
   --color-muted-foreground: hsl(0 0% 45.1%);
   --color-primary: #171717;
-  --color-primary-hover: rgba(23, 23, 23, 0.9);
   --color-primary-foreground: #fafafa;
   --color-secondary: #f5f5f5;
   --color-secondary-foreground: #171717;
@@ -31,7 +30,6 @@
     --dark-color-muted: hsl(0 0% 14.9%);
     --dark-color-muted-foreground: hsl(0 0% 63.9%);
     --dark-color-primary: #e5e5e5;
-    --dark-color-primary-hover: rgba(229, 229, 229, 0.9);
     --dark-color-primary-foreground: #171717;
     --dark-color-secondary: #262626;
     --dark-color-secondary-foreground: #fafafa;
@@ -50,7 +48,6 @@
       --color-muted: var(--dark-color-muted);
       --color-muted-foreground: var(--dark-color-muted-foreground);
       --color-primary: var(--dark-color-primary);
-      --color-primary-hover: var(--dark-color-primary-hover);
       --color-primary-foreground: var(--dark-color-primary-foreground);
       --color-secondary: var(--dark-color-secondary);
       --color-secondary-foreground: var(--dark-color-secondary-foreground);
@@ -69,7 +66,6 @@
     --color-muted: var(--dark-color-muted);
     --color-muted-foreground: var(--dark-color-muted-foreground);
     --color-primary: var(--dark-color-primary);
-    --color-primary-hover: var(--dark-color-primary-hover);
     --color-primary-foreground: var(--dark-color-primary-foreground);
     --color-secondary: var(--dark-color-secondary);
     --color-secondary-foreground: var(--dark-color-secondary-foreground);

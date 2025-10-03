@@ -3,7 +3,7 @@
     wx:for="{{buttonList}}"
     wx:key="id"
     class="border border-stone-600 size-8 rounded-md flex items-center justify-center"
-    hover-class="bg-accent"
+    hover-class="bg-accent text-accent-foreground"
     data-action="{{item.id}}"
     bind:tap="handleButtonTap"
   >

@@ -54,7 +54,7 @@ ComponentWithStore({
     },
   },
   methods: {
-    handleSelect(e: WechatMiniprogram.CustomEvent) {
+    handleSelectDataset(e: WechatMiniprogram.CustomEvent) {
       const { id } = e.currentTarget.dataset
       this.handleSetList(id)
     },
