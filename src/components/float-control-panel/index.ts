@@ -46,6 +46,9 @@ ComponentWithStore({
     handleCloseButtonTap() {
       this.setShowScreenFloatPanel(false)
     },
+    handleCatchTap() {
+      return
+    },
     handleTabTap(e: WechatMiniprogram.CustomEvent) {
       const { tab } = e.currentTarget.dataset
       this.setData({

@@ -5,8 +5,11 @@
   bind:afterleave="handleAfterLeave"
   custom-style="width: 50%; margin-left: 50%; background-color: transparent;"
 >
-  <view class="h-full w-full bg-card flex flex-col text-foreground opacity-85">
-    <view class="flex-1 flex flex-row overflow-hidden">
+  <view class="h-full w-full flex flex-col items-end justify-end" bind:tap="handleCloseButtonTap">
+    <view
+      class="flex-1 w-full max-w-[500px] max-h-[600px] flex flex-row overflow-hidden rounded-xl bg-card text-foreground opacity-85"
+      catch:tap="handleCatchTap"
+    >
       <view class="flex flex-col p-2 border-r border-border shrink-0">
         <view class="flex-1">
           <float-control-panel-nav-button
@@ -14,27 +17,27 @@
             title="正在展示"
             active="{{currentTab === 'playing'}}"
             data-tab="playing"
-            bind:tap="handleTabTap"
+            catch:tap="handleTabTap"
           />
           <float-control-panel-nav-button
             icon-class="i-lucide-library"
             title="内容库"
             active="{{currentTab === 'library'}}"
             data-tab="library"
-            bind:tap="handleTabTap"
+            catch:tap="handleTabTap"
           />
         </view>
         <float-control-panel-nav-button
           icon-class="i-lucide-log-out"
           title="退出屏幕"
-          bind:tap="handleExit"
+          catch:tap="handleExit"
         />
         <float-control-panel-nav-button
           icon-class="i-lucide-blend"
           title="未连接"
           active="{{currentTab === 'remote'}}"
           data-tab="remote"
-          bind:tap="handleTabTap"
+          catch:tap="handleTabTap"
         />
       </view>
       <view class="flex-1 overflow-hidden">
