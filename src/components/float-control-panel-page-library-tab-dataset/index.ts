@@ -1,5 +1,6 @@
 import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { data } from '@/stores/data'
+import { appState } from '@/stores/appState'
 import type { SongDetail } from '@/types'
 
 const datasetDict = {
@@ -46,7 +47,7 @@ ComponentWithStore({
   storeBindings: {
     store: data,
     fields: ['currentDatasetId', 'currentDatasetName'] as const,
-    actions: ['saveDetailList'] as const,
+    actions: [] as const,
   },
   lifetimes: {
     created() {
@@ -62,26 +63,30 @@ ComponentWithStore({
       if (id && !datasetDict[id]) {
         return
       }
+      wx.showLoading({
+        title: '加载中',
+      })
       // read cache
       if (this.data.cacheKeys.includes(id)) {
         const detailList = wx.getStorageSync<SongDetail[]>(`dataset:${id}`)
         if (Array.isArray(detailList)) {
-          this.saveDetailList(detailList, {
+          data.saveDetailList(detailList, {
             id,
             name: datasetDict[id].name,
           })
+          wx.hideLoading()
           return
         }
       }
-      wx.showLoading({
-        title: '加载中',
-      })
+      // request download
+      appState.setGlobalLoading(true)
       wx.request({
         url: datasetDict[id].downUrl,
         success: async (res) => {
+          appState.setGlobalLoading(false)
           wx.hideLoading()
           if (Array.isArray(res.data)) {
-            this.saveDetailList(res.data, {
+            data.saveDetailList(res.data, {
               id,
               name: datasetDict[id].name,
             })
@@ -93,6 +98,7 @@ ComponentWithStore({
           }
         },
         fail: (err) => {
+          appState.setGlobalLoading(false)
           wx.showToast({
             title: '加载失败',
             icon: 'error',
@@ -112,7 +118,7 @@ ComponentWithStore({
       })
     },
     handleResetDataset() {
-      this.saveDetailList([])
+      data.saveDetailList([])
     },
   },
 })

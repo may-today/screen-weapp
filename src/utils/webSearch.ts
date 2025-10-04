@@ -1,3 +1,5 @@
+import { appState } from '@/stores/appState'
+
 export interface WebSearchTrackItem {
   id: string
   song_name: string
@@ -31,9 +33,11 @@ export const getTrackListByKeyword = async (keyword: string) => {
     return []
   }
   return new Promise<WebSearchTrackItem[]>((resolve) => {
+    appState.setGlobalLoading(true)
     wx.request({
       url: `${screenApiHost}/v1/search?keyword=${keyword}`,
       success: async (res) => {
+        appState.setGlobalLoading(false)
         const data = res.data as WebSearchListResponse
         if (!data || data.error) {
           console.error(data.error)
@@ -42,6 +46,7 @@ export const getTrackListByKeyword = async (keyword: string) => {
         resolve(data.data?.list || [])
       },
       fail: (err) => {
+        appState.setGlobalLoading(false)
         wx.showToast({
           title: '加载失败',
           icon: 'error',
@@ -58,9 +63,11 @@ export const getLyricBySongId = async (songId: string) => {
     return null
   }
   return new Promise<string | null>((resolve) => {
+    appState.setGlobalLoading(true)
     wx.request({
       url: `${screenApiHost}/v1/lyric?id=${songId}`,
       success: async (res) => {
+        appState.setGlobalLoading(false)
         const data = res.data as WebSearchLyricResponse
         if (!data || data.error) {
           console.error(data.error)
@@ -69,6 +76,7 @@ export const getLyricBySongId = async (songId: string) => {
         resolve(data.data?.content || null)
       },
       fail: (err) => {
+        appState.setGlobalLoading(false)
         wx.showToast({
           title: '加载失败',
           icon: 'error',

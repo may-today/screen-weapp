@@ -7,6 +7,7 @@ export class AppStateStore {
   deviceId = ''
   showScreenFloatPanel = false
   showConnectPanel = false
+  globalLoading = false
 
   constructor() {
     makeAutoObservable(this)
@@ -23,6 +24,9 @@ export class AppStateStore {
   }
   setShowConnectPanel(showConnectPanel: boolean) {
     this.showConnectPanel = showConnectPanel
+  }
+  setGlobalLoading(loading: boolean) {
+    this.globalLoading = loading
   }
 }
 

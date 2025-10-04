@@ -1,5 +1,6 @@
 <view class="flex flex-col h-full overflow-hidden" hidden="{{hidden}}">
-  <view class="flex flex-row items-center gap-3 h-12 border-b border-border px-4">
+  <view class="relative flex flex-row items-center gap-3 h-12 px-4">
+    <view class="absolute left-0 right-0 bottom-0 h-[1px] bg-border {{globalLoading ? 'loading-anim' : ''}}" />
     <text class="font-semibold text-sm">{{ title }}</text>
     <slot name="header" />
   </view>

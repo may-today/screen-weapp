@@ -1,4 +1,3 @@
-import { ComponentWithStore } from 'mobx-miniprogram-bindings'
 import { data } from '@/stores/data'
 import { getTrackListByKeyword, getLyricBySongId } from '@/utils/webSearch'
 import { parseRawLRCFile } from '@/utils/lyric'
@@ -19,7 +18,7 @@ type Data = {
   webSearchResultList: WebSearchTrackItem[]
 }
 
-ComponentWithStore({
+Component({
   options: {
     pureDataPattern: /^_/,
   },
@@ -27,11 +26,6 @@ ComponentWithStore({
     searchInputValue: '',
     webSearchResultList: [] as WebSearchTrackItem[],
     searching: false,
-  },
-  storeBindings: {
-    store: data,
-    fields: [] as const,
-    actions: [] as const,
   },
   methods: {
     async handleSearch(event: WechatMiniprogram.Input) {
