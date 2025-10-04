@@ -26,6 +26,16 @@ export class DataStore {
     return null
   }
 
+  clearState() {
+    this.allDataList = []
+    this.allDataDict = {}
+    this.metaGroupList = []
+    this.currentDatasetId = ''
+    this.currentDatasetName = ''
+    this.currentSongData = null
+    this.currentLyricIndex = -1
+  }
+
   saveDetailList(data: SongDetail[], info?: {
     id: string
     name: string

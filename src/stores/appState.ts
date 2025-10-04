@@ -13,6 +13,15 @@ export class AppStateStore {
     makeAutoObservable(this)
   }
 
+  clearState() {
+    this.connectStatus = ConnectStatus.Disconnected
+    this.connected = false
+    this.deviceId = ''
+    this.showScreenFloatPanel = false
+    this.showConnectPanel = false
+    this.globalLoading = false
+  }
+
   setConnectStatus(connectStatus: ConnectStatus) {
     this.connectStatus = connectStatus
   }

@@ -1,4 +1,6 @@
 import { hooks } from '@/utils/hook'
+import { appState } from '@/stores/appState'
+import { data } from '@/stores/data'
 
 Page({
   data: {},
@@ -26,5 +28,7 @@ Page({
       keepScreenOn: false,
     })
     hooks.removeAllHooks()
+    appState.clearState()
+    data.clearState()
   },  
 })
