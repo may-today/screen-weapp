@@ -10,6 +10,9 @@ Page({
     wx.setKeepScreenOn({
       keepScreenOn: true,
     })
+    wx.enableAlertBeforeUnload({
+      message: '确定要退出屏幕吗？',
+    })
   },
   onReady() {},
   onShow() {

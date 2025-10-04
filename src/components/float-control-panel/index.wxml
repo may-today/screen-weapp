@@ -25,6 +25,11 @@
           />
         </view>
         <float-control-panel-nav-button
+          icon-class="i-lucide-log-out"
+          title="退出屏幕"
+          bind:tap="handleExit"
+        />
+        <float-control-panel-nav-button
           icon-class="i-lucide-blend"
           title="未连接"
           active="{{currentTab === 'remote'}}"

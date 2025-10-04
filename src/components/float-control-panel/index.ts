@@ -57,5 +57,17 @@ ComponentWithStore({
         currentTab: payload.tab,
       })
     },
+    handleExit() {
+      wx.showModal({
+        content: '确定要退出屏幕吗？',
+        success(res) {
+          if (res.confirm) {
+            wx.reLaunch({
+              url: '/pages/index/index',
+            })
+          }
+        },
+      })
+    },
   },
 })

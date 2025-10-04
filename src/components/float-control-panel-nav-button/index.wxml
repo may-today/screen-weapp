@@ -3,5 +3,5 @@
   hover-class="bg-accent text-accent-foreground"
 >
   <view class="{{ iconClass }} text-sm" />
-  <text class="text-[10px]">{{ title }}</text>
+  <text wx:if="{{title}}" class="text-[10px]">{{ title }}</text>
 </view>
