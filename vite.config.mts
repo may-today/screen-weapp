@@ -17,7 +17,7 @@ export default defineConfig({
     generate: {
       extensions: {
         js: 'ts',
-        wxss: 'scss',
+        wxss: 'css',
         json: 'jsonc',
       },
       dirs: {
@@ -28,6 +28,9 @@ export default defineConfig({
         component: 'index',
         page: 'index',
       },
+    },
+    worker: {
+      entry: 'index.ts',
     },
   },
   css: {
@@ -47,6 +50,8 @@ export default defineConfig({
       customAttributes: {
         '*': [ /[A-Za-z-]*-class/ ]
       },
+      inlineWxs: true,
+      wxsMatcher: (filename) => filename.endsWith('.wxs'),
       tailwindcss: {
         // 显示声明用的是 tailwindcss v4
         version: 4,

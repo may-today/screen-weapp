@@ -1,4 +1,4 @@
-<wxs module="wxs" src="index.wxs.ts" />
+<wxs module="parse" src="../../wxs/parse.wxs.ts" />
 
 <float-control-panel-page title="正在展示">
   <view hidden="{{currentSongData}}" class="flex-1">
@@ -6,21 +6,23 @@
   </view>
   <scroll-view hidden="{{!currentSongData}}" class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
     <view
-      class="{{wxs.getLyricLineClass(item.isHighlight, currentLyricIndex === index)}}"
+      class="lyric-line {{item.isHighlight ? 'highlight' : ''}} {{currentLyricIndex === index ? 'active' : ''}}"
       hover-class="bg-accent text-accent-foreground"
       wx:for="{{currentSongData.detail}}"
       wx:key="time"
       data-index="{{index}}"
+      data-time="{{item.time}}"
       bind:tap="handleLyricLineTap"
     >
       <text
         wx:if="{{item.time >= 0}}"
         class="text-xs font-mono opacity-60"
-      >{{wxs.parseTime(item.time)}}</text>
+      >{{parse.parseDuration(item.time)}}</text>
       <text class="text-sm">{{item.text || ''}}</text>
     </view>
   </scroll-view>
-  <view class="flex flex-row items-center h-12 px-4 border-t border-border">
-    <text wx:if="{{currentSongData}}" class="text-xs">{{currentSongData.title}}</text>
+  <view wx:if="{{currentSongData}}" class="flex flex-row items-center h-12 px-4 border-t border-border">
+    <text class="flex-1 text-xs">{{currentSongData.title}}</text>
+    <auto-play-switch-button />
   </view>
 </float-control-panel-page>

@@ -1,4 +1,4 @@
-<wxs module="wxs" src="index.wxs.ts" />
+<wxs module="parse" src="../../wxs/parse.wxs.ts" />
 
 <view
   id="{{info.id}}"
@@ -6,11 +6,17 @@
   hover-class="bg-accent text-accent-foreground"
 >
   <view class="flex-1 overflow-hidden">
-    <text class="block w-full text-sm truncate" overflow="ellipsis">{{info.song_name}} - {{info.artist}}</text>
-    <text class="block w-full text-sm text-muted-foreground truncate" overflow="ellipsis">{{info.album_name}}</text>
+    <text
+      class="block w-full text-sm truncate"
+      overflow="ellipsis"
+    >{{info.song_name}} - {{info.artist}}</text>
+    <text
+      class="block w-full text-sm text-muted-foreground truncate"
+      overflow="ellipsis"
+    >{{info.album_name}}</text>
   </view>
   <text
     wx:if="{{info.duration}}"
     class="shrink-0 text-xs text-muted-foreground max-w-24 overflow-hidden text-ellipsis whitespace-nowrap"
-  >{{wxs.formatDuration(info.duration)}}</text>
+  >{{parse.parseDuration(info.duration)}}</text>
 </view>

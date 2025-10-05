@@ -1,6 +1,7 @@
 import { hooks } from '@/utils/hook'
 import { appState } from '@/stores/appState'
 import { data } from '@/stores/data'
+import { timeServer } from '@/utils/timeServer'
 
 Page({
   data: {},
@@ -30,5 +31,6 @@ Page({
     hooks.removeAllHooks()
     appState.clearState()
     data.clearState()
+    timeServer.destroy()
   },  
 })

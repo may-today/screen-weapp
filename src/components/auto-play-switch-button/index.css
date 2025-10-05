@@ -1,0 +1,15 @@
+@reference '../../app.css';
+
+.state-enabled {
+  @apply bg-emerald-400/20 border-emerald-400/40 text-emerald-400;
+  .component-dot {
+    @apply bg-emerald-400;
+  }
+}
+
+.state-disabled {
+  @apply bg-neutral-400/20 border-neutral-400/40 text-neutral-400;
+  .component-dot {
+    @apply bg-neutral-400;
+  }
+}

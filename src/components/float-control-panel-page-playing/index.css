@@ -1,0 +1,17 @@
+@reference '../../app.css';
+
+.lyric-line {
+  @apply flex flex-row items-center gap-2 mx-2 px-2 py-1.5 min-h-8 rounded-md first:mt-2 last:mb-2;
+}
+
+.lyric-line.active {
+  @apply bg-primary text-primary-foreground font-medium;
+}
+
+.lyric-line.highlight {
+  @apply text-theme-foreground;
+}
+
+.lyric-line.active.highlight {
+  @apply text-primary-foreground
+}

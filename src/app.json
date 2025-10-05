@@ -34,5 +34,6 @@
   "resolveAlias": {
     "@/*": "/*"
   },
-  "componentFramework": "glass-easel"
+  "componentFramework": "glass-easel",
+  "workers": "workers"
 }

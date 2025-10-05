@@ -10,9 +10,9 @@ ComponentWithStore({
   },
   methods: {
     handleLyricLineTap(e: WechatMiniprogram.TouchEvent) {
-      const index = e.currentTarget.dataset.index
+      const { index, time } = e.currentTarget.dataset
       if (typeof index === 'number') {
-        data.setCurrentLyricIndex(index)
+        data.setCurrentLyricIndex(index, time)
       }
     },
   },

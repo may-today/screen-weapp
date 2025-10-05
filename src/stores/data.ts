@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx-miniprogram'
-import type { GroupListItem, SongDetail } from '@/types'
 import { generateDataDict, generateMetaGroupList } from '@/utils/songList'
+import { timeServer } from '@/utils/timeServer'
+import type { GroupListItem, LyricLine, SongDetail } from '@/types'
 
 export class DataStore {
   allDataList = [] as SongDetail[]
@@ -10,12 +11,14 @@ export class DataStore {
   currentDatasetName = ''
   currentSongData = null as SongDetail | null
   currentLyricIndex = -1
+  currentTime = 0
+  autoPlay = false
 
   constructor() {
     makeAutoObservable(this)
   }
 
-  get currentLyricLine() {
+  get currentLyricLine(): LyricLine | null {
     if (
       this.currentSongData?.detail &&
       this.currentLyricIndex >= 0 &&
@@ -26,6 +29,14 @@ export class DataStore {
     return null
   }
 
+  get currentSongTimelineIndexMap(): Map<number, number> {
+    const map = new Map<number, number>()
+    this.currentSongData?.detail.forEach((line, index) => {
+      map.set(line.time, index)
+    })
+    return map
+  }
+
   clearState() {
     this.allDataList = []
     this.allDataDict = {}
@@ -34,6 +45,8 @@ export class DataStore {
     this.currentDatasetName = ''
     this.currentSongData = null
     this.currentLyricIndex = -1
+    this.autoPlay = false
+    this.currentTime = 0
   }
 
   saveDetailList(data: SongDetail[], info?: {
@@ -53,9 +66,40 @@ export class DataStore {
     this.setCurrentLyricIndex(-1)
   }
 
-  setCurrentLyricIndex(index: number) {
+  setCurrentTime(time: number) {
+    if (time < 0) {
+      time = 0
+    }
+    this.currentTime = time
+    // resume auto play
+    if (this.autoPlay) {
+      timeServer.pause()
+      timeServer.start()
+    }
+  }
+
+  addCurrentTimeSecond() {
+    this.currentTime += 1
+    
+  }
+
+  setCurrentLyricIndex(index: number, customTime?: number) {
     wx.vibrateShort({ type: 'light' })
     this.currentLyricIndex = index
+    if (index < 0) {
+      timeServer.clear()
+      return
+    }
+    // set current time by custom time
+    if (customTime !== undefined) {
+      this.setCurrentTime(customTime)
+      return
+    }
+    // set current time by fetched lyric line
+    const targetLyricLine = this.currentSongData?.detail[index]
+    if (targetLyricLine && targetLyricLine.time >= 0) {
+      this.setCurrentTime(targetLyricLine.time)
+    }
   }
 
   nextLyricLine() {
@@ -78,6 +122,10 @@ export class DataStore {
     } else {
       this.setCurrentLyricIndex(-1)
     }
+  }
+
+  setAutoPlay(autoPlay: boolean) {
+    this.autoPlay = autoPlay
   }
 }
 

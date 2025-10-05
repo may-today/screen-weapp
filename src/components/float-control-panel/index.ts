@@ -15,7 +15,7 @@ ComponentWithStore({
   storeBindings: {
     store: appState,
     fields: ['showScreenFloatPanel'] as const,
-    actions: ['setShowScreenFloatPanel'] as const,
+    actions: [] as const,
     // actions: {
     //   buttonTap: 'update',
     // } as const,
@@ -41,10 +41,10 @@ ComponentWithStore({
       })
     },
     handleAfterLeave() {
-      this.setShowScreenFloatPanel(false)
+      appState.setShowScreenFloatPanel(false)
     },
     handleCloseButtonTap() {
-      this.setShowScreenFloatPanel(false)
+      appState.setShowScreenFloatPanel(false)
     },
     handleCatchTap() {
       return
