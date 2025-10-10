@@ -1,9 +1,6 @@
-<!--index.wxml-->
-<t-message id="t-message" />
 <scroll-view class="scroll-area" scroll-y type="list">
   <view class="container">
     <button bind:tap="jumpToScreenPage" class="bg-blue-500 text-white h-10 rounded-md">屏幕</button>
     <button bind:tap="jumpToRemotePage">遥控器</button>
-    <button bind:tap="jumpToTestPage">测试</button>
   </view>
 </scroll-view>

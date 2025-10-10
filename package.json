@@ -15,13 +15,11 @@
   "license": "ISC",
   "dependencies": {
     "hookable": "^5.5.3",
-    "lottie-miniprogram": "^1.0.12",
     "miniprogram-computed": "^7.1.0",
     "miniprogram-text-decoder": "^2.0.0",
     "miniprogram-text-encoder": "^2.0.0",
     "mobx-miniprogram": "^6.12.3",
-    "mobx-miniprogram-bindings": "^5.1.1",
-    "tdesign-miniprogram": "^1.10.1"
+    "mobx-miniprogram-bindings": "^5.1.1"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.9.0",

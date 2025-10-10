@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { TDesignResolver } from 'weapp-vite/auto-import-components/resolvers'
 import { defineConfig } from 'weapp-vite/config'
 import { UnifiedViteWeappTailwindcssPlugin } from 'weapp-tailwindcss/vite'
 
@@ -9,11 +8,9 @@ export default defineConfig({
     enhance: {
       autoImportComponents: {
         globs: ['components/**/*'],
-        resolvers: [TDesignResolver()],
+        resolvers: [],
       },
     },
-    // pnpm g 生成的格式
-    // https://vite.icebreaker.top/guide/generate.html
     generate: {
       extensions: {
         js: 'ts',
@@ -53,11 +50,9 @@ export default defineConfig({
       inlineWxs: true,
       wxsMatcher: (filename) => filename.endsWith('.wxs'),
       tailwindcss: {
-        // 显示声明用的是 tailwindcss v4
         version: 4,
         v4: {
           cssEntries: [
-            // app.css 的路径
             path.resolve(import.meta.dirname, './src/app.css'),
           ],
         },

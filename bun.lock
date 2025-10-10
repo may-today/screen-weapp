@@ -5,13 +5,11 @@
       "name": "miniprogram-ts-less-quickstart",
       "dependencies": {
         "hookable": "^5.5.3",
-        "lottie-miniprogram": "^1.0.12",
         "miniprogram-computed": "^7.1.0",
         "miniprogram-text-decoder": "^2.0.0",
         "miniprogram-text-encoder": "^2.0.0",
         "mobx-miniprogram": "^6.12.3",
         "mobx-miniprogram-bindings": "^5.1.1",
-        "tdesign-miniprogram": "^1.10.1",
       },
       "devDependencies": {
         "@egoist/tailwindcss-icons": "^1.9.0",
@@ -1746,8 +1744,6 @@
 
     "loose-envify": ["loose-envify@1.4.0", "", { "dependencies": { "js-tokens": "^3.0.0 || ^4.0.0" }, "bin": { "loose-envify": "cli.js" } }, "sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q=="],
 
-    "lottie-miniprogram": ["lottie-miniprogram@1.0.12", "", {}, "sha512-2ITtXAyeDXbftvYYe5w0ayl8jTV8laylWMCdJofpka1q205NkjRNj7kX+iIZZ/YjKh1f8plWxb9gSFHkC7BLUQ=="],
-
     "lower-case": ["lower-case@1.1.4", "", {}, "sha512-2Fgx1Ycm599x+WGpIYwJOvsjmXFzTSc34IwDWALRA/8AopUKAVPwfJ+h5+f85BCp0PWmmJcWzEpxOpoXycMpdA=="],
 
     "lowercase-keys": ["lowercase-keys@1.0.1", "", {}, "sha512-G2Lj61tXDnVFFOi8VZds+SoQjtQC3dgokKdDG2mTm1tx4m50NUHBOZSBwQQHyy0V12A0JTG4icfZQH+xPyh8VA=="],
@@ -2343,8 +2339,6 @@
     "tar": ["tar@7.5.1", "", { "dependencies": { "@isaacs/fs-minipass": "^4.0.0", "chownr": "^3.0.0", "minipass": "^7.1.2", "minizlib": "^3.1.0", "yallist": "^5.0.0" } }, "sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g=="],
 
     "tar-stream": ["tar-stream@2.2.0", "", { "dependencies": { "bl": "^4.0.3", "end-of-stream": "^1.4.1", "fs-constants": "^1.0.0", "inherits": "^2.0.3", "readable-stream": "^3.1.1" } }, "sha512-ujeqbceABgwMZxEJnk2HDY2DlnUZ+9oEcb1KzTVfYHio0UE6dG71n60d8D2I4qNvleWrrXpmjpt7vZeF1LnMZQ=="],
-
-    "tdesign-miniprogram": ["tdesign-miniprogram@1.10.1", "", {}, "sha512-rKM3JYfJGB+R9G/yp6kGVN0Kc0hKqKoQnpoWm7OVrXNsYM0dlJXwTf+WsLkQtgUyfM20taqNaxXD852Bx7IseQ=="],
 
     "terminal-kit": ["terminal-kit@2.11.7", "", { "dependencies": { "@cronvel/get-pixels": "^3.4.1", "chroma-js": "^2.4.2", "lazyness": "^1.2.0", "ndarray": "^1.0.19", "nextgen-events": "^1.5.3", "seventh": "^0.7.40", "string-kit": "^0.17.6", "tree-kit": "^0.7.4" } }, "sha512-Obe3T8rYOVEI+3uJM1jAK74GkyJsLqRNsA78LcVQrJJ0XfxkhNEVJZ3+pdYD2qcXt9MOx3e/fCMZK/J0lg7KUA=="],
 

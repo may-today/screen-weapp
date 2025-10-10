@@ -1,4 +1,3 @@
-import lottie from 'lottie-miniprogram'
 import type { BleRemote } from '@/utils/bleRemote'
 import { Command } from '@/types'
 
