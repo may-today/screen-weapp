@@ -9,13 +9,15 @@ ComponentWithStore({
   data: {},
   storeBindings: {
     store: data,
-    fields: ['autoPlay', 'currentTime'] as const,
+    fields: ['autoPlay', 'currentTime', 'supportAutoPlay'] as const,
     actions: [] as const,
   },
   methods: {
     handleButtonTap() {
+      if (!this.data.supportAutoPlay) {
+        return
+      }
       wx.vibrateShort({ type: 'light' })
-      timeServer.prepare()
       if (this.data.autoPlay) {
         timeServer.pause()
       } else {

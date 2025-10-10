@@ -24,6 +24,7 @@ export class TimeServer {
     if (!this.worker) return
     this.clear()
     this.worker.terminate()
+    this.worker = null
   }
   private _postMessage(event: PostMessageEvent) {
     if (!this.worker) return
@@ -34,7 +35,7 @@ export class TimeServer {
   private _messageHandler: WechatMiniprogram.WorkerOnMessageCallback = (message) => {
     if (!message.message) return
     if (message.message.event === 'interval:update') {
-      data.addCurrentTimeBySecond()
+      data.addCurrentTimeSecond()
     }
   }
   start() {

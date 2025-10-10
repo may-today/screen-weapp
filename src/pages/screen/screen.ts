@@ -6,13 +6,10 @@ import { timeServer } from '@/utils/timeServer'
 Page({
   data: {},
   onLoad() {
-    // wx.setNavigationBarColor({
-    //   frontColor: '#ffffff',
-    //   backgroundColor: '#000000',
-    // })
     wx.setKeepScreenOn({
       keepScreenOn: true,
     })
+    timeServer.prepare()
     wx.enableAlertBeforeUnload({
       message: '确定要退出屏幕吗？',
     })

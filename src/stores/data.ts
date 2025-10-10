@@ -31,10 +31,25 @@ export class DataStore {
 
   get currentSongTimelineIndexMap(): Map<number, number> {
     const map = new Map<number, number>()
-    this.currentSongData?.detail.forEach((line, index) => {
-      map.set(line.time, index)
+    if (!this.currentSongData) {
+      return map
+    }
+    this.currentSongData.detail.forEach((line, index) => {
+      if (line.time >= 0) {
+        map.set(line.time, index)
+      }
     })
+    // add last line, point to index -1
+    if (map.size > 0) {
+      // max time = song length in meta, or last line time + 20
+      const maxTime = this.currentSongData.meta?.length || (Array.from(map.keys()).pop()! + 20)
+      map.set(maxTime, -1)
+    }
     return map
+  }
+
+  get supportAutoPlay() {
+    return this.currentSongTimelineIndexMap.size > 0
   }
 
   clearState() {
@@ -80,7 +95,13 @@ export class DataStore {
 
   addCurrentTimeSecond() {
     this.currentTime += 1
-    
+    if (this.currentSongData) {
+      // calc lyric index
+      const lyricIndex = this.currentSongTimelineIndexMap.get(this.currentTime)
+      if (lyricIndex !== undefined) {
+        this.setCurrentLyricIndex(lyricIndex)
+      }
+    }
   }
 
   setCurrentLyricIndex(index: number, customTime?: number) {

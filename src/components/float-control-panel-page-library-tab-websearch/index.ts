@@ -73,6 +73,8 @@ Component({
         index: '',
         meta: {
           artist: item.artist,
+          length: item.duration,
+          album: item.album_name,
         },
         detail: parseRawLRCFile(lyricText),
       }
