@@ -1,6 +1,33 @@
-<scroll-view class="scroll-area" scroll-y type="list">
-  <view class="container">
-    <button bind:tap="jumpToScreenPage" class="bg-blue-500 text-white h-10 rounded-md">屏幕</button>
-    <button bind:tap="jumpToRemotePage">遥控器</button>
+<view class="dark absolute left-0 top-0 w-full h-full bg-background -z-10">
+  <!-- <image
+    src=""
+    class="w-full h-full transition-opacity duration-300 {{ bgImageLoaded ? 'opacity-100' : 'opacity-0' }}"
+    mode="aspectFill"
+    bind:load="handleBgImageLoad"
+  /> -->
+</view>
+<view class="dark h-full p-4 bg-black/70 text-foreground border-border z-10">
+  <view class="h-2/5 flex items-end justify-start py-3">
+    <text class="text-4xl font-bold">MayScreen</text>
   </view>
-</scroll-view>
+  <view class="flex flex-row items-center justify-center gap-3 py-3">
+    <view
+      class="flex-[2] flex flex-row items-center justify-center gap-2 rounded-lg border border-border bg-black/30 h-20"
+      hover-class="bg-black/50 text-accent-foreground"
+      bind:tap="jumpToScreenPage"
+    >
+      <image src="../../assets/index-icon/screen.svg" class="size-8" />
+      <text>歌曲提词器</text>
+    </view>
+    <view
+      class="flex-1 flex flex-row items-center justify-center gap-2 rounded-lg border border-border bg-black/30 h-20"
+      hover-class="bg-black/50 text-accent-foreground"
+      bind:tap="jumpToRemotePage"
+    >
+      <image src="../../assets/index-icon/remote.svg" class="size-8" />
+      <text>遥控</text>
+    </view>
+  </view>
+  <!-- <button bind:tap="jumpToScreenPage" class="bg-blue-500 text-white h-10 rounded-md">屏幕</button> -->
+  <!-- <button bind:tap="jumpToRemotePage">遥控器</button> -->
+</view>
