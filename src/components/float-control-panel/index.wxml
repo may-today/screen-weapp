@@ -34,7 +34,7 @@
         />
         <float-control-panel-nav-button
           icon-class="i-lucide-blend"
-          title="未连接"
+          title="遥控器"
           active="{{currentTab === 'remote'}}"
           data-tab="remote"
           catch:tap="handleTabTap"
@@ -43,7 +43,7 @@
       <view class="flex-1 overflow-hidden">
         <float-control-panel-page-playing wx:if="{{currentTab === 'playing'}}" />
         <float-control-panel-page-library wx:if="{{currentTab === 'library'}}" />
-        <float-control-panel-page-remote wx:if="{{currentTab === 'remote'}}" />
+        <!-- <float-control-panel-page-remote wx:if="{{currentTab === 'remote'}}" /> -->
       </view>
     </view>
   </view>

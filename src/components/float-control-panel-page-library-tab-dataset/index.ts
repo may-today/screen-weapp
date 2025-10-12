@@ -5,20 +5,12 @@ import type { SongDetail } from '@/types'
 
 const datasetDict = {
   mayday: {
-    name: '五月天',
+    name: '五月天曲库',
     downUrl: 'https://wx-static.ddiu.site/dataset/mayday.json',
   },
   jayzhou: {
-    name: '周杰伦',
+    name: '周杰伦曲库',
     downUrl: 'https://wx-static.ddiu.site/dataset/jayzhou.json',
-  },
-  jjlin: {
-    name: '林俊杰',
-    downUrl: 'https://wx-static.ddiu.site/dataset/jjlin.json',
-  },
-  fhcq: {
-    name: '凤凰传奇',
-    downUrl: 'https://wx-static.ddiu.site/dataset/fhcq.json',
   },
 } as Record<
   string,

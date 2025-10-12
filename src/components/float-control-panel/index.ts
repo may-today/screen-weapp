@@ -50,6 +50,13 @@ ComponentWithStore({
       return
     },
     handleTabTap(e: WechatMiniprogram.CustomEvent) {
+      if (e.currentTarget.dataset.tab === 'remote') {
+        wx.showToast({
+          title: '暂未开放',
+          icon: 'none',
+        })
+        return
+      }
       const { tab } = e.currentTarget.dataset
       this.setData({
         currentTab: tab,

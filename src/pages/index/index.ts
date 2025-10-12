@@ -9,9 +9,13 @@ Page({
     })
   },
   jumpToRemotePage() {
-    wx.switchTab({
-      url: '/pages/remote/playing',
+    wx.showToast({
+      title: '暂未开放',
+      icon: 'none',
     })
+    // wx.switchTab({
+    //   url: '/pages/remote/playing',
+    // })
   },
   handleBgImageLoad() {
     this.setData({

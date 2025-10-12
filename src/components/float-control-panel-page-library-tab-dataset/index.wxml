@@ -8,11 +8,11 @@
   <view
     slot="header"
     wx:if="{{currentDatasetId}}"
-    class="flex flex-row items-center gap-0.5 px-2 py-1 rounded-md bg-secondary text-secondary-foreground text-xs"
+    class="flex flex-row items-center gap-0.5 px-2 py-1 rounded-md border border-border text-xs"
     hover-class="bg-accent text-accent-foreground"
     bind:tap="handleResetDataset"
   >
-    <text>{{currentDatasetName}}曲库</text>
+    <text>{{currentDatasetName}}</text>
     <view class="i-lucide-chevrons-up-down text-muted-foreground text-[10px]" />
   </view>
   <!-- 曲库选择 -->
@@ -20,7 +20,7 @@
     <view
       wx:for="{{dataset}}"
       wx:key="id"
-      class="flex items-center justify-between px-3 py-2 bg-secondary text-secondary-foreground text-sm rounded-md"
+      class="flex items-center justify-between px-3 py-2 text-sm rounded-md"
       hover-class="bg-accent text-accent-foreground"
       data-id="{{item.id}}"
       bind:tap="handleSelectDataset"
