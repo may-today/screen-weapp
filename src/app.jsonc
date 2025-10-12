@@ -1,10 +1,9 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/logs/logs",
     "pages/screen/screen",
-    "pages/remote/playing",
-    "pages/remote/device-connect"
+    // "pages/remote/playing",
+    // "pages/remote/device-connect"
   ],
   "window": {
     "navigationBarBackgroundColor": "@navBgColor",
@@ -14,18 +13,18 @@
     "navigationBarTitleText": "MayScreen",
     "navigationStyle": "default"
   },
-  "tabBar": {
-    "list": [
-      {
-        "pagePath": "pages/remote/playing",
-        "text": "正在展示"
-      },
-      {
-        "pagePath": "pages/logs/logs",
-        "text": "我的"
-      }
-    ]
-  },
+  // "tabBar": {
+  //   "list": [
+  //     {
+  //       "pagePath": "pages/remote/playing",
+  //       "text": "正在展示"
+  //     },
+  //     {
+  //       "pagePath": "pages/logs/logs",
+  //       "text": "我的"
+  //     }
+  //   ]
+  // },
   "lazyCodeLoading": "requiredComponents",
   "darkmode": true,
   "themeLocation": "theme.json",

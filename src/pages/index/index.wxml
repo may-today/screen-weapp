@@ -1,33 +1,41 @@
 <view class="dark absolute left-0 top-0 w-full h-full bg-background -z-10">
+  <mesh-gradient-background extra-class="absolute top-0 left-0 w-full h-full" />
   <!-- <image
     src=""
-    class="w-full h-full transition-opacity duration-300 {{ bgImageLoaded ? 'opacity-100' : 'opacity-0' }}"
+    class="absolute top-0 left-0 w-full h-full transition-opacity duration-800 {{ bgImageLoaded ? 'opacity-100' : 'opacity-0' }}"
     mode="aspectFill"
     bind:load="handleBgImageLoad"
   /> -->
 </view>
-<view class="dark h-full p-4 bg-black/70 text-foreground border-border z-10">
-  <view class="h-2/5 flex items-end justify-start py-3">
-    <text class="text-4xl font-bold">MayScreen</text>
-  </view>
-  <view class="flex flex-row items-center justify-center gap-3 py-3">
-    <view
-      class="flex-[2] flex flex-row items-center justify-center gap-2 rounded-lg border border-border bg-black/30 h-20"
-      hover-class="bg-black/50 text-accent-foreground"
-      bind:tap="jumpToScreenPage"
-    >
-      <image src="../../assets/index-icon/screen.svg" class="size-8" />
-      <text>歌曲提词器</text>
+<view class="dark h-full w-full index-container text-foreground border-border z-10">
+  <view class="h-full w-full max-w-xl mx-auto px-6 py-4">
+    <view class="h-2/5 flex flex-col items-stretch justify-end gap-1 py-3">
+      <text class="text-xs opacity-50">云端提词器</text>
+      <image src="../../assets/logo.svg" class="logo" />
     </view>
-    <view
-      class="flex-1 flex flex-row items-center justify-center gap-2 rounded-lg border border-border bg-black/30 h-20"
-      hover-class="bg-black/50 text-accent-foreground"
-      bind:tap="jumpToRemotePage"
-    >
-      <image src="../../assets/index-icon/remote.svg" class="size-8" />
-      <text>遥控</text>
+    <view class="flex flex-row items-center justify-center gap-3 py-3">
+      <view
+        class="flex-[3] p-4 glass-button transition-colors duration-300"
+        hover-class="bg-black/50 text-accent-foreground"
+        bind:tap="jumpToScreenPage"
+      >
+        <image src="../../assets/index-icon/screen.svg" class="size-6" />
+        <text class="block text-sm opacity-70 mt-4 font-bold text-right">歌曲提词器</text>
+        <text class="block text-xs opacity-50 mt-1 text-right">开启一个新屏幕</text>
+      </view>
+      <view
+        class="flex-[2] p-4 glass-button transition-colors duration-300"
+        hover-class="bg-black/50 text-accent-foreground"
+        bind:tap="jumpToRemotePage"
+      >
+        <image src="../../assets/index-icon/remote.svg" class="size-6" />
+        <text class="block text-sm opacity-70 mt-4 font-bold text-right">遥控</text>
+        <text class="block text-xs opacity-50 mt-1 text-right">控制附近的屏幕</text>
+      </view>
+    </view>
+    <text class="block text-sm mt-4 mb-3 font-bold px-2 text-left opacity-60">更多工具</text>
+    <view class="flex flex-row items-center justify-center h-20 border border-border border-dashed rounded-xl opacity-50">
+      <text class="text-sm opacity-60">暂未开放</text>
     </view>
   </view>
-  <!-- <button bind:tap="jumpToScreenPage" class="bg-blue-500 text-white h-10 rounded-md">屏幕</button> -->
-  <!-- <button bind:tap="jumpToRemotePage">遥控器</button> -->
 </view>
