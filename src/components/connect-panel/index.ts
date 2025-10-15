@@ -38,14 +38,11 @@ ComponentWithStore({
   storeBindings: {
     store: appState,
     fields: ['showConnectPanel', 'connectStatus'] as const,
-    actions: ['setShowConnectPanel'] as const,
-    // actions: {
-    //   buttonTap: 'update',
-    // } as const,
+    actions: [] as const,
   },
   methods: {
     handleDialogClose() {
-      this.setShowConnectPanel(false)
+      appState.setShowConnectPanel(false)
     },
     handleClickConnectButton() {
       if (!this.data.device) return

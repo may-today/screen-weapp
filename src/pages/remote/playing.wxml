@@ -1,5 +1,8 @@
 <view class="container">
-  <button bind:tap="jumpToDeviceConnectPage">连接设备</button>
+  <nav-bar />
+  <float-control-panel-page-playing />
+  <!-- <button bind:tap="jumpToDeviceConnectPage">连接设备</button>
   <button bind:tap="sendCommand">发送短指令</button>
   <button bind:tap="sendLargeData">发送长数据</button>
+  <button bind:tap="handleExit">退出屏幕</button> -->
 </view>

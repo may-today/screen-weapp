@@ -1,0 +1,1 @@
+<button bind:tap="handleOpenConnectNewDevicePage">连接新设备</button>

@@ -7,12 +7,8 @@ Page({
     bleInstance: getApp().globalData.bleRemote as BleRemote,
   },
   onLoad() {
-    this.state.bleInstance.prepare()
     wx.setKeepScreenOn({
       keepScreenOn: true,
-    })
-    wx.enableAlertBeforeUnload({
-      message: '确定要退出遥控器吗？已连接的屏幕将会断开连接。',
     })
   },
   onReady() {
