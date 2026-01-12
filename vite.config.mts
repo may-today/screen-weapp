@@ -5,12 +5,7 @@ import { UnifiedViteWeappTailwindcssPlugin } from 'weapp-tailwindcss/vite'
 export default defineConfig({
   weapp: {
     srcRoot: 'src',
-    enhance: {
-      autoImportComponents: {
-        globs: ['components/**/*'],
-        resolvers: [],
-      },
-    },
+    autoRoutes: true,
     generate: {
       extensions: {
         js: 'ts',
@@ -28,13 +23,6 @@ export default defineConfig({
     },
     worker: {
       entry: 'index.ts',
-    },
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        silenceDeprecations: ['legacy-js-api', 'import'],
-      },
     },
   },
   plugins: [

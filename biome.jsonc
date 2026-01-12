@@ -1,0 +1,40 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "extends": ["ultracite/biome/core", "ultracite/biome/vue"],
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "formatter": {
+    "lineWidth": 120
+  },
+  "linter": {
+    "rules": {
+      "style": {
+        "noEnum": "off"
+      },
+      "correctness": {
+        "noUnknownTypeSelector": "off"
+      }
+    }
+  },
+  "assist": {
+    "enabled": true
+  },
+  "html": {
+    "experimentalFullSupportEnabled": true
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "asNeeded"
+    },
+    "globals": ["defineAppJson", "definePageJson", "defineComponentJson"]
+  }
+}

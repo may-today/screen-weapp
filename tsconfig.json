@@ -1,48 +1,14 @@
 {
-  "compilerOptions": {
-    "target": "esnext",
-    "jsx": "preserve",
-    "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable"
-    ],
-    "useDefineForClassFields": false,
-    "baseUrl": ".",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
-    "resolveJsonModule": true,
-    "types": [
-      "miniprogram-api-typings"
-    ],
-    "allowImportingTsExtensions": true,
-    "allowJs": true,
-    "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noEmit": true,
-    "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
-    "isolatedModules": true,
-    "skipLibCheck": true
-  },
   "references": [
+    {
+      "path": "./tsconfig.app.json"
+    },
     {
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.js"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
+  "files": [],
+  "compilerOptions": {
+    "strictNullChecks": true
+  }
 }
