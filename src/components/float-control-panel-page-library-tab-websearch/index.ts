@@ -1,8 +1,8 @@
 import { data } from '@/stores/data'
-import { getTrackListByKeyword, getLyricBySongId } from '@/utils/webSearch'
-import { parseRawLRCFile } from '@/utils/lyric'
-import { hooks } from '@/utils/hook'
 import type { SongDetail } from '@/types'
+import { hooks } from '@/utils/hook'
+import { parseRawLRCFile } from '@/utils/lyric'
+import { getLyricBySongId, getTrackListByKeyword } from '@/utils/webSearch'
 
 export interface WebSearchTrackItem {
   id: string
@@ -13,7 +13,7 @@ export interface WebSearchTrackItem {
   duration: number
 }
 
-type Data = {
+interface Data {
   searchInputValue: string
   webSearchResultList: WebSearchTrackItem[]
 }

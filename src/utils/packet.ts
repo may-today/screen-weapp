@@ -1,6 +1,6 @@
-import TextEncoder from 'miniprogram-text-encoder'
 import TextDecoder from 'miniprogram-text-decoder'
-import { Command } from '@/types'
+import TextEncoder from 'miniprogram-text-encoder'
+import type { Command } from '@/types'
 
 const LARGE_DATA_HEADER_SIZE = 4 // 协议头大小：2字节总包数 + 2字节当前包index
 
@@ -9,9 +9,12 @@ const LARGE_DATA_HEADER_SIZE = 4 // 协议头大小：2字节总包数 + 2字节
  * @param input 输入字符串
  * @returns ArrayBuffer数组，每个包最大20字节
  */
-export const largeDataToChunks = (input: string, options: {
-  maxPacketSize: number
-}): ArrayBuffer[] => {
+export const largeDataToChunks = (
+  input: string,
+  options: {
+    maxPacketSize: number
+  }
+): ArrayBuffer[] => {
   if (!input) {
     return []
   }
@@ -21,8 +24,8 @@ export const largeDataToChunks = (input: string, options: {
   const data = encoder.encode(input)
   // 计算需要的包数量
   const totalPackets = Math.ceil(data.length / MAX_PAYLOAD_SIZE)
-  if (totalPackets > 65535) {
-    throw new Error(`数据太大，最多支持${65535}个包`)
+  if (totalPackets > 65_535) {
+    throw new Error(`数据太大，最多支持${65_535}个包`)
   }
   const chunks: ArrayBuffer[] = []
   for (let i = 0; i < totalPackets; i++) {

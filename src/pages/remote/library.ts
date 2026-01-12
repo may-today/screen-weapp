@@ -1,5 +1,5 @@
-import type { BleRemote } from '@/utils/bleRemote'
 import { Command } from '@/types'
+import type { BleRemote } from '@/utils/bleRemote'
 
 Page({
   data: {},
@@ -49,7 +49,9 @@ Page({
     this.state.bleInstance.sendCommand(Command.ChangeSongId, '1234567890')
   },
   sendLargeData() {
-    this.state.bleInstance.sendLargeData('我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回')
+    this.state.bleInstance.sendLargeData(
+      '我好想好想飞/逃离这个疯狂世界/那么多苦 那么多累/那么多莫名的泪水/我好想好想飞/逃离这个疯狂的世界/如果是你 发现了我/也别将我挽回'
+    )
   },
   handleExit() {
     wx.showModal({

@@ -1,4 +1,4 @@
-type Data = {
+interface Data {
   list: WechatMiniprogram.BlueToothDevice[]
   // connectingDevice: WechatMiniprogram.BlueToothDevice | null
   connectingDeviceId: string | null

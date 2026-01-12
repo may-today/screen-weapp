@@ -5,11 +5,15 @@ const metaReg = /^\[([a-z]+):([^\]]*)\]/
 
 // [01:02.03] -> 62.03
 const convertTimeToSeconds = (timeStr: string) => {
-  if (!timeStr || !timeStr.startsWith('[') || !timeStr.endsWith(']')) return -1
+  if (!(timeStr?.startsWith('[') && timeStr.endsWith(']'))) {
+    return -1
+  }
   const arr = timeStr.slice(1, -1).split(':')
-  if (arr.length !== 2) return -1
-  const minutes = parseInt(arr[0], 10)
-  const seconds = parseFloat(arr[1])
+  if (arr.length !== 2) {
+    return -1
+  }
+  const minutes = Number.parseInt(arr[0], 10)
+  const seconds = Number.parseFloat(arr[1])
   if (minutes > 0) {
     const sc = minutes * 60 + seconds
     return Math.round(sc)
@@ -21,7 +25,9 @@ const parseLyricLine = (line: string, offsetTime = 0): LyricLine[] => {
   if (timeReg.test(line)) {
     const lyricLines: LyricLine[] = []
     const timeMatches = line.match(timeReg)
-    if (!timeMatches) return lyricLines
+    if (!timeMatches) {
+      return lyricLines
+    }
     for (const timeMatch of timeMatches) {
       const time = convertTimeToSeconds(timeMatch)
       const text = line.replace(timeMatch, '').trim()
@@ -52,7 +58,9 @@ export const parseRawLRCFile = (content: string) => {
   const meta = metaRawLines.reduce(
     (acc, line) => {
       const match = line.match(metaReg)
-      if (!match) return acc
+      if (!match) {
+        return acc
+      }
       acc[match[1]] = match[2]
       return acc
     },

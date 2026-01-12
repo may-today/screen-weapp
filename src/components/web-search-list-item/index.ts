@@ -1,4 +1,4 @@
-import type { WebSearchTrackItem } from "@/utils/webSearch"
+import type { WebSearchTrackItem } from '@/utils/webSearch'
 
 Component({
   options: {

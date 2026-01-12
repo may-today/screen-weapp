@@ -10,7 +10,9 @@ const _postMessage = (event: string) => {
 }
 
 worker.onMessage((res) => {
-  if (!res.message) return
+  if (!res.message) {
+    return
+  }
   if (res.message.event === 'interval:start') {
     startInterval()
   } else if (res.message.event === 'interval:stop') {

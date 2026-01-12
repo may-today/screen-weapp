@@ -16,24 +16,32 @@ export class TimeServer {
   //   this.worker = createNewWorker()
   // }
   prepare() {
-    if (this.worker) return
+    if (this.worker) {
+      return
+    }
     this.worker = createNewWorker()
     this.worker.onMessage(this._messageHandler)
   }
   destroy() {
-    if (!this.worker) return
+    if (!this.worker) {
+      return
+    }
     this.clear()
     this.worker.terminate()
     this.worker = null
   }
   private _postMessage(event: PostMessageEvent) {
-    if (!this.worker) return
+    if (!this.worker) {
+      return
+    }
     this.worker.postMessage({
       message: { event },
     })
   }
-  private _messageHandler: WechatMiniprogram.WorkerOnMessageCallback = (message) => {
-    if (!message.message) return
+  private readonly _messageHandler: WechatMiniprogram.WorkerOnMessageCallback = (message) => {
+    if (!message.message) {
+      return
+    }
     if (message.message.event === 'interval:update') {
       data.addCurrentTimeSecond()
     }

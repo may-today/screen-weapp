@@ -1,6 +1,6 @@
 import path from 'node:path'
-import { defineConfig } from 'weapp-vite/config'
 import { UnifiedViteWeappTailwindcssPlugin } from 'weapp-tailwindcss/vite'
+import { defineConfig } from 'weapp-vite/config'
 
 export default defineConfig({
   weapp: {
@@ -33,16 +33,14 @@ export default defineConfig({
         transformUnit: 'px',
       },
       customAttributes: {
-        '*': [ /[A-Za-z-]*-class/ ]
+        '*': [/[A-Za-z-]*-class/],
       },
       inlineWxs: true,
       wxsMatcher: (filename) => filename.endsWith('.wxs'),
       tailwindcss: {
         version: 4,
         v4: {
-          cssEntries: [
-            path.resolve(import.meta.dirname, './src/app.css'),
-          ],
+          cssEntries: [path.resolve(import.meta.dirname, './src/app.css')],
         },
       },
     }),

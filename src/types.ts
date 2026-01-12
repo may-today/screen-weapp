@@ -39,7 +39,7 @@ export interface SearchItem {
   highlightLines: string
 }
 
-export type BaseError = {
+export interface BaseError {
   /** 错误码 */
   errCode: number
   /** 错误原因 */
@@ -50,9 +50,9 @@ export type BaseError = {
 
 export enum ConnectStatus {
   Disconnected = 0,
-  Connecting,
-  Authorizing,
-  Connected,
+  Connecting = 1,
+  Authorizing = 2,
+  Connected = 3,
 }
 
 export enum ScreenDevice {

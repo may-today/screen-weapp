@@ -1,10 +1,10 @@
 import { ComponentWithStore } from 'mobx-miniprogram-bindings'
-import { searchByString } from '@/utils/songList'
-import type { SearchItem } from '@/types'
 import { data } from '@/stores/data'
+import type { SearchItem } from '@/types'
 import { hooks } from '@/utils/hook'
+import { searchByString } from '@/utils/songList'
 
-type Data = {
+interface Data {
   searchInputValue: string
   filteredList: SearchItem[]
 }
@@ -42,7 +42,7 @@ ComponentWithStore({
       })
     },
     handleSelectSong(event: WechatMiniprogram.CustomEvent) {
-      const slug = event.currentTarget.dataset.slug as string || ''
+      const slug = (event.currentTarget.dataset.slug as string) || ''
       const songData = this.data.allDataDict[slug] || null
       data.setCurrentSongData(songData)
       hooks.callHook('trigger-tab', { tab: 'playing' })

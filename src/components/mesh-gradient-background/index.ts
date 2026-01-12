@@ -19,5 +19,5 @@ Component({
         backgroundIndex: randomIndex,
       })
     },
-  }
+  },
 })

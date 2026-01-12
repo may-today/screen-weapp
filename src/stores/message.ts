@@ -1,14 +1,14 @@
 import { makeAutoObservable } from 'mobx-miniprogram'
 import type { Command } from '@/types'
 
-type MessageData = {
+interface MessageData {
   /** 消息指令 */
   command: Command
   /** 消息附加数据 */
   payload?: string | number
 }
 
-type Message = {
+interface Message {
   meta: {
     /** 消息时间戳 */
     timestamp: number
@@ -35,9 +35,9 @@ export class MessageStore {
   }
 
   get latestMessage() {
-    return this.messageList.length > 0 ? this.messageList[this.messageList.length - 1] : null
+    return this.messageList.length > 0 ? this.messageList.at(-1) : null
   }
-  
+
   addMessage(data: MessageData, level: 'debug' | 'info' | 'error' = 'info') {
     this.messageList.push({
       meta: {

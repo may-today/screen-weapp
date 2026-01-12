@@ -1,8 +1,8 @@
-import type { SongMeta, SongDetail, SearchItem } from '@/types'
+import type { SearchItem, SongDetail, SongMeta } from '@/types'
 
 export const generateDataDict = (list: SongDetail[]) => {
   const dict: Record<string, SongDetail> = {}
-  list.forEach(song => {
+  list.forEach((song) => {
     dict[song.slug] = song
   })
   return dict
@@ -21,7 +21,7 @@ export const generateMetaGroupList = (list: SongDetail[]) => {
     } as SongMeta
     indexGroup[song.index].push(meta)
   })
-  const groupList = Object.keys(indexGroup).map(index => ({
+  const groupList = Object.keys(indexGroup).map((index) => ({
     index,
     list: indexGroup[index],
   }))
@@ -33,24 +33,31 @@ export const searchByString = (str: string, list: SongDetail[]) => {
   if (!searchValue) {
     return [] as SearchItem[]
   }
-  const filteredList = list.map(item => {
-    const pureLyricArr = item.detail.map(line => line.text)
-    const lyricLinesText = pureLyricArr.join('|').replace(/\s*/g, '').toLowerCase()
-    if (!item.title.toLowerCase().includes(searchValue) && !lyricLinesText.includes(searchValue)) {
-      return null
-    }
-    const matchType = item.title.toLowerCase().includes(searchValue) ? 'title' : 'lyric'
-    const matchLinesBefore = pureLyricArr.filter(line => line.replace(/\s*/g, '').toLowerCase().includes(searchValue))
-    const matchLines = Array.from(new Set(matchLinesBefore)).join('/')
-    const highlightLines = item.detail.filter(line => line.isHighlight).map(line => line.text).join('/')
-    return {
-      slug: item.slug,
-      data: item,
-      matchType,
-      matchLines,
-      highlightLines,
-    } as SearchItem
-  }).filter((item) => item !== null) as SearchItem[]
+  const filteredList = list
+    .map((item) => {
+      const pureLyricArr = item.detail.map((line) => line.text)
+      const lyricLinesText = pureLyricArr.join('|').replace(/\s*/g, '').toLowerCase()
+      if (!(item.title.toLowerCase().includes(searchValue) || lyricLinesText.includes(searchValue))) {
+        return null
+      }
+      const matchType = item.title.toLowerCase().includes(searchValue) ? 'title' : 'lyric'
+      const matchLinesBefore = pureLyricArr.filter((line) =>
+        line.replace(/\s*/g, '').toLowerCase().includes(searchValue)
+      )
+      const matchLines = Array.from(new Set(matchLinesBefore)).join('/')
+      const highlightLines = item.detail
+        .filter((line) => line.isHighlight)
+        .map((line) => line.text)
+        .join('/')
+      return {
+        slug: item.slug,
+        data: item,
+        matchType,
+        matchLines,
+        highlightLines,
+      } as SearchItem
+    })
+    .filter((item) => item !== null) as SearchItem[]
   filteredList.sort((a, b) => {
     if (a.matchType === 'title' && b.matchType === 'lyric') {
       return -1

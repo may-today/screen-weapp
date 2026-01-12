@@ -1,4 +1,4 @@
-import type { SongDetail } from "@/types"
+import type { SongDetail } from '@/types'
 
 Component({
   options: {

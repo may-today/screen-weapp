@@ -1,7 +1,7 @@
 import { ComponentWithComputed } from 'miniprogram-computed'
 import { appState } from '@/stores/appState'
 
-type Data = {
+interface Data {
   list: WechatMiniprogram.BlueToothDevice[]
   // connectingDevice: WechatMiniprogram.BlueToothDevice | null
   connectingDeviceId: string | null
@@ -19,8 +19,10 @@ ComponentWithComputed({
   },
   computed: {
     connectingDevice(data): WechatMiniprogram.BlueToothDevice | null {
-      if (!data.connectingDeviceId) return null
-      const device = data.list.find(item => item.deviceId === data.connectingDeviceId)
+      if (!data.connectingDeviceId) {
+        return null
+      }
+      const device = data.list.find((item) => item.deviceId === data.connectingDeviceId)
       return device || null
     },
   },

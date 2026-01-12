@@ -1,7 +1,7 @@
 import { makeAutoObservable } from 'mobx-miniprogram'
+import type { GroupListItem, LyricLine, SongDetail } from '@/types'
 import { generateDataDict, generateMetaGroupList } from '@/utils/songList'
 import { timeServer } from '@/utils/timeServer'
-import type { GroupListItem, LyricLine, SongDetail } from '@/types'
 
 export class DataStore {
   allDataList = [] as SongDetail[]
@@ -42,7 +42,7 @@ export class DataStore {
     // add last line, point to index -1
     if (map.size > 0) {
       // max time = song length in meta, or last line time + 20
-      const maxTime = this.currentSongData.meta?.length || (Array.from(map.keys()).pop()! + 20)
+      const maxTime = this.currentSongData.meta?.length || Array.from(map.keys()).pop()! + 20
       map.set(maxTime, -1)
     }
     return map
@@ -64,10 +64,13 @@ export class DataStore {
     this.currentTime = 0
   }
 
-  saveDetailList(data: SongDetail[], info?: {
-    id: string
-    name: string
-  }) {
+  saveDetailList(
+    data: SongDetail[],
+    info?: {
+      id: string
+      name: string
+    }
+  ) {
     this.allDataList = data
     this.allDataDict = generateDataDict(data)
     this.metaGroupList = generateMetaGroupList(data)
@@ -124,10 +127,7 @@ export class DataStore {
   }
 
   nextLyricLine() {
-    if (
-      this.currentSongData?.detail &&
-      this.currentLyricIndex < this.currentSongData.detail.length - 1
-    ) {
+    if (this.currentSongData?.detail && this.currentLyricIndex < this.currentSongData.detail.length - 1) {
       this.setCurrentLyricIndex(this.currentLyricIndex + 1)
     } else {
       this.setCurrentLyricIndex(-1)
@@ -135,10 +135,7 @@ export class DataStore {
   }
 
   prevLyricLine() {
-    if (
-      this.currentSongData?.detail &&
-      this.currentLyricIndex > 0
-    ) {
+    if (this.currentSongData?.detail && this.currentLyricIndex > 0) {
       this.setCurrentLyricIndex(this.currentLyricIndex - 1)
     } else {
       this.setCurrentLyricIndex(-1)

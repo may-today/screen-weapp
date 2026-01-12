@@ -23,7 +23,7 @@ const getDeviceEnum = (options: {
   }
   // 根据屏幕尺寸判断
   const screenRatio = screenMin / screenMax
-  if ((screenRatio >= 0.6 && screenRatio <= 1)) {
+  if (screenRatio >= 0.6 && screenRatio <= 1) {
     return ScreenDevice.Pad
   }
   return ScreenDevice.Phone
@@ -69,12 +69,16 @@ export const generateServiceUuid = (): string => {
     `${screenMax.toString(16).padStart(4, '0').slice(0, 4)}`,
     `${screenMin.toString(16).padStart(4, '0').slice(0, 4)}`,
     '000000000000',
-  ].join('-').toUpperCase()
+  ]
+    .join('-')
+    .toUpperCase()
   _log('generated uuid', uuid)
   return uuid
 }
 
-export const getDeviceInfoFromUuid = (uuid: string): {
+export const getDeviceInfoFromUuid = (
+  uuid: string
+): {
   serviceUuid: string
   device: ScreenDevice
   system: ScreenSystem
@@ -90,18 +94,18 @@ export const getDeviceInfoFromUuid = (uuid: string): {
   if (_prefix !== '19970329') {
     return null
   }
-  
+
   // 解析设备类型和系统类型
-  const deviceType = parseInt(deviceInfo.charAt(0))
-  const systemType = parseInt(deviceInfo.charAt(1))
-  
+  const deviceType = Number.parseInt(deviceInfo.charAt(0), 10)
+  const systemType = Number.parseInt(deviceInfo.charAt(1), 10)
+
   // 使用Map来映射设备类型到显示名称
   const deviceDisplayMap = new Map([
     [ScreenDevice.Phone, '手机'],
     [ScreenDevice.Pad, '平板'],
-    [ScreenDevice.Computer, '电脑']
+    [ScreenDevice.Computer, '电脑'],
   ])
-  
+
   // 使用Map来映射系统类型到显示名称
   const systemDisplayMap = new Map([
     [ScreenSystem.iOS, 'iOS'],
@@ -109,18 +113,18 @@ export const getDeviceInfoFromUuid = (uuid: string): {
     [ScreenSystem.HarmonyOS, '鸿蒙'],
     [ScreenSystem.Windows, 'Windows'],
     [ScreenSystem.Mac, 'Mac'],
-    [ScreenSystem.Other, '']
+    [ScreenSystem.Other, ''],
   ])
-  
+
   const deviceDisplayName = deviceDisplayMap.get(deviceType) || '未知设备'
   const systemDisplayName = systemDisplayMap.get(systemType) || ''
-  
+
   // 将16进制的屏幕尺寸转换为10进制
-  const screenMaxNum = parseInt(screenMax, 16)
-  const screenMinNum = parseInt(screenMin, 16)
+  const screenMaxNum = Number.parseInt(screenMax, 16)
+  const screenMinNum = Number.parseInt(screenMin, 16)
   let displayName = [systemDisplayName, deviceDisplayName].filter(Boolean).join(' ')
   if (systemType === ScreenSystem.iOS && deviceType === ScreenDevice.Phone) {
-    displayName = 'iPhone' 
+    displayName = 'iPhone'
   } else if (systemType === ScreenSystem.iOS && deviceType === ScreenDevice.Pad) {
     displayName = 'iPad'
   } else if (systemType === ScreenSystem.Mac && deviceType === ScreenDevice.Computer) {
@@ -133,6 +137,6 @@ export const getDeviceInfoFromUuid = (uuid: string): {
     system: systemType as ScreenSystem,
     screenMax: screenMaxNum,
     screenMin: screenMinNum,
-    displayName
+    displayName,
   }
 }

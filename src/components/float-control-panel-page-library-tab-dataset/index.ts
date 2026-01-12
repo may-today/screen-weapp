@@ -1,6 +1,6 @@
 import { ComponentWithStore } from 'mobx-miniprogram-bindings'
-import { data } from '@/stores/data'
 import { appState } from '@/stores/appState'
+import { data } from '@/stores/data'
 import type { SongDetail } from '@/types'
 
 const datasetDict = {

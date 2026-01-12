@@ -1,7 +1,7 @@
 import { ComponentWithComputed } from 'miniprogram-computed'
 import { getDeviceInfoFromUuid } from '@/utils/uuid'
 
-type Data = {
+interface Data {
   device: WechatMiniprogram.BlueToothDevice
 }
 
@@ -26,7 +26,7 @@ ComponentWithComputed({
     },
   },
   methods: {
-    handleClickConnectButton(e: WechatMiniprogram.CustomEvent) {
+    handleClickConnectButton(_e: WechatMiniprogram.CustomEvent) {
       this.triggerEvent('select', { deviceId: this.data.device.deviceId })
     },
   },

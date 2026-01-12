@@ -19,7 +19,7 @@ export const openBluetoothAdapter = async (mode: 'central' | 'peripheral') => {
     console.log('openBluetoothAdapter success', res)
     return
   } catch (err: any) {
-    if (err.errCode === 10001) {
+    if (err.errCode === 10_001) {
       // 手机蓝牙功能不可用，但此时小程序蓝牙模块已经初始化完成，监听蓝牙状态改变后可重新连入
       return new Promise<void>((resolve) => {
         wx.onBluetoothAdapterStateChange((res) => {
