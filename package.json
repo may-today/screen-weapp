@@ -7,6 +7,7 @@
     "dev:open": "weapp-vite dev -o",
     "build": "weapp-vite build",
     "open": "weapp-vite open",
+    "preview": "weapp-ide-cli auto-preview --project .",
     "g": "weapp-vite generate",
     "postinstall": "weapp-tw patch",
     "prepare": "lefthook install"
@@ -40,6 +41,7 @@
     "tailwindcss": "^4.1.18",
     "typescript": "^5.9.3",
     "ultracite": "7.0.11",
+    "weapp-ide-cli": "^4.1.2",
     "weapp-tailwindcss": "^4.9.2",
     "weapp-vite": "^6.1.7"
   }

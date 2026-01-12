@@ -1,5 +1,0 @@
-<view class="dark h-screen w-screen bg-black text-white">
-  <screen-page />
-  <float-control-bar />
-  <!-- <float-status-bar /> -->
-</view>

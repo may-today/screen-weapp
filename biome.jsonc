@@ -35,6 +35,6 @@
       "quoteStyle": "single",
       "semicolons": "asNeeded"
     },
-    "globals": ["defineAppJson", "definePageJson", "defineComponentJson"]
+    "globals": ["wx", "defineAppJson", "definePageJson", "defineComponentJson"]
   }
 }

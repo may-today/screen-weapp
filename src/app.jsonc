@@ -1,4 +1,5 @@
 {
+  "$schema": "https://vite.icebreaker.top/app.json",
   "pages": [
     "pages/index/index",
     "pages/screen/screen",
@@ -8,33 +9,32 @@
     "pages/remote/device-connect"
   ],
   "window": {
-    "navigationBarBackgroundColor": "@navBgColor",
-    "navigationBarTextStyle": "@navTxtStyle",
-    "backgroundColor": "@bgColor",
-    "backgroundTextStyle": "@bgTxtStyle",
+    "navigationBarBackgroundColor": "#171717",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#171717",
+    "backgroundTextStyle": "dark",
     "navigationBarTitleText": "MayScreen",
     "navigationStyle": "default"
   },
-  "tabBar": {
-    "list": [
-      {
-        "pagePath": "pages/remote/playing",
-        "text": "正在展示"
-      },
-      {
-        "pagePath": "pages/remote/library",
-        "text": "内容库"
-      }
-    ]
-  },
+  // "tabBar": {
+  //   "list": [
+  //     {
+  //       "pagePath": "pages/remote/playing",
+  //       "text": "正在展示"
+  //     },
+  //     {
+  //       "pagePath": "pages/remote/library",
+  //       "text": "内容库"
+  //     }
+  //   ]
+  // },
   "lazyCodeLoading": "requiredComponents",
-  "darkmode": true,
-  "themeLocation": "theme.json",
+  "style": "v2",
+  "componentFramework": "glass-easel",
   "resizable": true,
   "enablePassiveEvent": true,
   "resolveAlias": {
     "@/*": "/*"
   },
-  "componentFramework": "glass-easel",
   "workers": "workers"
 }
