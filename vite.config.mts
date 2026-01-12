@@ -21,6 +21,16 @@ export default defineConfig({
         page: 'index',
       },
     },
+    json: {
+      defaults: {
+        component: {
+          options: {
+            pureDataPattern: /^_/,
+          },
+          styleIsolation: 'apply-shared',
+        },
+      },
+    },
     worker: {
       entry: 'index.ts',
     },

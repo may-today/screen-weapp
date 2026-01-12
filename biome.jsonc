@@ -23,7 +23,10 @@
     "enabled": true
   },
   "html": {
-    "experimentalFullSupportEnabled": true
+    "experimentalFullSupportEnabled": true,
+    "formatter": {
+      "indentScriptAndStyle": false
+    }
   },
   "css": {
     "parser": {

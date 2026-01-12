@@ -1,5 +1,3 @@
-// stores/counter.ts
-
 import { defineStore, ref } from 'wevu'
 import type { BleRemote } from '@/utils/bleRemote'
 import type { BleScreen } from '@/utils/bleScreen'
