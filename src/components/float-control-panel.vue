@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { onReady, onUnload, ref, storeToRefs } from 'wevu'
+import FloatControlPanelNavButton from '@/components/float-control-panel-nav-button.vue'
+import FloatControlPanelPageLibrary from '@/components/float-control-panel-page-library.vue'
+import FloatControlPanelPagePlaying from '@/components/float-control-panel-page-playing.vue'
 import { useUi } from '@/stores/ui'
 import { hooks } from '@/utils/hook'
 
@@ -8,19 +11,16 @@ const { showScreenFloatPanel } = storeToRefs(ui)
 const headerHeight = ref(0)
 const rightMargin = ref(0)
 const currentTab = ref('playing')
-const _triggerTabEventHandler = ref<any>(null)
 
 onReady(() => {
   console.log('onReady float-control-panel')
   calculateHeaderStyle()
-  // 绑定方法以确保 this 指向正确
-  _triggerTabEventHandler.value = handleTriggerTab.bind(this)
-  hooks.hook('trigger-tab', _triggerTabEventHandler.value)
+  hooks.hook('trigger-tab', handleTriggerTab)
 })
 
 onUnload(() => {
   console.log('onUnload float-control-panel')
-  hooks.removeHook('trigger-tab', _triggerTabEventHandler.value)
+  hooks.removeHook('trigger-tab', handleTriggerTab)
 })
 
 const calculateHeaderStyle = () => {
@@ -33,10 +33,6 @@ const calculateHeaderStyle = () => {
 
 const handleClosePanel = () => {
   ui.setShowScreenFloatPanel(false)
-}
-
-const handleCatchTap = () => {
-  return
 }
 
 const handleTabTap = (e: WechatMiniprogram.CustomEvent) => {
@@ -73,37 +69,36 @@ const handleExit = () => {
     <view class="h-full w-full flex flex-col items-end justify-end">
       <view
         class="flex-1 w-full max-w-[500px] max-h-[600px] flex flex-row overflow-hidden rounded-xl bg-card text-foreground opacity-85"
-        @tap="handleCatchTap"
       >
         <view class="flex flex-col p-2 border-r border-border shrink-0">
           <view class="flex-1">
-            <float-control-panel-nav-button
+            <FloatControlPanelNavButton
               icon-class="i-lucide-monitor"
               title="正在展示"
-              active="{{currentTab === 'playing'}}"
+              :active="currentTab === 'playing'"
               data-tab="playing"
               @tap="handleTabTap"
             />
-            <float-control-panel-nav-button
+            <FloatControlPanelNavButton
               icon-class="i-lucide-library"
               title="内容库"
-              active="{{currentTab === 'library'}}"
+              :active="currentTab === 'library'"
               data-tab="library"
               @tap="handleTabTap"
             />
           </view>
-          <float-control-panel-nav-button icon-class="i-lucide-log-out" title="退出屏幕" @tap="handleExit" />
-          <float-control-panel-nav-button
+          <FloatControlPanelNavButton icon-class="i-lucide-log-out" title="退出屏幕" @tap="handleExit" />
+          <FloatControlPanelNavButton
             icon-class="i-lucide-blend"
             title="遥控器"
-            active="{{currentTab === 'remote'}}"
+            :active="currentTab === 'remote'"
             data-tab="remote"
             @tap="handleTabTap"
           />
         </view>
         <view class="flex-1 overflow-hidden">
-          <float-control-panel-page-playing v-if="currentTab === 'playing'" />
-          <float-control-panel-page-library v-if="currentTab === 'library'" />
+          <FloatControlPanelPagePlaying v-if="currentTab === 'playing'" />
+          <FloatControlPanelPageLibrary v-if="currentTab === 'library'" />
           <!-- <float-control-panel-page-remote wx:if="{{currentTab === 'remote'}}" /> -->
         </view>
       </view>

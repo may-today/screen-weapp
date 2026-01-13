@@ -1,9 +1,16 @@
 <script setup lang="ts">
 import { onReady, onShow, onUnload } from 'wevu'
-import { appState } from '@/stores/appState'
-import { data } from '@/stores/data'
+import FloatControlBar from '@/components/float-control-bar.vue'
+import ScreenPage from '@/components/screen-page.vue'
+import { useData } from '@/stores/data'
+import { usePlayState } from '@/stores/playState'
+import { useUi } from '@/stores/ui'
 import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
+
+const playState = usePlayState()
+const data = useData()
+const ui = useUi()
 
 definePageJson({
   backgroundColor: '#000000',
@@ -16,9 +23,6 @@ definePageJson({
   navigationBarTextStyle: 'white',
   navigationStyle: 'custom',
   pageOrientation: 'landscape',
-  usingComponents: {
-    'float-control-bar': '/components/float-control-bar',
-  },
 })
 
 onReady(() => {
@@ -42,16 +46,17 @@ onUnload(() => {
     keepScreenOn: false,
   })
   hooks.removeAllHooks()
-  appState.clearState()
-  data.clearState()
+  ui.$reset()
+  data.$reset()
+  playState.$reset()
   timeServer.destroy()
 })
 </script>
 
 <template>
   <view class="dark h-screen w-screen bg-black text-white">
-    <screen-page />
-    <float-control-bar />
+    <ScreenPage />
+    <FloatControlBar />
     <!-- <float-status-bar /> -->
   </view>
 </template>

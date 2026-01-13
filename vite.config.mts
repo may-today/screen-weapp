@@ -24,15 +24,16 @@ export default defineConfig({
     json: {
       defaults: {
         component: {
-          options: {
-            pureDataPattern: /^_/,
-          },
+          pureDataPattern: '/^_/',
           styleIsolation: 'apply-shared',
         },
       },
     },
     worker: {
       entry: 'index.ts',
+    },
+    autoImportComponents: {
+      globs: ['components/**/*.vue', 'components/**/*.wxml'],
     },
   },
   plugins: [

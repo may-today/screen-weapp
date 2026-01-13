@@ -1,8 +1,0 @@
-<wxs module="wxs" src="index.wxs.ts" />
-
-<view
-  class="w-full h-full flex flex-col items-center justify-center gap-3 px-4 py-3 text-muted-foreground opacity-40 {{extraClass}}"
->
-  <view wx:if="{{type !== 'none'}}" class="{{ wxs.getIconClass(type) }} text-[36px]" />
-  <text wx:if="{{text}}" class="text-sm">{{text}}</text>
-</view>

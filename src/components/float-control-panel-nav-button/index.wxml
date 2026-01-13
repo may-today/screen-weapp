@@ -1,7 +1,0 @@
-<view
-  class="flex flex-col items-center justify-center gap-0.5 mb-1 p-1 rounded-md border border-border {{ active ? 'bg-primary text-primary-foreground' : '' }}"
-  hover-class="bg-accent text-accent-foreground"
->
-  <view class="{{ iconClass }} text-sm" />
-  <text wx:if="{{title}}" class="text-[10px]">{{ title }}</text>
-</view>

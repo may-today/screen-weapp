@@ -1,4 +1,4 @@
-import { appState } from '@/stores/appState'
+import { useUi } from '@/stores/ui'
 
 export interface WebSearchTrackItem {
   id: string
@@ -28,16 +28,17 @@ interface WebSearchLyricResponse {
 
 const screenApiHost = 'https://mayscreen-api.ddiu.site'
 
-export const getTrackListByKeyword = async (keyword: string) => {
+export const getTrackListByKeyword = (keyword: string) => {
+  const ui = useUi()
   if (!keyword) {
     return []
   }
   return new Promise<WebSearchTrackItem[]>((resolve) => {
-    appState.setGlobalLoading(true)
+    ui.setGlobalLoading(true)
     wx.request({
       url: `${screenApiHost}/v1/search?keyword=${keyword}`,
-      success: async (res) => {
-        appState.setGlobalLoading(false)
+      success: (res) => {
+        ui.setGlobalLoading(false)
         const data = res.data as WebSearchListResponse
         if (!data || data.error) {
           console.error(data.error)
@@ -46,7 +47,7 @@ export const getTrackListByKeyword = async (keyword: string) => {
         resolve(data.data?.list || [])
       },
       fail: (err) => {
-        appState.setGlobalLoading(false)
+        ui.setGlobalLoading(false)
         wx.showToast({
           title: '加载失败',
           icon: 'error',
@@ -58,16 +59,17 @@ export const getTrackListByKeyword = async (keyword: string) => {
   })
 }
 
-export const getLyricBySongId = async (songId: string) => {
+export const getLyricBySongId = (songId: string) => {
+  const ui = useUi()
   if (!songId) {
     return null
   }
   return new Promise<string | null>((resolve) => {
-    appState.setGlobalLoading(true)
+    ui.setGlobalLoading(true)
     wx.request({
       url: `${screenApiHost}/v1/lyric?id=${songId}`,
-      success: async (res) => {
-        appState.setGlobalLoading(false)
+      success: (res) => {
+        ui.setGlobalLoading(false)
         const data = res.data as WebSearchLyricResponse
         if (!data || data.error) {
           console.error(data.error)
@@ -76,7 +78,7 @@ export const getLyricBySongId = async (songId: string) => {
         resolve(data.data?.content || null)
       },
       fail: (err) => {
-        appState.setGlobalLoading(false)
+        ui.setGlobalLoading(false)
         wx.showToast({
           title: '加载失败',
           icon: 'error',

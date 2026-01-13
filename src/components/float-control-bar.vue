@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import { data } from '@/stores/data'
+import FloatControlPanel from '@/components/float-control-panel.vue'
+import { usePlayState } from '@/stores/playState'
 import { useUi } from '@/stores/ui'
-
-defineComponentJson({
-  usingComponents: {
-    'float-control-panel': '/components/float-control-panel',
-  },
-})
 
 type ControlBarButtonAction = 'prev' | 'next' | 'menu'
 
+const playState = usePlayState()
 const ui = useUi()
 
-const buttonList = [
+const buttonList: {
+  id: ControlBarButtonAction
+  iconClass: string
+}[] = [
   { id: 'prev', iconClass: 'i-lucide-chevron-left' },
   { id: 'next', iconClass: 'i-lucide-chevron-right' },
   { id: 'menu', iconClass: 'i-lucide-menu' },
-] as {
-  id: ControlBarButtonAction
-  iconClass: string
-}[]
+]
 
 const handleButtonTap = (e: WechatMiniprogram.TouchEvent) => {
   const action: ControlBarButtonAction = e.currentTarget.dataset.action
@@ -29,10 +25,10 @@ const handleButtonTap = (e: WechatMiniprogram.TouchEvent) => {
     return
   }
   if (action === 'prev') {
-    return data.prevLyricLine()
+    return playState.prevLyricLine()
   }
   if (action === 'next') {
-    return data.nextLyricLine()
+    return playState.nextLyricLine()
   }
 }
 </script>
@@ -41,7 +37,7 @@ const handleButtonTap = (e: WechatMiniprogram.TouchEvent) => {
   <view class="absolute bottom-4 right-4 flex gap-2 text-stone-600">
     <view
       v-for="item in buttonList"
-      v-key="item.id"
+      :key="item.id"
       class="border border-stone-600 size-8 rounded-md flex items-center justify-center"
       hover-class="bg-accent text-accent-foreground"
       :data-action="item.id"
@@ -50,5 +46,5 @@ const handleButtonTap = (e: WechatMiniprogram.TouchEvent) => {
       <view :class="item.iconClass" class="text-sm" />
     </view>
   </view>
-  <float-control-panel />
+  <FloatControlPanel />
 </template>
