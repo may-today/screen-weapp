@@ -1,4 +1,5 @@
 import path from 'node:path'
+import { fileURLToPath, URL } from 'node:url'
 import { UnifiedViteWeappTailwindcssPlugin } from 'weapp-tailwindcss/vite'
 import { defineConfig } from 'weapp-vite/config'
 
@@ -56,4 +57,9 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
 })

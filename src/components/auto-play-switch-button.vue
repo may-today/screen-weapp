@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { storeToRefs } from 'wevu'
+import { computed, storeToRefs } from 'wevu'
 import { usePlayState } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
 import { timeServer } from '@/utils/timeServer'
 
 const playState = usePlayState()
 const { autoPlay, currentTime, supportAutoPlay } = storeToRefs(playState)
+
+const currentTimeFormatted = computed(() => formatDuration(currentTime.value))
 
 const handleButtonTap = () => {
   if (!supportAutoPlay.value) {
@@ -23,7 +25,7 @@ const handleButtonTap = () => {
 <template>
   <wxs module="parse" src="../wxs/parse.wxs.ts" />
   <view class="flex flex-row items-center gap-2">
-    <text v-if="autoPlay" class="text-xs font-mono opacity-60">{{ parse.parseDuration(currentTime) }}</text>
+    <text v-if="autoPlay" class="text-xs font-mono opacity-60">{{ currentTimeFormatted }}</text>
     <view
       class="inline-flex flex-row items-center gap-1 px-2 py-1.5 rounded-md border border-border text-xs"
       :class="{
