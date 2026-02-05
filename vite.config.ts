@@ -30,11 +30,9 @@ export default defineConfig({
         },
       },
     },
+    vue: {},
     worker: {
       entry: 'index.ts',
-    },
-    autoImportComponents: {
-      globs: ['components/**/*.vue', 'components/**/*.wxml'],
     },
   },
   plugins: [
