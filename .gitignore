@@ -33,8 +33,7 @@ yarn-error.log*
 dist
 vite.config.ts.timestamp-*.mjs
 dist-web
-dist-plugin
+.weapp-vite/
 
-# weapp-vite
-typed-router.d.ts
-auto-import-components.json
+dist-plugin
+dist/web

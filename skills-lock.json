@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "skills": {
+    "docs-and-website-sync": {
+      "source": "sonofmagic/skills",
+      "sourceType": "github",
+      "computedHash": "d944166e58a4dd5bb67cb90cad4e69af8d12b9b33b7b9b3ec68d071eda72c28e"
+    },
+    "weapp-vite-best-practices": {
+      "source": "sonofmagic/skills",
+      "sourceType": "github",
+      "computedHash": "67e90e23ccf980e4fb175074019b5233210acbff15d0031a67df372082517283"
+    },
+    "weapp-vite-vue-sfc-best-practices": {
+      "source": "sonofmagic/skills",
+      "sourceType": "github",
+      "computedHash": "7f4a8719e91515786445a7b9e698e1a219ef1c19c216c357af930a4f83978db8"
+    },
+    "wevu-best-practices": {
+      "source": "sonofmagic/skills",
+      "sourceType": "github",
+      "computedHash": "6aaa6023c67284dd711d2ee6d165a2044325fcb25d1a32c8e123e1952cd364a0"
+    }
+  }
+}

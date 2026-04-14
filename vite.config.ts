@@ -1,5 +1,4 @@
 import path from 'node:path'
-import { fileURLToPath, URL } from 'node:url'
 import { UnifiedViteWeappTailwindcssPlugin } from 'weapp-tailwindcss/vite'
 import { defineConfig } from 'weapp-vite/config'
 
@@ -7,6 +6,7 @@ export default defineConfig({
   weapp: {
     srcRoot: 'src',
     autoRoutes: true,
+    autoImportComponents: true,
     generate: {
       extensions: {
         js: 'ts',
@@ -45,8 +45,6 @@ export default defineConfig({
       customAttributes: {
         '*': [/[A-Za-z-]*-class/],
       },
-      inlineWxs: true,
-      wxsMatcher: (filename) => filename.endsWith('.wxs'),
       tailwindcss: {
         version: 4,
         v4: {
@@ -55,9 +53,4 @@ export default defineConfig({
       },
     }),
   ],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
 })
