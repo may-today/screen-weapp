@@ -1,4 +1,0 @@
-<button bind:tap="startListeningRemote">启用遥控器功能</button>
-<button bind:tap="stopListeningRemote">停止遥控器功能</button>
-<button bind:tap="sendAuthorizeMessage">sendAuthorizeMessage</button>
-<button bind:tap="sendChangeSongIdMessage">sendChangeSongIdMessage</button>

@@ -1,5 +1,0 @@
-/* pages/remote/playing.wxss */
-.logo {
-  height: 24px;
-  width: 87px;
-}

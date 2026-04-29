@@ -1,6 +1,0 @@
-<view class="loader">
-  <view class="box" />
-  <view class="box" />
-  <view class="box" />
-  <view class="box" />
-</view>

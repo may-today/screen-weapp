@@ -1,8 +1,0 @@
-<wxs module="wxs" lang="ts">
-  export const stringify = function (message: any) {
-    return JSON.stringify(message)
-  }
-</wxs>
-<view class="absolute bottom-4 left-4 flex gap-1 text-stone-600 text-sm">
-  <text>{{ wxs.stringify(latestMessage) }}</text>
-</view>
