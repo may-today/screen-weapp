@@ -49,11 +49,14 @@ export default defineConfig({
         component: 'src/components',
         page: 'src/pages',
       },
-      // 假如你想让默认生成的组件命名为 Foo/index 而不是 Foo/Foo 可以下列选项
-      // filenames: {
-      //   component: 'index',
-      //   page: 'index',
-      // },
+    },
+    json: {
+      defaults: {
+        component: {
+          pureDataPattern: '/^_/',
+          styleIsolation: 'apply-shared',
+        },
+      },
     },
   },
   css: {
@@ -65,7 +68,11 @@ export default defineConfig({
   },
   plugins: [
     weappTailwindcss({
-      rem2rpx: true,
+      rem2rpx: {
+        rootValue: 16,
+        propList: ['*'],
+        transformUnit: 'px',
+      },
       cssEntries: [path.resolve(import.meta.dirname, 'src/app.css')],
     }),
   ],
