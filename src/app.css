@@ -1,7 +1,81 @@
-@import 'tailwindcss';
-@config "../tailwind.config.ts";
+@import 'weapp-tailwindcss/index.css';
+@plugin "@egoist/tailwindcss-icons" {
+  scale: 1.5;
+}
+
+@theme {
+  --color-background: #f5f5f5;
+  --color-foreground: #171717;
+  --color-accent: #ededed;
+  --color-accent-foreground: #202020;
+  --color-card: #fcfcfc;
+  --color-border: #dfdfdf;
+  --color-muted: #f9fafb;
+  --color-muted-foreground: #6b7280;
+  --color-primary: #171717;
+  --color-primary-foreground: #fafafa;
+  --color-secondary: #f5f5f5;
+  --color-secondary-foreground: #171717;
+  --color-theme-foreground: #0369a1;
+}
+
+@layer theme {
+  :root {
+    --dark-color-background: #171717;
+    --dark-color-foreground: #e5e5e5;
+    --dark-color-accent: #313131;
+    --dark-color-accent-foreground: #fafafa;
+    --dark-color-card: #262626;
+    --dark-color-border: #404040;
+    --dark-color-muted: #1f1f1f;
+    --dark-color-muted-foreground: #a3a3a3;
+    --dark-color-primary: #e5e5e5;
+    --dark-color-primary-foreground: #171717;
+    --dark-color-secondary: #262626;
+    --dark-color-secondary-foreground: #e5e5e5;
+    --dark-color-theme-foreground: #7dd3fc;
+  }
+
+  :root,
+  :host {
+    @variant dark {
+      --color-background: var(--dark-color-background);
+      --color-foreground: var(--dark-color-foreground);
+      --color-accent: var(--dark-color-accent);
+      --color-accent-foreground: var(--dark-color-accent-foreground);
+      --color-card: var(--dark-color-card);
+      --color-border: var(--dark-color-border);
+      --color-muted: var(--dark-color-muted);
+      --color-muted-foreground: var(--dark-color-muted-foreground);
+      --color-primary: var(--dark-color-primary);
+      --color-primary-foreground: var(--dark-color-primary-foreground);
+      --color-secondary: var(--dark-color-secondary);
+      --color-secondary-foreground: var(--dark-color-secondary-foreground);
+      --color-theme-foreground: var(--dark-color-theme-foreground);
+    }
+  }
+
+  /* 手动切换暗色模式的类选择器 */
+  .dark {
+    --color-background: var(--dark-color-background);
+    --color-foreground: var(--dark-color-foreground);
+    --color-accent: var(--dark-color-accent);
+    --color-accent-foreground: var(--dark-color-accent-foreground);
+    --color-card: var(--dark-color-card);
+    --color-border: var(--dark-color-border);
+    --color-muted: var(--dark-color-muted);
+    --color-muted-foreground: var(--dark-color-muted-foreground);
+    --color-primary: var(--dark-color-primary);
+    --color-primary-foreground: var(--dark-color-primary-foreground);
+    --color-secondary: var(--dark-color-secondary);
+    --color-secondary-foreground: var(--dark-color-secondary-foreground);
+    --color-theme-foreground: var(--dark-color-theme-foreground);
+  }
+}
 
 page {
-  font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background-color: #f6f7fb;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  @apply bg-background text-foreground border-border;
 }

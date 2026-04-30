@@ -103,9 +103,7 @@
   "tailwindCSS.includeLanguages": {
     "wxml": "html"
   },
-  "stylelint.validate": [
-    "css",
-    "scss",
-    "vue"
+  "cSpell.words": [
+    "Wechat"
   ]
 }

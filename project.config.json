@@ -24,7 +24,17 @@
     "skylineRenderEnable": true,
     "packNpmManually": true,
     "es6": true,
-    "minifyWXML": true
+    "minifyWXML": true,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": true,
+    "minifyWXSS": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "useCompilerPlugins": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "simulatorType": "wechat",
   "simulatorPluginLibVersion": {},
@@ -34,7 +44,7 @@
     "tabIndent": "insertSpaces",
     "tabSize": 2
   },
-  "libVersion": "3.13.2",
+  "libVersion": "3.15.0",
   "packOptions": {
     "ignore": [],
     "include": []

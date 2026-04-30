@@ -1,0 +1,32 @@
+<script setup lang="ts">
+import { computed } from 'wevu'
+
+const props = defineProps<{
+  text: string
+  type: 'default' | 'error' | 'loading' | 'none'
+  extraClass?: string
+}>()
+
+const iconClass = computed(() => {
+  if (props.type === 'default') {
+    return 'i-lucide-circle-alert'
+  }
+  if (props.type === 'error') {
+    return 'i-lucide-circle-x'
+  }
+  if (props.type === 'loading') {
+    return 'i-lucide-loader-circle animate-spin'
+  }
+  return ''
+})
+</script>
+
+<template>
+  <view
+    class="w-full h-full flex flex-col items-center justify-center gap-3 px-4 py-3 text-muted-foreground opacity-40"
+    :class="props.extraClass"
+  >
+    <view v-if="type !== 'none'" :class="iconClass" class="text-[36px]" />
+    <text v-if="text" class="text-sm">{{ text }}</text>
+  </view>
+</template>

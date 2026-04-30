@@ -1,7 +1,8 @@
+import type { UserConfig } from 'weapp-vite/config'
 import path from 'node:path'
 import { weappTailwindcss } from 'weapp-tailwindcss/vite'
-import { defineConfig } from 'weapp-vite'
 import { TDesignResolver } from 'weapp-vite/auto-import-components/resolvers'
+import { defineConfig } from 'weapp-vite/config'
 
 export default defineConfig({
   resolve: {
@@ -11,6 +12,9 @@ export default defineConfig({
   },
   weapp: {
     srcRoot: 'src',
+    worker: {
+      entry: 'index.ts',
+    },
     typescript: {
       app: {
         compilerOptions: {
@@ -25,7 +29,7 @@ export default defineConfig({
       resolvers: [TDesignResolver()],
       htmlCustomData: true,
       typedComponents: true,
-      vueComponents: true,
+      vueComponents: false,
       vueComponentsModule: 'wevu',
     },
     wevu: {
@@ -76,4 +80,4 @@ export default defineConfig({
       cssEntries: [path.resolve(import.meta.dirname, 'src/app.css')],
     }),
   ],
-})
+} satisfies UserConfig)

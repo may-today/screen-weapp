@@ -37,3 +37,5 @@ dist-web
 
 dist-plugin
 dist/web
+
+.DS_Store

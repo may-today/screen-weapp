@@ -15,5 +15,8 @@ export default icebreaker({
     'better-tailwindcss/enforce-consistent-line-wrapping': 'off',
     'better-tailwindcss/no-conflicting-classes': 'off',
     'better-tailwindcss/no-unknown-classes': 'off',
+    'antfu/top-level-function': 'off',
+    'style/brace-style': ['error', '1tbs'],
+    'intts/no-use-before-define': ['error', { functions: false, classes: true, variables: true }],
   },
 })

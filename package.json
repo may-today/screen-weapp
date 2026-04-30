@@ -1,19 +1,11 @@
 {
-  "name": "weapp-vite-wevu-tailwindcss-tdesign-template",
+  "name": "screen-weapp",
   "type": "module",
   "version": "1.0.6",
   "private": true,
-  "description": "weapp-vite + wevu (Vue SFC) 模板",
-  "author": "ice breaker <1324318532@qq.com>",
+  "description": "MayScreen teleprompter",
+  "author": "ddiu8081 <ddiu8081@gmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/weapp-vite/weapp-vite.git",
-    "directory": "templates/weapp-vite-wevu-tailwindcss-tdesign-template"
-  },
-  "bugs": {
-    "url": "https://github.com/weapp-vite/weapp-vite/issues"
-  },
   "keywords": [],
   "scripts": {
     "dev": "wv dev",
@@ -23,17 +15,15 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "vue-tsc --noEmit -p .weapp-vite/tsconfig.app.json",
     "open": "wv open",
-    "stylelint": "stylelint \"src/**/*.{css,scss,vue,wxss}\" --allow-empty-input",
-    "stylelint:fix": "stylelint \"src/**/*.{css,scss,vue,wxss}\" --fix --allow-empty-input",
     "postinstall": "weapp-tw patch && wv prepare"
   },
   "dependencies": {
+    "hookable": "^6.1.1",
     "tdesign-miniprogram": "^1.14.0"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.9.2",
     "@icebreakers/eslint-config": "^4.0.9",
-    "@icebreakers/stylelint-config": "^3.0.6",
     "@iconify-json/mdi": "^1.2.3",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^25.6.0",
@@ -42,7 +32,6 @@
     "miniprogram-api-typings": "^5.1.3",
     "postcss": "^8.5.12",
     "sass": "^1.99.0",
-    "stylelint": "^17.9.1",
     "tailwindcss": "^4.2.4",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.2.7",
