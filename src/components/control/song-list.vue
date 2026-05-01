@@ -72,7 +72,7 @@ const handleSelectSong = (slug: string) => {
       />
     </scroll-view>
     <view class="flex items-center gap-1.5 h-10 border-t border-border px-4 text-sm">
-      <view class="i-lucide-search text-xs text-muted-foreground" />
+      <view class="i-lucide-search text-sm text-muted-foreground" />
       <input
         class="flex-1"
         :value="searchInputValue"
@@ -84,7 +84,7 @@ const handleSelectSong = (slug: string) => {
       >
       <view
         v-if="searchInputValue"
-        class="i-lucide-circle-x text-xs text-muted-foreground"
+        class="i-lucide-circle-x text-sm text-muted-foreground"
         hover-class="text-accent-foreground"
         @tap="handleClearSearch"
       />

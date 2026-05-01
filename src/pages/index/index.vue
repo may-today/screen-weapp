@@ -17,7 +17,7 @@ function jumpToScreenPage() {
   router.push('/pages/screen/index')
 }
 function jumpToRemotePage() {
-  router.push('/pages/remote/playing')
+  router.push('/pages/remote/index')
 }
 
 // const handleBgImageLoad = () => {

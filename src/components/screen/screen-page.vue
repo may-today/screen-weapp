@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'wevu'
 import { usePlayState } from '@/stores/playState'
+import ScreenPageFullControlLayer from './screen-page-full-control-layer.vue'
 
 const playState = usePlayState()
 const { currentSongData, currentLyricLine, currentLyricIndex } = storeToRefs(playState)

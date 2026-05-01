@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onReady, onShow, onUnload } from 'wevu'
-import FloatControlBar from '@/components/float-control/float-control-bar.vue'
-import ScreenPage from '@/components/screen-page.vue'
+import FloatControlBar from '@/components/screen/float-control-bar.vue'
+import ScreenPage from '@/components/screen/screen-page.vue'
 import { useData } from '@/stores/data'
 import { usePlayState } from '@/stores/playState'
 import { useUi } from '@/stores/ui'
@@ -26,7 +26,6 @@ definePageJson({
 })
 
 onReady(() => {
-  console.log('onReady screen')
   wx.setKeepScreenOn({
     keepScreenOn: true,
   })
@@ -36,7 +35,6 @@ onReady(() => {
   })
 })
 onShow(() => {
-  console.log('onShow screen')
   wx.setKeepScreenOn({
     keepScreenOn: true,
   })

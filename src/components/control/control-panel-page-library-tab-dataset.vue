@@ -3,8 +3,8 @@ import type { SongDetail } from '@/types'
 import { onReady, ref, storeToRefs } from 'wevu'
 import { useData } from '@/stores/data'
 import { useUi } from '@/stores/ui'
-import SongList from '../song-list.vue'
-import FloatControlPanelPage from './float-control-panel-page.vue'
+import SongList from './song-list.vue'
+import ControlPanelPage from './control-panel-page.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -108,7 +108,7 @@ const handleSetList = (id: string) => {
 </script>
 
 <template>
-  <FloatControlPanelPage title="曲库" :hidden="props.hidden">
+  <ControlPanelPage title="曲库" :hidden="props.hidden">
     <template #header>
       <view
 
@@ -138,5 +138,5 @@ const handleSetList = (id: string) => {
     <view v-else class="flex-1 overflow-hidden">
       <SongList />
     </view>
-  </FloatControlPanelPage>
+  </ControlPanelPage>
 </template>

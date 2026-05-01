@@ -47,7 +47,7 @@ const handleButtonTap = () => {
 </template>
 
 <style lang="css" scoped>
-@reference "../app.css";
+@reference "../../app.css";
 
 .state-enabled {
   @apply bg-emerald-400/20 border-emerald-400/40 text-emerald-400;

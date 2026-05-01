@@ -1,0 +1,10 @@
+<script setup lang="ts">
+import SignalIcon from '../signal-icon.vue';
+</script>
+
+<template>
+  <view class="inline-flex flex-row items-center gap-1 px-2 py-1 bg-card border border-border rounded-full">
+    <signal-icon :rssi="-80" />
+    <text class="text-xs text-muted-foreground">未连接</text>
+  </view>
+</template>

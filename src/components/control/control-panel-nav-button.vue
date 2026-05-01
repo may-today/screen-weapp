@@ -14,7 +14,7 @@ const props = defineProps<{
     }"
     hover-class="bg-accent text-accent-foreground"
   >
-    <view :class="props.iconClass" class="text-sm" />
+    <view :class="props.iconClass" />
     <text v-if="props.title" class="text-[10px]">{{ props.title }}</text>
   </view>
 </template>

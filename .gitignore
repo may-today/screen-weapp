@@ -39,3 +39,4 @@ dist-plugin
 dist/web
 
 .DS_Store
+local-demo

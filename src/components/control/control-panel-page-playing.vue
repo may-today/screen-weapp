@@ -2,9 +2,9 @@
 import { computed, storeToRefs } from 'wevu'
 import { usePlayState } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
-import AutoPlaySwitchButton from '../auto-play-switch-button.vue'
+import AutoPlaySwitchButton from './auto-play-switch-button.vue'
 import Empty from '../empty.vue'
-import FloatControlPanelPage from './float-control-panel-page.vue'
+import ControlPanelPage from './control-panel-page.vue'
 
 const playState = usePlayState()
 const { currentSongData, currentLyricIndex } = storeToRefs(playState)
@@ -19,7 +19,7 @@ const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
 </script>
 
 <template>
-  <FloatControlPanelPage title="正在展示">
+  <ControlPanelPage title="正在展示">
     <view v-show="!currentSongData" class="flex-1">
       <Empty text="没有正在展示的歌曲" type="none" extra-class="flex-1" />
     </view>
@@ -45,7 +45,7 @@ const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
       <text class="flex-1 text-xs">{{ currentSongData.title }}</text>
       <AutoPlaySwitchButton />
     </view>
-  </FloatControlPanelPage>
+  </ControlPanelPage>
 </template>
 
 <style lang="css" scoped>

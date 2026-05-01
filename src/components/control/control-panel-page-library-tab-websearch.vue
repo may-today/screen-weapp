@@ -6,8 +6,8 @@ import { hooks } from '@/utils/hook'
 import { parseRawLRCFile } from '@/utils/lyric'
 import { getLyricBySongId, getTrackListByKeyword } from '@/utils/webSearch'
 import Empty from '../empty.vue'
-import WebSearchListItem from '../web-search-list-item.vue'
-import FloatControlPanelPage from './float-control-panel-page.vue'
+import WebSearchListItem from './web-search-list-item.vue'
+import FloatControlPanelPage from './control-panel-page.vue'
 
 export interface WebSearchTrackItem {
   id: string
