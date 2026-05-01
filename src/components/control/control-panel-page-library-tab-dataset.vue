@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { SongDetail } from '@/types'
 import { onReady, ref, storeToRefs } from 'wevu'
-import { useData } from '@/stores/data'
-import { useUi } from '@/stores/ui'
+import { useDataStore } from '@/stores/data'
+import { useUiStore } from '@/stores/ui'
 import SongList from './song-list.vue'
 import ControlPanelPage from './control-panel-page.vue'
 
@@ -37,8 +37,8 @@ const dataset = Object.entries(datasetDict).map(([key, item]) => ({
   ...item,
 }))
 
-const data = useData()
-const ui = useUi()
+const data = useDataStore()
+const ui = useUiStore()
 const cacheKeys = ref<string[]>([])
 const { currentDatasetId, currentDatasetName } = storeToRefs(data)
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'wevu'
-import { useUi } from '@/stores/ui'
+import { useUiStore } from '@/stores/ui'
 
 const props = withDefaults(
   defineProps<{
@@ -13,7 +13,7 @@ const props = withDefaults(
   },
 )
 
-const ui = useUi()
+const ui = useUiStore()
 const { globalLoading } = storeToRefs(ui)
 </script>
 

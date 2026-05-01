@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onReady, onUnload, ref, storeToRefs } from 'wevu'
-import { useUi } from '@/stores/ui'
+import { useUiStore } from '@/stores/ui'
 import { hooks } from '@/utils/hook'
 import ControlPanel from '../control/control-panel.vue'
 
-const ui = useUi()
+const ui = useUiStore()
 const { showScreenFloatPanel } = storeToRefs(ui)
 const headerHeight = ref(0)
 const rightMargin = ref(0)

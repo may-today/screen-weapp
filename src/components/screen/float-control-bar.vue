@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { usePlayState } from '@/stores/playState'
-import { useUi } from '@/stores/ui'
+import { usePlayStateStore } from '@/stores/playState'
+import { useUiStore } from '@/stores/ui'
 import FloatControlPanel from './float-control-panel.vue'
 
 type ControlBarButtonAction = 'prev' | 'next' | 'menu'
 
-const playState = usePlayState()
-const ui = useUi()
+const playState = usePlayStateStore()
+const ui = useUiStore()
 
 const buttonList: {
   id: ControlBarButtonAction

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SongDetail } from '@/types'
 import { ref } from 'wevu'
-import { usePlayState } from '@/stores/playState'
+import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
 import { parseRawLRCFile } from '@/utils/lyric'
 import { getLyricBySongId, getTrackListByKeyword } from '@/utils/webSearch'
@@ -30,7 +30,7 @@ const props = withDefaults(
 const searchInputValue = ref('')
 const webSearchResultList = ref<WebSearchTrackItem[]>([])
 const searching = ref(false)
-const playState = usePlayState()
+const playState = usePlayStateStore()
 
 const handleSearch = async (event: WechatMiniprogram.Input) => {
   const searchValue = event.detail.value.trim()

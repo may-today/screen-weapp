@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref } from 'wevu'
-import { usePlayState } from '@/stores/playState'
+import { usePlayStateStore } from '@/stores/playState'
 
-const playState = usePlayState()
+const playState = usePlayStateStore()
 
 const _gestureTouchStartY = ref(0)
 

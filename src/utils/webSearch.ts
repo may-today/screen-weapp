@@ -1,4 +1,4 @@
-import { useUi } from '@/stores/ui'
+import { useUiStore } from '@/stores/ui'
 
 export interface WebSearchTrackItem {
   id: string
@@ -29,7 +29,7 @@ interface WebSearchLyricResponse {
 const screenApiHost = 'https://mayscreen-api.ddiu.site'
 
 export const getTrackListByKeyword = (keyword: string) => {
-  const ui = useUi()
+  const ui = useUiStore()
   if (!keyword) {
     return []
   }
@@ -60,7 +60,7 @@ export const getTrackListByKeyword = (keyword: string) => {
 }
 
 export const getLyricBySongId = (songId: string) => {
-  const ui = useUi()
+  const ui = useUiStore()
   if (!songId) {
     return null
   }

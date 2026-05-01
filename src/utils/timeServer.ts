@@ -1,4 +1,4 @@
-import { usePlayState } from '@/stores/playState'
+import { usePlayStateStore } from '@/stores/playState'
 
 const createNewWorker = () => {
   const worker = wx.createWorker('workers/index.js')
@@ -12,7 +12,7 @@ type PostMessageEvent = 'interval:start' | 'interval:stop'
 
 export class TimeServer {
   private worker: WechatMiniprogram.Worker | null = null
-  private playState: ReturnType<typeof usePlayState> | null = null
+  private playState: ReturnType<typeof usePlayStateStore> | null = null
 
   prepare() {
     if (this.worker) {
@@ -20,7 +20,7 @@ export class TimeServer {
     }
     this.worker = createNewWorker()
     this.worker.onMessage(this._messageHandler)
-    this.playState = usePlayState()
+    this.playState = usePlayStateStore()
   }
 
   destroy() {

@@ -2,7 +2,7 @@ import { computed, defineStore, ref } from 'wevu'
 import type { SongDetail } from '@/types'
 import { timeServer } from '@/utils/timeServer'
 
-export const usePlayState = defineStore('playState', () => {
+export const usePlayStateStore = defineStore('playState', () => {
   /** 当前歌曲数据 */
   const currentSongData = ref<SongDetail | null>(null)
   /** 当前歌词索引 */

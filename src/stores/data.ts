@@ -2,7 +2,7 @@ import { defineStore, ref } from 'wevu'
 import type { GroupListItem, SongDetail } from '@/types'
 import { generateDataDict, generateMetaGroupList } from '@/utils/songList'
 
-export const useData = defineStore('data', () => {
+export const useDataStore = defineStore('data', () => {
   /** 当前曲库ID */
   const currentDatasetId = ref('')
   /** 当前曲库名称 */

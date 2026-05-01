@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import type { SearchItem } from '@/types'
 import { ref, storeToRefs } from 'wevu'
-import { useData } from '@/stores/data'
-import { usePlayState } from '@/stores/playState'
+import { useDataStore } from '@/stores/data'
+import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
 import { searchByString } from '@/utils/songList'
 import SongListItem from './song-list-item.vue'
 
 const searchInputValue = ref('')
 const filteredList = ref<SearchItem[]>([])
-const data = useData()
-const playState = usePlayState()
+const data = useDataStore()
+const playState = usePlayStateStore()
 const { metaGroupList, allDataList, allDataDict } = storeToRefs(data)
 const { currentSongData } = storeToRefs(playState)
 

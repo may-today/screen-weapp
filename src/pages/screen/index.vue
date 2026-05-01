@@ -2,15 +2,15 @@
 import { onReady, onShow, onUnload } from 'wevu'
 import FloatControlBar from '@/components/screen/float-control-bar.vue'
 import ScreenPage from '@/components/screen/screen-page.vue'
-import { useData } from '@/stores/data'
-import { usePlayState } from '@/stores/playState'
-import { useUi } from '@/stores/ui'
+import { useDataStore } from '@/stores/data'
+import { usePlayStateStore } from '@/stores/playState'
+import { useUiStore } from '@/stores/ui'
 import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
 
-const playState = usePlayState()
-const data = useData()
-const ui = useUi()
+const playState = usePlayStateStore()
+const data = useDataStore()
+const ui = useUiStore()
 
 definePageJson({
   backgroundColor: '#000000',

@@ -1,6 +1,6 @@
 import { defineStore, ref } from 'wevu'
 
-export const useUi = defineStore('ui', () => {
+export const useUiStore = defineStore('ui', () => {
   const showScreenFloatPanel = ref(false)
   const globalLoading = ref(false)
 

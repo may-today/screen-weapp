@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, storeToRefs } from 'wevu'
-import { usePlayState } from '@/stores/playState'
+import { usePlayStateStore } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
 import AutoPlaySwitchButton from './auto-play-switch-button.vue'
 import Empty from '../empty.vue'
 import ControlPanelPage from './control-panel-page.vue'
 
-const playState = usePlayState()
+const playState = usePlayStateStore()
 const { currentSongData, currentLyricIndex } = storeToRefs(playState)
 const currentSongDetail = computed(() => currentSongData.value?.detail || [])
 

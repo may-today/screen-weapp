@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, storeToRefs } from 'wevu'
-import { usePlayState } from '@/stores/playState'
+import { usePlayStateStore } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
 import { timeServer } from '@/utils/timeServer'
 
-const playState = usePlayState()
+const playState = usePlayStateStore()
 const { autoPlay, currentTime, supportAutoPlay } = storeToRefs(playState)
 
 const currentTimeFormatted = computed(() => formatDuration(currentTime.value))
