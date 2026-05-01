@@ -4,6 +4,7 @@ import { hooks } from '@/utils/hook'
 import ControlPanelNavButton from './control-panel-nav-button.vue'
 import ControlPanelPageLibrary from './control-panel-page-library.vue'
 import ControlPanelPagePlaying from './control-panel-page-playing.vue'
+import ControlPanelPageRemote from './control-panel-page-remote.vue'
 
 const props = defineProps<{
   panelClass?: string
@@ -71,7 +72,7 @@ const handleExit = () => {
     <view class="flex-1 overflow-hidden">
       <ControlPanelPagePlaying v-if="currentTab === 'playing'" />
       <ControlPanelPageLibrary v-if="currentTab === 'library'" />
-      <!-- <ControlPanelPageRemote wx:if="{{currentTab === 'remote'}}" /> -->
+      <ControlPanelPageRemote v-if="currentTab === 'remote'" />
     </view>
   </view>
 </template>

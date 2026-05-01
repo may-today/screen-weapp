@@ -3,9 +3,10 @@ import { onReady, onShow, onUnload } from 'wevu'
 import { useRouter } from 'wevu/router'
 import RemoteHeader from '@/components/remote/remote-header.vue'
 // import RemoteFooterTab from '@/components/remote/remote-footer-tab.vue';
-import ControlPanel from '@/components/control/control-panel.vue';
+import ControlPanel from '@/components/control/control-panel.vue'
 import { timeServer } from '@/utils/timeServer'
 import { hooks } from '@/utils/hook'
+import { BleRemote } from '@/utils/bleRemote'
 
 const router = useRouter()
 
@@ -39,6 +40,7 @@ onUnload(() => {
   })
   hooks.removeAllHooks()
   timeServer.destroy()
+  BleRemote.getInstance().destroy()
 })
 function jumpToScreenPage() {
   router.push('/pages/screen/index')

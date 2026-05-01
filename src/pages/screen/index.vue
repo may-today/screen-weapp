@@ -5,12 +5,15 @@ import ScreenPage from '@/components/screen/screen-page.vue'
 import { useDataStore } from '@/stores/data'
 import { usePlayStateStore } from '@/stores/playState'
 import { useUiStore } from '@/stores/ui'
+import { useConnectStore } from '@/stores/connect'
 import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
+import { BleScreen } from '@/utils/bleScreen'
 
 const playState = usePlayStateStore()
 const data = useDataStore()
 const ui = useUiStore()
+const connect = useConnectStore()
 
 definePageJson({
   backgroundColor: '#000000',
@@ -48,6 +51,7 @@ onUnload(() => {
   data.$reset()
   playState.$reset()
   timeServer.destroy()
+  BleScreen.getInstance().destroy()
 })
 </script>
 

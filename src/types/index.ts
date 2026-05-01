@@ -48,28 +48,6 @@ export interface BaseError {
   errno?: number
 }
 
-export enum ConnectStatus {
-  Disconnected = 0,
-  Connecting = 1,
-  Authorizing = 2,
-  Connected = 3,
-}
-
-export enum ScreenDevice {
-  Phone = 1,
-  Pad = 2,
-  Computer = 3,
-}
-
-export enum ScreenSystem {
-  Other = 0,
-  iOS = 1,
-  Android = 2,
-  HarmonyOS = 3,
-  Windows = 4,
-  Mac = 5,
-}
-
 export enum Command {
   /** 连接授权请求 */
   Authorize = 1,
