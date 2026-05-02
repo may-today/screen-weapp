@@ -1,5 +1,16 @@
 # AGENTS Guidelines
 
+This file provides guidance to agents when working with code in this repository.
+
+## Project Overview
+
+**MayScreen** is a WeChat Mini Program teleprompter app for performers. It supports two modes:
+
+- **Screen mode** (`pages/screen/`): landscape lyric display that keeps the screen on, driven by BLE commands
+- **Remote mode** (`pages/remote/`): control panel that sends BLE commands to paired screens
+
+Built with Vue 3 SFC + TypeScript using `weapp-vite` and the `wevu` runtime layer.
+
 ## Local Docs First
 
 - After dependencies are installed, prefer reading local package docs under `node_modules/weapp-vite/dist/docs/` first.
@@ -17,12 +28,41 @@
 - Prefer `weapp-vite ide logs --open` or `wv ide logs --open` for DevTools terminal log bridging.
 - Do not default to generic browser screenshot tools when the target is the mini-program runtime in WeChat DevTools.
 
-## AI Intent Routing
+## Architecture
 
-- When the request mentions screenshot, 截图, 页面快照, runtime screenshot, or capture the current mini-program page, default to `weapp-vite screenshot` / `wv screenshot`.
-- When the request mentions screenshot compare, 截图对比, diff, baseline, visual regression, 像素对比, or acceptance comparison, default to `weapp-vite compare` / `wv compare`.
-- Treat these commands as the primary screenshot contract for AI workflows in this project.
-- Only fall back to generic browser screenshot tools when the target is explicitly the web runtime instead of WeChat DevTools.
+### State (Pinia stores — `src/stores/`)
+
+| Store          | Responsibility                                                   |
+| -------------- | ---------------------------------------------------------------- |
+| `playState.ts` | Current song, active lyric index, playback timing, autoplay flag |
+| `data.ts`      | Song list and search results                                     |
+| `connect.ts`   | BLE connection status, connected device info                     |
+| `ble.ts`       | BLE adapter state                                                |
+| `ui.ts`        | Panel visibility and layout flags                                |
+
+### BLE Communication (`src/utils/`)
+
+The app uses a custom binary packet protocol over BLE:
+
+- **`bleScreen.ts`** — BLE peripheral (screen side): accepts connections, receives and executes commands
+- **`bleRemote.ts`** — BLE central (remote side): discovers peripherals, sends commands
+- **`packet.ts`** — Serializes/deserializes command packets; handles chunked reassembly for large payloads (lyrics data exceeds BLE 20-byte MTU)
+- **`ble.ts`** — Shared BLE helpers
+- **`uuid.ts`** — Device-specific UUID generation for discovery
+
+Commands are defined as a `Command` enum in `src/types/index.ts` (e.g., `Authorize`, `ChangeSongId`, `LyricNextLine`, `AutoPlay`, `BlackScreen`).
+
+### Routing
+
+Auto-routing is enabled (`autoRoutes: true` in `weapp-vite.config.ts`). Pages placed under `src/pages/` are automatically discovered. Do not manually edit route config files under `.weapp-vite/`.
+
+### Styling
+
+Tailwind CSS v4 via `weapp-tailwindcss`. rpx conversion is configured in `weapp-vite.config.ts`. Global entry is `src/app.css`. Component-level styles use scoped SCSS.
+
+### Component Auto-import
+
+TDesign Mini Program components are auto-imported via the TDesign resolver configured in `weapp-vite.config.ts`. No explicit import needed in SFCs.
 
 ## Weapp-vite Workflow
 
@@ -39,13 +79,12 @@
 
 ## AI Skills
 
-- Recommend installing shared skills with `npx skills add sonofmagic/skills`.
-- In Codex/Claude environments, prefer these skills first when available:
-  - `$weapp-vite-best-practices` for config, build, subpackage, route, DevTools CLI orchestration, and screenshot/compare command work.
-  - `$weapp-vite-vue-sfc-best-practices` for `.vue` SFC macros, JSON blocks, and template compatibility.
-  - `$release-and-changeset-best-practices` for issue delivery, changesets, release decisions, and PR workflow.
-  - `$docs-and-website-sync` when documentation or AI guidance must be refreshed together with code changes.
-  - `$wevu-best-practices` for `wevu` runtime lifecycle, state, store, and event contracts.
+When working on this project, these skills provide deep context:
+
+- `weapp-vite-best-practices` — config, build, subpackage, routes, screenshot/compare
+- `weapp-vite-vue-sfc-best-practices` — `.vue` SFC macros, JSON blocks, template compatibility
+- `wevu-best-practices` — wevu lifecycle, store, event contracts
+- `weapp-tailwindcss` — Tailwind in mini-program context
 
 ## Wevu Authoring
 
