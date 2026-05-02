@@ -21,11 +21,8 @@ const { allDataDict } = storeToRefs(data)
 const bleScreen = BleScreen.getInstance()
 bleScreen.setCommandListener((command, payload) => {
   switch (command) {
-    case Command.LyricNextLine:
-      playState.nextLyricLine()
-      break
-    case Command.LyricPreviousLine:
-      playState.prevLyricLine()
+    case Command.LyricSetIndex:
+      playState.setCurrentLyricIndex(parseInt(payload))
       break
     case Command.LyricAutoPlay:
       playState.setAutoPlay(payload === '1')

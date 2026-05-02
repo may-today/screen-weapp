@@ -27,12 +27,12 @@ const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
 
 const handlePrev = async () => {
   playState.prevLyricLine()
-  await bleRemote.sendCommand(Command.LyricPreviousLine, '')
+  await bleRemote.sendCommand(Command.LyricSetIndex, String(currentLyricIndex.value))
 }
 
 const handleNext = async () => {
   playState.nextLyricLine()
-  await bleRemote.sendCommand(Command.LyricNextLine, '')
+  await bleRemote.sendCommand(Command.LyricSetIndex, String(currentLyricIndex.value))
 }
 
 const handleToggleAutoPlay = async () => {

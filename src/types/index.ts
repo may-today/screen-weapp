@@ -55,10 +55,8 @@ export enum Command {
   ReplyAuthorize = 2,
   /** 切换歌曲id */
   ChangeSongId = 11,
-  /** 歌词上一句 */
-  LyricPreviousLine = 12,
-  /** 歌词下一句 */
-  LyricNextLine = 13,
+  /** 跳转到指定歌词行（payload 为 index 字符串，-1 表示清除） */
+  LyricSetIndex = 12,
   /** 歌词自动播放 */
   LyricAutoPlay = 14,
   /** 屏幕黑屏 */
