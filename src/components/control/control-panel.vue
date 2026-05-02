@@ -70,7 +70,7 @@ const handleExit = () => {
       </block>
     </view>
     <view class="flex-1 overflow-hidden">
-      <ControlPanelPagePlaying v-if="currentTab === 'playing'" />
+      <ControlPanelPagePlaying v-if="currentTab === 'playing'" :mode="props.mode" />
       <ControlPanelPageLibrary v-if="currentTab === 'library'" />
       <ControlPanelPageRemote v-if="currentTab === 'remote'" />
     </view>

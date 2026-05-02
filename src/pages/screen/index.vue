@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onReady, onShow, onUnload } from 'wevu'
+import { storeToRefs } from 'wevu/store'
 import FloatControlBar from '@/components/screen/float-control-bar.vue'
 import ScreenPage from '@/components/screen/screen-page.vue'
 import { useDataStore } from '@/stores/data'
@@ -9,11 +10,36 @@ import { useConnectStore } from '@/stores/connect'
 import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
 import { BleScreen } from '@/utils/bleScreen'
+import { Command } from '@/types'
 
 const playState = usePlayStateStore()
 const data = useDataStore()
 const ui = useUiStore()
 const connect = useConnectStore()
+const { allDataDict } = storeToRefs(data)
+
+const bleScreen = BleScreen.getInstance()
+bleScreen.setCommandListener((command, payload) => {
+  switch (command) {
+    case Command.LyricNextLine:
+      playState.nextLyricLine()
+      break
+    case Command.LyricPreviousLine:
+      playState.prevLyricLine()
+      break
+    case Command.LyricAutoPlay:
+      playState.setAutoPlay(payload === '1')
+      break
+    case Command.ChangeSongId: {
+      const song = allDataDict.value[payload]
+      if (song) playState.setCurrentSongData(song)
+      break
+    }
+    case Command.ScreenBlackScreen:
+      console.log('[Screen] TODO: black screen')
+      break
+  }
+})
 
 definePageJson({
   backgroundColor: '#000000',

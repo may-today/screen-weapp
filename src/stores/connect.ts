@@ -6,14 +6,7 @@ import { BleScreen } from '@/utils/bleScreen'
 
 export const useConnectStore = defineStore('connect', () => {
   // const currentScreenMeta = ref<ScreenMeta | null>(null)
-  const currentScreenMeta = ref<ScreenMeta | null>({
-    serviceUuid: '19970329-0000-0000-0000-000000000000',
-    device: 1,
-    system: 1,
-    screenMax: 0,
-    screenMin: 0,
-    displayName: 'iPhone 6',
-  })
+  const currentScreenMeta = ref<ScreenMeta | null>(null)
 
   const connectStatus = ref<ConnectStatus>(ConnectStatus.Disabled)
   // const bleRemote = ref<BleRemote | null>(null)

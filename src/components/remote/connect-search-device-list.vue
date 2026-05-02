@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import ConnectSearchDeviceListItem from './connect-search-device-list-item.vue'
+import { BleRemote } from '@/utils/bleRemote'
 
 const props = defineProps<{
   list: WechatMiniprogram.BlueToothDevice[]
 }>()
 
-const handleSelectItem = (item: WechatMiniprogram.BlueToothDevice) => {
+const bleRemote = BleRemote.getInstance()
 
+const handleSelectItem = async (item: WechatMiniprogram.BlueToothDevice) => {
   wx.vibrateShort({ type: 'light' })
-  console.log('选择了设备：', item)
+  try {
+    await bleRemote.connectDevice(item.deviceId)
+  } catch {
+    // connectDevice 内部已 toast 错误
+  }
 }
 </script>
 

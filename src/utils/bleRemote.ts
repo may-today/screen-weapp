@@ -118,6 +118,7 @@ export class BleRemote {
     _log(`screen deviceInfo: ${JSON.stringify(deviceInfo)}`)
     this._screenServiceUuid = serviceUuid
     this._screenDeviceId = deviceId
+    this._connectStore.setCurrentScreenMeta(deviceInfo)
     const characteristicRes = await wx.getBLEDeviceCharacteristics({
       deviceId,
       serviceId: serviceUuid,
@@ -149,6 +150,14 @@ export class BleRemote {
       _toastError(err, '断开连接失败')
     })
     this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+  }
+
+  /** 断开当前已连接的 Screen 设备 */
+  public async disconnect(): Promise<void> {
+    if (!this._screenDeviceId) return
+    await this.disconnectDevice(this._screenDeviceId)
+    this._screenDeviceId = ''
+    this._screenServiceUuid = ''
   }
 
   /** 延迟函数 */

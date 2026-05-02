@@ -2,23 +2,20 @@
 import { computed } from 'wevu'
 import { storeToRefs } from 'wevu/store'
 import { useConnectStore } from '@/stores/connect'
+import { BleRemote } from '@/utils/bleRemote'
 
-const props = defineProps<{
-  text: string
-  type: 'default' | 'error' | 'loading' | 'none'
-}>()
 const connectStore = useConnectStore()
 const { currentScreenMeta } = storeToRefs(connectStore)
 
 const deviceImgSrc = computed(() => {
-  if (connectStore.currentScreenMeta.value) {
-    return `../../assets/device-${connectStore.currentScreenMeta.value.device}.png`
+  if (currentScreenMeta.value) {
+    return `../../assets/device-${currentScreenMeta.value.device}.png`
   }
   return `../../assets/device-unknown.png`
 })
 
-const handleDisconnect = () => {
-  // disconnect
+const handleDisconnect = async () => {
+  await BleRemote.getInstance().disconnect()
   connectStore.setCurrentScreenMeta(null)
 }
 </script>
@@ -32,6 +29,6 @@ const handleDisconnect = () => {
       <image :src="deviceImgSrc" class="w-full" mode="aspectFit" />
     </view>
     <text class="w-full font-medium text-center" overflow="ellipsis">{{ currentScreenMeta?.displayName }}</text>
-    <button class="mt-6" @tap="handleDisconnect">退出连接</button>
+    <button class="mt-6" @tap="handleDisconnect">断开连接</button>
   </view>
 </template>

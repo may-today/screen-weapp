@@ -5,16 +5,40 @@ import { formatDuration } from '@/utils/format'
 import AutoPlaySwitchButton from './auto-play-switch-button.vue'
 import Empty from '../empty.vue'
 import ControlPanelPage from './control-panel-page.vue'
+import { BleRemote } from '@/utils/bleRemote'
+import { Command } from '@/types'
+
+const props = defineProps<{
+  mode?: 'remote' | 'screen'
+}>()
 
 const playState = usePlayStateStore()
-const { currentSongData, currentLyricIndex } = storeToRefs(playState)
+const { currentSongData, currentLyricIndex, autoPlay } = storeToRefs(playState)
 const currentSongDetail = computed(() => currentSongData.value?.detail || [])
+
+const bleRemote = BleRemote.getInstance()
 
 const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
   const { index, time } = e.currentTarget.dataset
   if (typeof index === 'number') {
     playState.setCurrentLyricIndex(index, time)
   }
+}
+
+const handlePrev = async () => {
+  playState.prevLyricLine()
+  await bleRemote.sendCommand(Command.LyricPreviousLine, '')
+}
+
+const handleNext = async () => {
+  playState.nextLyricLine()
+  await bleRemote.sendCommand(Command.LyricNextLine, '')
+}
+
+const handleToggleAutoPlay = async () => {
+  const next = !autoPlay.value
+  playState.setAutoPlay(next)
+  await bleRemote.sendCommand(Command.LyricAutoPlay, next ? '1' : '0')
 }
 </script>
 
@@ -44,6 +68,14 @@ const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
     <view v-if="currentSongData" class="flex flex-row items-center h-12 px-4 border-t border-border">
       <text class="flex-1 text-xs">{{ currentSongData.title }}</text>
       <AutoPlaySwitchButton />
+    </view>
+    <!-- 遥控器模式控制栏 -->
+    <view v-if="props.mode === 'remote'" class="flex flex-row items-center justify-between h-14 px-4 border-t border-border gap-2">
+      <button size="mini" @tap="handlePrev">◀ 上一句</button>
+      <button size="mini" :type="autoPlay ? 'primary' : 'default'" @tap="handleToggleAutoPlay">
+        {{ autoPlay ? '自动 ON' : '自动 OFF' }}
+      </button>
+      <button size="mini" @tap="handleNext">下一句 ▶</button>
     </view>
   </ControlPanelPage>
 </template>
