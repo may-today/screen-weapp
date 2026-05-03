@@ -3,6 +3,12 @@ import { computed, storeToRefs } from 'wevu'
 import { usePlayStateStore } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
 import { timeServer } from '@/utils/timeServer'
+import { BleScreen } from '@/utils/bleScreen'
+import { Command } from '@/types'
+
+const props = withDefaults(defineProps<{
+  mode?: 'remote' | 'screen'
+}>(), { mode: 'remote' })
 
 const playState = usePlayStateStore()
 const { autoPlay, currentTime, supportAutoPlay } = storeToRefs(playState)
@@ -14,10 +20,14 @@ const handleButtonTap = () => {
     return
   }
   wx.vibrateShort({ type: 'light' })
-  if (autoPlay.value) {
-    timeServer.pause()
-  } else {
+  const next = !autoPlay.value
+  if (next) {
     timeServer.start()
+  } else {
+    timeServer.pause()
+  }
+  if (props.mode === 'screen') {
+    BleScreen.getInstance().sendCommand(Command.LyricAutoPlay, next ? '1' : '0').catch(() => {})
   }
 }
 </script>

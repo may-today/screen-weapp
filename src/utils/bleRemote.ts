@@ -4,7 +4,7 @@ import { type BaseError, type SongDetail, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { ScreenSystem } from '@/types/device'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
-import { largeDataToChunks, shortCommandToPacket } from './packet'
+import { largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeData, shortCommandToPacket } from './packet'
 import { getDeviceInfoFromUuid } from './uuid'
 
 const _log = (...args: any[]) => {
@@ -39,6 +39,9 @@ export class BleRemote {
   private _lastHeartbeatAt = 0
   private _watchdogTimer: ReturnType<typeof setInterval> | null = null
   private _reconnectRetryCount = 0
+  private _commandListener: ((command: Command, payload: string) => void) | null = null
+  private _largeDataListener: ((data: string) => void) | null = null
+  private readonly _screenChunkBuffer: Map<string, ArrayBuffer[]> = new Map()
 
   constructor() {
     this._connectStore = useConnectStore()
@@ -99,9 +102,57 @@ export class BleRemote {
   public destroy() {
     this._stopWatchdog()
     wx.closeBluetoothAdapter()
+    this._commandListener = null
+    this._largeDataListener = null
+    this._screenChunkBuffer.clear()
     BleRemote._instance = null
     this._connectStore.setConnectStatus(ConnectStatus.Disabled)
     _log('destroy')
+  }
+
+  public setCommandListener(listener: (command: Command, payload: string) => void): void {
+    this._commandListener = listener
+  }
+
+  public setLargeDataListener(listener: (data: string) => void): void {
+    this._largeDataListener = listener
+  }
+
+  /** 处理来自屏幕端的长数据包（与 BleScreen._handleParseLargeData 对称） */
+  private _handleParseLargeData(data: ArrayBuffer): void {
+    const info = parseLargeDataPacket(data)
+    const sessionId = `${info.totalPackets}`
+
+    if (info.currentIndex === 0) {
+      this._screenChunkBuffer.set(sessionId, [])
+    }
+
+    let targetSessionId = sessionId
+    if (info.currentIndex > 0) {
+      for (const [sid, chunks] of this._screenChunkBuffer.entries()) {
+        if (sid === sessionId && chunks.length === info.currentIndex) {
+          targetSessionId = sid
+          break
+        }
+      }
+    }
+
+    const chunks = this._screenChunkBuffer.get(targetSessionId) || []
+    chunks.push(data)
+    this._screenChunkBuffer.set(targetSessionId, chunks)
+    this._transmitStore.onLargeDataChunk(info.currentIndex + 1, info.totalPackets)
+
+    if (chunks.length === info.totalPackets) {
+      try {
+        const completeData = reassembleLargeData(chunks)
+        this._screenChunkBuffer.delete(targetSessionId)
+        this._largeDataListener?.(completeData)
+        this._transmitStore.onLargeDataComplete()
+      } catch (error) {
+        _logError('重组屏幕端数据失败:', error)
+        this._screenChunkBuffer.delete(targetSessionId)
+      }
+    }
   }
 
   public async prepare(): Promise<void> {
@@ -203,6 +254,18 @@ export class BleRemote {
       characteristicId: MayScreenCharacteristicUuid.status,
       state: true,
     })
+    await wx.notifyBLECharacteristicValueChange({
+      deviceId,
+      serviceId: serviceUuid,
+      characteristicId: MayScreenCharacteristicUuid.read,
+      state: true,
+    })
+    await wx.notifyBLECharacteristicValueChange({
+      deviceId,
+      serviceId: serviceUuid,
+      characteristicId: MayScreenCharacteristicUuid.readLarge,
+      state: true,
+    })
     _log('notifyBLECharacteristicValueChange success')
     wx.offBLECharacteristicValueChange()
     this._startWatchdog()
@@ -232,8 +295,12 @@ export class BleRemote {
           this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
         }
       } else if (res.characteristicId === MayScreenCharacteristicUuid.read) {
-        const value = new Uint8Array(res.value)
-        _log('command received', value)
+        const cmd = parseShortPacket(res.value)
+        _log(`command from screen: ${Command[cmd.command] || 'unknown'} (${cmd.payload || null})`)
+        this._commandListener?.(cmd.command, cmd.payload)
+        this._transmitStore.onCommandReceived()
+      } else if (res.characteristicId === MayScreenCharacteristicUuid.readLarge) {
+        this._handleParseLargeData(res.value)
       }
     })
   }

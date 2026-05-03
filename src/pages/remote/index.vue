@@ -8,9 +8,42 @@ import { timeServer } from '@/utils/timeServer'
 import { hooks } from '@/utils/hook'
 import { BleRemote } from '@/utils/bleRemote'
 import { useTransmitStore } from '@/stores/transmit'
+import { usePlayStateStore } from '@/stores/playState'
+import { useDataStore } from '@/stores/data'
+import { Command } from '@/types'
 
 const router = useRouter()
 const transmit = useTransmitStore()
+const playState = usePlayStateStore()
+const dataStore = useDataStore()
+
+const bleRemote = BleRemote.getInstance()
+bleRemote.setCommandListener((command, payload) => {
+  switch (command) {
+    case Command.LyricSetIndex:
+      playState.setCurrentLyricIndex(parseInt(payload))
+      break
+    case Command.LyricAutoPlay:
+      playState.setAutoPlay(payload === '1')
+      break
+    case Command.ChangeSongId: {
+      const song = dataStore.allDataDict[payload]
+      if (song) playState.setCurrentSongData(song)
+      break
+    }
+  }
+})
+bleRemote.setLargeDataListener((raw) => {
+  try {
+    const envelope = JSON.parse(raw)
+    if (envelope.cmd === Command.ChangeSongData && envelope.data) {
+      playState.setCurrentSongData(envelope.data)
+    }
+  }
+  catch (e) {
+    console.error('[Remote] Failed to parse large data from screen:', e)
+  }
+})
 
 definePageJson({
   backgroundColor: '#171717',

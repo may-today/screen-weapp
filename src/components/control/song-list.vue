@@ -6,7 +6,12 @@ import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
 import { searchByString } from '@/utils/songList'
 import { BleRemote } from '@/utils/bleRemote'
+import { BleScreen } from '@/utils/bleScreen'
 import SongListItem from './song-list-item.vue'
+
+const props = withDefaults(defineProps<{
+  mode?: 'remote' | 'screen'
+}>(), { mode: 'remote' })
 
 const searchInputValue = ref('')
 const filteredList = ref<SearchItem[]>([])
@@ -35,7 +40,11 @@ const handleSelectSong = async (slug: string) => {
   const songData = allDataDict.value[slug] || null
   playState.setCurrentSongData(songData)
   if (songData) {
-    bleRemote.sendSongData(songData)
+    if (props.mode === 'screen') {
+      BleScreen.getInstance().sendSongData(songData).catch(() => {})
+    } else {
+      bleRemote.sendSongData(songData)
+    }
   }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }

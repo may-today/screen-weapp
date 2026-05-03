@@ -6,6 +6,7 @@ import AutoPlaySwitchButton from './auto-play-switch-button.vue'
 import Empty from '../empty.vue'
 import ControlPanelPage from './control-panel-page.vue'
 import { BleRemote } from '@/utils/bleRemote'
+import { BleScreen } from '@/utils/bleScreen'
 import { Command } from '@/types'
 
 const props = defineProps<{
@@ -22,7 +23,11 @@ const handleLyricLineTap = async (e: WechatMiniprogram.TouchEvent) => {
   const { index, time } = e.currentTarget.dataset
   if (typeof index === 'number') {
     playState.setCurrentLyricIndex(index, time)
-    await bleRemote.sendCommand(Command.LyricSetIndex, String(index))
+    if (props.mode === 'screen') {
+      BleScreen.getInstance().sendCommand(Command.LyricSetIndex, String(index)).catch(() => {})
+    } else {
+      await bleRemote.sendCommand(Command.LyricSetIndex, String(index))
+    }
   }
 }
 
@@ -68,7 +73,7 @@ const handleToggleAutoPlay = async () => {
     </scroll-view>
     <view v-if="currentSongData" class="flex flex-row items-center h-12 px-4 border-t border-border">
       <text class="flex-1 text-xs">{{ currentSongData.title }}</text>
-      <AutoPlaySwitchButton />
+      <AutoPlaySwitchButton :mode="props.mode" />
     </view>
     <!-- 遥控器模式控制栏 -->
     <view v-if="props.mode === 'remote'" class="flex flex-row items-center justify-between h-14 px-4 border-t border-border gap-2">

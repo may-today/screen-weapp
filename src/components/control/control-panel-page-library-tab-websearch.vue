@@ -4,6 +4,7 @@ import { ref } from 'wevu'
 import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
 import { BleRemote } from '@/utils/bleRemote'
+import { BleScreen } from '@/utils/bleScreen'
 import { parseRawLRCFile } from '@/utils/lyric'
 import { getLyricBySongId, getTrackListByKeyword } from '@/utils/webSearch'
 import Empty from '../empty.vue'
@@ -22,9 +23,11 @@ export interface WebSearchTrackItem {
 const props = withDefaults(
   defineProps<{
     hidden?: boolean
+    mode?: 'remote' | 'screen'
   }>(),
   {
     hidden: false,
+    mode: 'remote',
   },
 )
 
@@ -76,7 +79,11 @@ const handleSelectSong = async (item: WebSearchTrackItem) => {
     detail: parseRawLRCFile(lyricText),
   }
   playState.setCurrentSongData(singleTrack)
-  await bleRemote.sendSongData(singleTrack)
+  if (props.mode === 'screen') {
+    await BleScreen.getInstance().sendSongData(singleTrack).catch(() => {})
+  } else {
+    await bleRemote.sendSongData(singleTrack)
+  }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
 </script>

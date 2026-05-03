@@ -1,9 +1,9 @@
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
-import { type BaseError, Command } from '@/types'
+import { type SongDetail, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
-import { parseLargeDataPacket, parseShortPacket, reassembleLargeData, shortCommandToPacket } from './packet'
+import { largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeData, shortCommandToPacket } from './packet'
 import { generateServiceUuid } from './uuid'
 
 const _log = (...args: any[]) => {
@@ -14,16 +14,6 @@ const _logError = (...args: any[]) => {
   console.error('[BLE:Screen]', ...args)
 }
 
-const _toastError = (err: BaseError, message: string) => {
-  const codePrefix = err?.errCode ? `[${err.errCode}] ` : ''
-  const errnoSuffix = err?.errno ? ` (errno: ${err.errno})` : ''
-  const title = `${codePrefix}${message}${errnoSuffix}`
-  _logError(title, err)
-  wx.showToast({
-    title,
-    icon: 'none',
-  })
-}
 
 /** BLE Screen，指令接收端 */
 export class BleScreen {
@@ -411,38 +401,52 @@ export class BleScreen {
     return new Promise((resolve) => setTimeout(resolve, ms))
   }
 
-  /** 发送单个数据包，带重试机制 */
-  private async _sendChunk(deviceId: string, chunk: ArrayBuffer, maxRetries = 3): Promise<void> {
-    let retryCount = 0
-
-    while (retryCount <= maxRetries) {
-      try {
-        await wx.writeBLECharacteristicValue({
-          deviceId,
-          serviceId: this._serviceUuid,
-          characteristicId: MayScreenCharacteristicUuid.read,
-          writeType: 'write',
-          value: chunk,
-        })
-        return // 发送成功，退出重试循环
-      } catch (err) {
-        retryCount++
-        if (retryCount > maxRetries) {
-          _logError(`包发送失败，已重试 ${maxRetries} 次`, err)
-          _toastError(err as any, '发送数据包失败')
-          throw err // 重新抛出错误，终止整个发送过程
-        }
-        _log(`包发送失败，正在重试第 ${retryCount} 次...`)
-        await this._delay(100) // 重试前延迟100ms
-      }
+  /** 通过 server notify 发送单个数据包给已订阅的 central */
+  private async _sendChunk(chunk: ArrayBuffer, characteristicId: string): Promise<void> {
+    if (!this._server) {
+      throw new Error('server not ready')
     }
+    return new Promise((resolve, reject) => {
+      this._server!.writeCharacteristicValue({
+        serviceId: this._serviceUuid,
+        characteristicId,
+        value: chunk,
+        needNotify: true,
+        success: () => resolve(),
+        fail: (err) => {
+          _logError('writeCharacteristicValue fail', err)
+          reject(err)
+        },
+      })
+    })
   }
 
-  /** 发送短指令 */
-  public async sendCommand(deviceId: string, command: Command, payload: string): Promise<void> {
-    const chunks = shortCommandToPacket(command, payload)
+  /** 发送短指令给已连接的遥控端 */
+  public async sendCommand(command: Command, payload: string): Promise<void> {
+    const packet = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
-    await this._sendChunk(deviceId, chunks)
+    await this._sendChunk(packet, MayScreenCharacteristicUuid.read)
     this._transmitStore.onCommandSent()
+  }
+
+  /** 发送长数据给已连接的遥控端 */
+  public async sendLargeData(data: string): Promise<void> {
+    const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
+    _log(`sendLargeData: (${chunks.length} chunks)`)
+    for (let i = 0; i < chunks.length; i++) {
+      await this._sendChunk(chunks[i], MayScreenCharacteristicUuid.readLarge)
+      this._transmitStore.onLargeDataChunk(i + 1, chunks.length)
+      if (i < chunks.length - 1) {
+        await this._delay(100)
+      }
+    }
+    this._transmitStore.onLargeDataComplete()
+    _log('sendLargeData success')
+  }
+
+  /** 发送完整歌曲数据给已连接的遥控端 */
+  public async sendSongData(song: SongDetail): Promise<void> {
+    const envelope = JSON.stringify({ cmd: Command.ChangeSongData, data: song })
+    await this.sendLargeData(envelope)
   }
 }

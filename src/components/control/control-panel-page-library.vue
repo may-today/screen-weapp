@@ -3,6 +3,10 @@ import { ref } from 'wevu'
 import ControlPanelPageLibraryTabDataset from './control-panel-page-library-tab-dataset.vue'
 import ControlPanelPageLibraryTabWebsearch from './control-panel-page-library-tab-websearch.vue'
 
+const props = withDefaults(defineProps<{
+  mode?: 'remote' | 'screen'
+}>(), { mode: 'remote' })
+
 const currentTab = ref<'dataset' | 'web-search'>('dataset')
 
 const handleTabTap = (tab: 'dataset' | 'web-search') => {
@@ -13,8 +17,8 @@ const handleTabTap = (tab: 'dataset' | 'web-search') => {
 <template>
   <view class="flex flex-col h-full">
     <view class="flex-1 overflow-hidden">
-      <ControlPanelPageLibraryTabDataset v-if="currentTab === 'dataset'" />
-      <ControlPanelPageLibraryTabWebsearch v-if="currentTab === 'web-search'" />
+      <ControlPanelPageLibraryTabDataset v-if="currentTab === 'dataset'" :mode="props.mode" />
+      <ControlPanelPageLibraryTabWebsearch v-if="currentTab === 'web-search'" :mode="props.mode" />
     </view>
     <view class="flex flex-row items-center h-12 px-3 border-t border-border gap-2 text-sm">
       <view

@@ -9,9 +9,11 @@ import ControlPanelPage from './control-panel-page.vue'
 const props = withDefaults(
   defineProps<{
     hidden?: boolean
+    mode?: 'remote' | 'screen'
   }>(),
   {
     hidden: false,
+    mode: 'remote',
   },
 )
 
@@ -136,7 +138,7 @@ const handleSetList = (id: string) => {
     </view>
     <!-- 歌曲列表 -->
     <view v-else class="flex-1 overflow-hidden">
-      <SongList />
+      <SongList :mode="props.mode" />
     </view>
   </ControlPanelPage>
 </template>

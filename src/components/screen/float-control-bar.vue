@@ -1,12 +1,15 @@
 <script setup lang="ts">
 import { usePlayStateStore } from '@/stores/playState'
 import { useUiStore } from '@/stores/ui'
+import { BleScreen } from '@/utils/bleScreen'
+import { Command } from '@/types'
 import FloatControlPanel from './float-control-panel.vue'
 
 type ControlBarButtonAction = 'prev' | 'next' | 'menu'
 
 const playState = usePlayStateStore()
 const ui = useUiStore()
+const bleScreen = BleScreen.getInstance()
 
 const buttonList: {
   id: ControlBarButtonAction
@@ -24,10 +27,14 @@ const handleButtonTap = (action: ControlBarButtonAction) => {
     return
   }
   if (action === 'prev') {
-    return playState.prevLyricLine()
+    playState.prevLyricLine()
+    bleScreen.sendCommand(Command.LyricSetIndex, String(playState.currentLyricIndex)).catch(() => {})
+    return
   }
   if (action === 'next') {
-    return playState.nextLyricLine()
+    playState.nextLyricLine()
+    bleScreen.sendCommand(Command.LyricSetIndex, String(playState.currentLyricIndex)).catch(() => {})
+    return
   }
 }
 </script>
