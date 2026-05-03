@@ -2,7 +2,7 @@
 import { onReady, onShow, onUnload } from 'wevu'
 import { storeToRefs } from 'wevu/store'
 import FloatControlBar from '@/components/screen/float-control-bar.vue'
-import ConnectStatus from '@/components/screen/connect-status.vue'
+import ConnectStatus from '@/components/connect-status.vue'
 import ScreenPage from '@/components/screen/screen-page.vue'
 import { useDataStore } from '@/stores/data'
 import { usePlayStateStore } from '@/stores/playState'
@@ -100,7 +100,9 @@ onUnload(() => {
   <view class="dark h-screen w-screen bg-black text-white">
     <ScreenPage />
     <FloatControlBar />
-    <ConnectStatus />
+    <view class="absolute bottom-4 left-4">
+      <ConnectStatus />
+    </view>
     <!-- <float-status-bar /> -->
   </view>
 </template>

@@ -7,8 +7,10 @@ import ControlPanel from '@/components/control/control-panel.vue'
 import { timeServer } from '@/utils/timeServer'
 import { hooks } from '@/utils/hook'
 import { BleRemote } from '@/utils/bleRemote'
+import { useTransmitStore } from '@/stores/transmit'
 
 const router = useRouter()
+const transmit = useTransmitStore()
 
 definePageJson({
   backgroundColor: '#171717',
@@ -39,6 +41,7 @@ onUnload(() => {
     keepScreenOn: false,
   })
   hooks.removeAllHooks()
+  transmit.$reset()
   timeServer.destroy()
   BleRemote.getInstance().destroy()
 })

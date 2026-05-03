@@ -1,4 +1,5 @@
 import { useConnectStore } from '@/stores/connect'
+import { useTransmitStore } from '@/stores/transmit'
 import { type BaseError, type SongDetail, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { ScreenSystem } from '@/types/device'
@@ -34,12 +35,14 @@ export class BleRemote {
   private _screenServiceUuid = ''
   private _mtu = 20
   private _connectStore = useConnectStore()
+  private _transmitStore = useTransmitStore()
   private _lastHeartbeatAt = 0
   private _watchdogTimer: ReturnType<typeof setInterval> | null = null
   private _reconnectRetryCount = 0
 
   constructor() {
     this._connectStore = useConnectStore()
+    this._transmitStore = useTransmitStore()
   }
 
   public static getInstance(): BleRemote {
@@ -215,6 +218,7 @@ export class BleRemote {
         this._lastHeartbeatAt = Date.now()
         _log('heartbeat received', value)
         if (value[0] === 0x01) {
+          this._transmitStore.onCommandReceived()
           this._connectStore.setConnectStatus(ConnectStatus.Connected)
           wx.getBLEDeviceRSSI({
             deviceId: this._screenDeviceId,
@@ -303,12 +307,14 @@ export class BleRemote {
       await this._sendChunk(this._screenDeviceId, chunk, 3, {
         largeData: true,
       })
+      this._transmitStore.onLargeDataChunk(i + 1, chunks.length)
       _log(`sendLargeData success, chunk ${i + 1}/${chunks.length}`)
       // 如果不是最后一个包，延迟100毫秒后发送下一个包
       if (i < chunks.length - 1) {
         await this._delay(100)
       }
     }
+    this._transmitStore.onLargeDataComplete()
     _log('sendLargeData success')
   }
 
@@ -323,5 +329,6 @@ export class BleRemote {
     const chunks = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
     await this._sendChunk(this._screenDeviceId, chunks, 3, { silent })
+    this._transmitStore.onCommandSent()
   }
 }

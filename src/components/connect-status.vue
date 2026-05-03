@@ -4,7 +4,11 @@ import { storeToRefs } from 'wevu/store'
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
 import { ConnectStatus } from '@/types/connect'
-import SignalIcon from '../signal-icon.vue'
+import SignalIcon from './signal-icon.vue'
+
+const props = defineProps<{
+  extraClass?: string
+}>()
 
 const connectStore = useConnectStore()
 const { connectStatus, rssi } = storeToRefs(connectStore)
@@ -77,7 +81,7 @@ watch(commandSentAt, () => {
 </script>
 
 <template>
-  <view v-if="isVisible" class="status-badge">
+  <view v-if="isVisible" class="status-badge" :class="props.extraClass">
     <signal-icon :rssi="rssi" />
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
@@ -96,11 +100,10 @@ watch(commandSentAt, () => {
 </template>
 
 <style lang="css" scoped>
-@reference "../../app.css";
+@reference "../app.css";
 
 .status-badge {
-  @apply absolute bottom-4 left-4 flex flex-row items-center gap-1.5 rounded-full px-2.5 py-1.5;
-  background-color: rgba(0, 0, 0, 0.55);
+  @apply flex flex-row items-center gap-1.5 rounded-full px-2.5 py-1.5;
 }
 
 .dot {

@@ -35,7 +35,7 @@ const handleSelectSong = async (slug: string) => {
   const songData = allDataDict.value[slug] || null
   playState.setCurrentSongData(songData)
   if (songData) {
-    await bleRemote.sendSongData(songData)
+    bleRemote.sendSongData(songData)
   }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
