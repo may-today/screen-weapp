@@ -1,5 +1,5 @@
 import { useConnectStore } from '@/stores/connect'
-import { type BaseError, Command } from '@/types'
+import { type BaseError, type SongDetail, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { ScreenSystem } from '@/types/device'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
@@ -295,6 +295,12 @@ export class BleRemote {
       }
     }
     _log('sendLargeData success')
+  }
+
+  /** 发送完整歌曲数据（长数据指令） */
+  public async sendSongData(song: SongDetail): Promise<void> {
+    const envelope = JSON.stringify({ cmd: Command.ChangeSongData, data: song })
+    await this.sendLargeData(envelope)
   }
 
   /** 发送短指令 */

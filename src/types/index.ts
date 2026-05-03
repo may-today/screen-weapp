@@ -57,6 +57,8 @@ export enum Command {
   ChangeSongId = 11,
   /** 跳转到指定歌词行（payload 为 index 字符串，-1 表示清除） */
   LyricSetIndex = 12,
+  /** 切换歌曲完整数据（长数据指令，payload 为 SongDetail JSON 信封） */
+  ChangeSongData = 13,
   /** 歌词自动播放 */
   LyricAutoPlay = 14,
   /** 屏幕黑屏 */

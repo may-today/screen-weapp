@@ -5,6 +5,7 @@ import { useDataStore } from '@/stores/data'
 import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
 import { searchByString } from '@/utils/songList'
+import { BleRemote } from '@/utils/bleRemote'
 import SongListItem from './song-list-item.vue'
 
 const searchInputValue = ref('')
@@ -13,6 +14,7 @@ const data = useDataStore()
 const playState = usePlayStateStore()
 const { metaGroupList, allDataList, allDataDict } = storeToRefs(data)
 const { currentSongData } = storeToRefs(playState)
+const bleRemote = BleRemote.getInstance()
 
 const handleSearch = (event: WechatMiniprogram.Input) => {
   const searchValue = event.detail.value.trim()
@@ -29,9 +31,12 @@ const handleSearchValueChange = (event: WechatMiniprogram.Input) => {
   searchInputValue.value = searchValue
 }
 
-const handleSelectSong = (slug: string) => {
+const handleSelectSong = async (slug: string) => {
   const songData = allDataDict.value[slug] || null
   playState.setCurrentSongData(songData)
+  if (songData) {
+    await bleRemote.sendSongData(songData)
+  }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
 </script>

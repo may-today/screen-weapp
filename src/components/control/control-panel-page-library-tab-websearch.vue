@@ -3,6 +3,7 @@ import type { SongDetail } from '@/types'
 import { ref } from 'wevu'
 import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
+import { BleRemote } from '@/utils/bleRemote'
 import { parseRawLRCFile } from '@/utils/lyric'
 import { getLyricBySongId, getTrackListByKeyword } from '@/utils/webSearch'
 import Empty from '../empty.vue'
@@ -31,6 +32,7 @@ const searchInputValue = ref('')
 const webSearchResultList = ref<WebSearchTrackItem[]>([])
 const searching = ref(false)
 const playState = usePlayStateStore()
+const bleRemote = BleRemote.getInstance()
 
 const handleSearch = async (event: WechatMiniprogram.Input) => {
   const searchValue = event.detail.value.trim()
@@ -74,6 +76,7 @@ const handleSelectSong = async (item: WebSearchTrackItem) => {
     detail: parseRawLRCFile(lyricText),
   }
   playState.setCurrentSongData(singleTrack)
+  await bleRemote.sendSongData(singleTrack)
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
 </script>

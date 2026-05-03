@@ -38,6 +38,17 @@ bleScreen.setCommandListener((command, payload) => {
       break
   }
 })
+bleScreen.setLargeDataListener((raw) => {
+  try {
+    const envelope = JSON.parse(raw)
+    if (envelope.cmd === Command.ChangeSongData && envelope.data) {
+      playState.setCurrentSongData(envelope.data)
+    }
+  }
+  catch (e) {
+    console.error('[Screen] Failed to parse large data:', e)
+  }
+})
 
 definePageJson({
   backgroundColor: '#000000',
