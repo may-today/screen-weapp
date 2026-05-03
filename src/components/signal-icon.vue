@@ -2,10 +2,13 @@
 import { computed } from 'wevu';
 
 const props = defineProps<{
-  rssi: number
+  rssi: number | null
 }>()
 
 const rssiClass = computed(() => {
+  if (props.rssi === null) {
+    return 'text-neutral-700'
+  }
   if (props.rssi >= -60) {
     // 非常强
     return 'i-lucide-signal text-green-500'

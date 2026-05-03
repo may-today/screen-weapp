@@ -202,6 +202,13 @@ export class BleRemote {
     _log('notifyBLECharacteristicValueChange success')
     wx.offBLECharacteristicValueChange()
     this._startWatchdog()
+    wx.getBLEDeviceRSSI({
+      deviceId,
+      success: (rssiRes) => {
+        this._connectStore.setRssi(rssiRes.RSSI)
+        this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
+      },
+    })
     wx.onBLECharacteristicValueChange((res) => {
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
         const value = new Uint8Array(res.value)

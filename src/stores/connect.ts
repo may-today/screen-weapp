@@ -1,8 +1,6 @@
 import { defineStore, ref } from 'wevu'
 import type { ScreenMeta } from '@/types/device'
 import { ConnectStatus } from '@/types/connect'
-import { BleRemote } from '@/utils/bleRemote'
-import { BleScreen } from '@/utils/bleScreen'
 
 export const useConnectStore = defineStore('connect', () => {
   // const currentScreenMeta = ref<ScreenMeta | null>(null)

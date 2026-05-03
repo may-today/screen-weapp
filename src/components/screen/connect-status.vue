@@ -4,9 +4,10 @@ import { storeToRefs } from 'wevu/store'
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
 import { ConnectStatus } from '@/types/connect'
+import SignalIcon from '../signal-icon.vue'
 
 const connectStore = useConnectStore()
-const { connectStatus } = storeToRefs(connectStore)
+const { connectStatus, rssi } = storeToRefs(connectStore)
 
 const transmitStore = useTransmitStore()
 const { commandReceivedAt, commandSentAt, largeDataProgress } = storeToRefs(transmitStore)
@@ -77,6 +78,7 @@ watch(commandSentAt, () => {
 
 <template>
   <view v-if="isVisible" class="status-badge">
+    <signal-icon :rssi="rssi" />
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
     <template v-if="showTransmit">

@@ -22,7 +22,7 @@ const statusText = computed(() => {
 
 <template>
   <view class="inline-flex flex-row items-center gap-1 px-2 py-1 bg-card border border-border rounded-full">
-    <signal-icon :rssi="rssi ?? -100" />
+    <signal-icon :rssi="rssi" />
     <text class="text-xs text-muted-foreground">{{ statusText }}</text>
   </view>
 </template>
