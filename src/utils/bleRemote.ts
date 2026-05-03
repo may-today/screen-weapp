@@ -28,10 +28,15 @@ const _toastError = (err: BaseError, message: string) => {
 /** BLE Remote，指令发送端 */
 export class BleRemote {
   private static _instance: BleRemote | null = null
+  private static readonly _HEARTBEAT_TIMEOUT = 12_000
+  private static readonly _RECONNECT_MAX_RETRIES = 3
   private _screenDeviceId = ''
   private _screenServiceUuid = ''
   private _mtu = 20
   private _connectStore = useConnectStore()
+  private _lastHeartbeatAt = 0
+  private _watchdogTimer: ReturnType<typeof setInterval> | null = null
+  private _reconnectRetryCount = 0
 
   constructor() {
     this._connectStore = useConnectStore()
@@ -44,7 +49,50 @@ export class BleRemote {
     return BleRemote._instance
   }
 
+  private _startWatchdog(): void {
+    this._stopWatchdog()
+    this._lastHeartbeatAt = Date.now()
+    this._reconnectRetryCount = 0
+    this._watchdogTimer = setInterval(() => {
+      if (Date.now() - this._lastHeartbeatAt > BleRemote._HEARTBEAT_TIMEOUT) {
+        _log('heartbeat timeout, reconnecting...')
+        this._stopWatchdog()
+        this._handleReconnect()
+      }
+    }, 3000)
+  }
+
+  private _stopWatchdog(): void {
+    if (this._watchdogTimer) {
+      clearInterval(this._watchdogTimer)
+      this._watchdogTimer = null
+    }
+  }
+
+  private async _handleReconnect(): Promise<void> {
+    if (!this._screenDeviceId || this._reconnectRetryCount >= BleRemote._RECONNECT_MAX_RETRIES) {
+      _logError('reconnect exhausted, giving up')
+      this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+      this._screenDeviceId = ''
+      this._screenServiceUuid = ''
+      return
+    }
+    this._reconnectRetryCount++
+    _log(`reconnect attempt ${this._reconnectRetryCount}/${BleRemote._RECONNECT_MAX_RETRIES}`)
+    const deviceId = this._screenDeviceId
+    try {
+      await wx.closeBLEConnection({ deviceId }).catch(() => {})
+      await this._delay(2000)
+      await this.connectDevice(deviceId)
+      _log('reconnect success')
+    } catch (err) {
+      _logError('reconnect failed', err)
+      await this._handleReconnect()
+    }
+  }
+
   public destroy() {
+    this._stopWatchdog()
     wx.closeBluetoothAdapter()
     BleRemote._instance = null
     this._connectStore.setConnectStatus(ConnectStatus.Disabled)
@@ -151,10 +199,13 @@ export class BleRemote {
       state: true,
     })
     _log('notifyBLECharacteristicValueChange success')
+    wx.offBLECharacteristicValueChange()
+    this._startWatchdog()
     wx.onBLECharacteristicValueChange((res) => {
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
         const value = new Uint8Array(res.value)
-        _log('status changed', value)
+        this._lastHeartbeatAt = Date.now()
+        _log('heartbeat received', value)
         if (value[0] === 0x01) {
           this._connectStore.setConnectStatus(ConnectStatus.Connected)
         } else {
@@ -169,6 +220,7 @@ export class BleRemote {
 
   /** 断开与 Screen 设备的连接 */
   public async disconnectDevice(deviceId: string): Promise<void> {
+    this._stopWatchdog()
     await wx.closeBLEConnection({ deviceId }).catch((err) => {
       _toastError(err, '断开连接失败')
     })
