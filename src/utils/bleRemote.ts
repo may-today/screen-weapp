@@ -55,7 +55,6 @@ export class BleRemote {
   private _startWatchdog(): void {
     this._stopWatchdog()
     this._lastHeartbeatAt = Date.now()
-    this._reconnectRetryCount = 0
     this._watchdogTimer = setInterval(() => {
       if (Date.now() - this._lastHeartbeatAt > BleRemote._HEARTBEAT_TIMEOUT) {
         _log('heartbeat timeout, reconnecting...')
@@ -69,6 +68,8 @@ export class BleRemote {
     if (this._watchdogTimer) {
       clearInterval(this._watchdogTimer)
       this._watchdogTimer = null
+      this._lastHeartbeatAt = 0
+      this._reconnectRetryCount = 0
     }
   }
 
@@ -240,6 +241,8 @@ export class BleRemote {
   /** 断开与 Screen 设备的连接 */
   public async disconnectDevice(deviceId: string): Promise<void> {
     this._stopWatchdog()
+    this._screenDeviceId = ''
+    this._screenServiceUuid = ''
     this._connectStore.setRssi(null)
     await wx.closeBLEConnection({ deviceId }).catch((err) => {
       _toastError(err, '断开连接失败')
@@ -299,6 +302,12 @@ export class BleRemote {
 
   /** 发送长数据 */
   public async sendLargeData(data: string): Promise<void> {
+    // 前置判断
+    if (!this._screenDeviceId || !this._screenServiceUuid) {
+      const err = new Error('未连接设备')
+      _toastError(err as any, '发送数据失败')
+      throw err
+    }
     const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
     _log(`sendLargeData: ${data} (${chunks.length} chunks)`)
     for (let i = 0; i < chunks.length; i++) {
@@ -326,6 +335,12 @@ export class BleRemote {
 
   /** 发送短指令 */
   public async sendCommand(command: Command, payload: string, silent = false): Promise<void> {
+    // 前置判断
+    if (!this._screenDeviceId || !this._screenServiceUuid) {
+      const err = new Error('未连接设备')
+      _toastError(err as any, '发送数据失败')
+      throw err
+    }
     const chunks = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
     await this._sendChunk(this._screenDeviceId, chunks, 3, { silent })
