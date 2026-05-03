@@ -25,28 +25,28 @@ const isConnecting = computed(
 const dotClass = computed(() => {
   switch (connectStatus.value) {
     case ConnectStatus.Disconnected:
-      return 'dot-disabled'
+      return 'dot-disconnected'
     case ConnectStatus.Connected:
       return 'dot-connected'
     case ConnectStatus.Connecting:
     case ConnectStatus.Authorizing:
       return 'dot-connecting'
     default:
-      return 'dot-disconnected'
+      return 'dot-disabled'
   }
 })
 
 const statusText = computed(() => {
   switch (connectStatus.value) {
     case ConnectStatus.Disconnected:
-      return '未开启'
+      return '未连接'
     case ConnectStatus.Connected:
       return '已连接'
     case ConnectStatus.Connecting:
     case ConnectStatus.Authorizing:
       return '连接中...'
     default:
-      return '等待连接'
+      return '未开启'
   }
 })
 
