@@ -18,10 +18,11 @@ const currentSongDetail = computed(() => currentSongData.value?.detail || [])
 
 const bleRemote = BleRemote.getInstance()
 
-const handleLyricLineTap = (e: WechatMiniprogram.TouchEvent) => {
+const handleLyricLineTap = async (e: WechatMiniprogram.TouchEvent) => {
   const { index, time } = e.currentTarget.dataset
   if (typeof index === 'number') {
     playState.setCurrentLyricIndex(index, time)
+    await bleRemote.sendCommand(Command.LyricSetIndex, String(index))
   }
 }
 

@@ -34,6 +34,7 @@ export class BleScreen {
   private _serviceUuid = ''
   private _mtu = 20 // 默认MTU为20字节，实际值需要在连接后通过onBLEMTUChange事件获取
   private _connectStore = useConnectStore()
+  private _heartbeatTimer: ReturnType<typeof setInterval> | null = null
   private _commandListener: ((command: Command, payload: string) => void) | null = null
   private _largeDataListener: ((data: string) => void) | null = null
   
@@ -48,7 +49,36 @@ export class BleScreen {
     return BleScreen._instance
   }
 
+  private _startHeartbeat(): void {
+    this._stopHeartbeat()
+    this._heartbeatTimer = setInterval(() => {
+      if (!this._server) {
+        this._stopHeartbeat()
+        return
+      }
+      this._server.writeCharacteristicValue({
+        serviceId: this._serviceUuid,
+        characteristicId: MayScreenCharacteristicUuid.status,
+        value: new Uint8Array([0x01]).buffer,
+        needNotify: true,
+        fail: (err) => {
+          _logError('heartbeat failed, connection lost', err)
+          this._stopHeartbeat()
+          this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+        },
+      })
+    }, 5000)
+  }
+
+  private _stopHeartbeat(): void {
+    if (this._heartbeatTimer) {
+      clearInterval(this._heartbeatTimer)
+      this._heartbeatTimer = null
+    }
+  }
+
   public destroy() {
+    this._stopHeartbeat()
     wx.closeBluetoothAdapter()
     this._commandListener = null
     this._largeDataListener = null
@@ -211,15 +241,31 @@ export class BleScreen {
     })
     server.onCharacteristicSubscribed((res) => {
       _log('onCharacteristicSubscribed', res)
+      if (res.characteristicId === MayScreenCharacteristicUuid.status) {
+        this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        this._startHeartbeat()
+      }
     })
     server.onCharacteristicUnsubscribed((res) => {
       _log('onCharacteristicUnsubscribed', res)
+      if (res.characteristicId === MayScreenCharacteristicUuid.status) {
+        this._stopHeartbeat()
+        this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+      }
     })
   }
 
   /** 绑定连接监听器 */
   private async _bindConnectionListeners(): Promise<void> {
     wx.onBLEPeripheralConnectionStateChanged((res) => {
+      _log(`peripheral connection state changed: ${res.connected}`)
+      if (res.connected) {
+        this._connectStore.setConnectStatus(ConnectStatus.Connected)
+      } else {
+        this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+      }
+    })
+    wx.onBLEConnectionStateChange((res) => {
       _log(`connection state changed: ${res.connected}`)
       if (res.connected) {
         this._connectStore.setConnectStatus(ConnectStatus.Connected)

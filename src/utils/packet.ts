@@ -155,7 +155,7 @@ export const parseShortPacket = (
   const view = new DataView(packet)
   const command = view.getUint8(0)
   const payloadLength = view.getUint8(1)
-  const payload = new Uint8Array(packet, 2, payloadLength)
+  const payload = new Uint8Array(packet, 2, payloadLength).slice()
   const decoder = new TextDecoder()
   return { command, payload: decoder.decode(payload) }
 }

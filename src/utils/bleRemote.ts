@@ -142,6 +142,29 @@ export class BleRemote {
         },
       })
     }
+
+    // 阶段4. 监听 notify 特征值
+    await wx.notifyBLECharacteristicValueChange({
+      deviceId,
+      serviceId: serviceUuid,
+      characteristicId: MayScreenCharacteristicUuid.status,
+      state: true,
+    })
+    _log('notifyBLECharacteristicValueChange success')
+    wx.onBLECharacteristicValueChange((res) => {
+      if (res.characteristicId === MayScreenCharacteristicUuid.status) {
+        const value = new Uint8Array(res.value)
+        _log('status changed', value)
+        if (value[0] === 0x01) {
+          this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        } else {
+          this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+        }
+      } else if (res.characteristicId === MayScreenCharacteristicUuid.read) {
+        const value = new Uint8Array(res.value)
+        _log('command received', value)
+      }
+    })
   }
 
   /** 断开与 Screen 设备的连接 */
