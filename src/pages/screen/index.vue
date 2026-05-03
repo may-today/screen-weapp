@@ -17,7 +17,7 @@ import { Command } from '@/types'
 const playState = usePlayStateStore()
 const data = useDataStore()
 const ui = useUiStore()
-useConnectStore()
+const connectStore = useConnectStore()
 const transmit = useTransmitStore()
 const { allDataDict } = storeToRefs(data)
 
@@ -37,6 +37,9 @@ bleScreen.setCommandListener((command, payload) => {
     }
     case Command.ScreenBlackScreen:
       console.log('[Screen] TODO: black screen')
+      break
+    case Command.Rssi:
+      connectStore.setRssi(parseInt(payload))
       break
   }
 })

@@ -70,6 +70,7 @@ export class BleRemote {
   }
 
   private async _handleReconnect(): Promise<void> {
+    this._connectStore.setRssi(null)
     if (!this._screenDeviceId || this._reconnectRetryCount >= BleRemote._RECONNECT_MAX_RETRIES) {
       _logError('reconnect exhausted, giving up')
       this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
@@ -208,6 +209,13 @@ export class BleRemote {
         _log('heartbeat received', value)
         if (value[0] === 0x01) {
           this._connectStore.setConnectStatus(ConnectStatus.Connected)
+          wx.getBLEDeviceRSSI({
+            deviceId: this._screenDeviceId,
+            success: (rssiRes) => {
+              this._connectStore.setRssi(rssiRes.RSSI)
+              this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
+            },
+          })
         } else {
           this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
         }
@@ -221,6 +229,7 @@ export class BleRemote {
   /** 断开与 Screen 设备的连接 */
   public async disconnectDevice(deviceId: string): Promise<void> {
     this._stopWatchdog()
+    this._connectStore.setRssi(null)
     await wx.closeBLEConnection({ deviceId }).catch((err) => {
       _toastError(err, '断开连接失败')
     })
@@ -247,9 +256,8 @@ export class BleRemote {
     maxRetries = 3,
     options: {
       largeData?: boolean
-    } = {
-        largeData: false,
-      }
+      silent?: boolean
+    } = {}
   ): Promise<void> {
     let retryCount = 0
 
@@ -264,16 +272,16 @@ export class BleRemote {
           writeType: 'write',
           value: chunk,
         })
-        return // 发送成功，退出重试循环
+        return
       } catch (err) {
         retryCount++
         if (retryCount > maxRetries) {
           _logError(`包发送失败，已重试 ${maxRetries} 次`, err)
-          _toastError(err as any, '发送数据包失败')
-          throw err // 重新抛出错误，终止整个发送过程
+          if (!options.silent) _toastError(err as any, '发送数据包失败')
+          throw err
         }
         _log(`包发送失败，正在重试第 ${retryCount} 次...`)
-        await this._delay(100) // 重试前延迟100ms
+        await this._delay(100)
       }
     }
   }
@@ -304,9 +312,9 @@ export class BleRemote {
   }
 
   /** 发送短指令 */
-  public async sendCommand(command: Command, payload: string): Promise<void> {
+  public async sendCommand(command: Command, payload: string, silent = false): Promise<void> {
     const chunks = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
-    await this._sendChunk(this._screenDeviceId, chunks)
+    await this._sendChunk(this._screenDeviceId, chunks, 3, { silent })
   }
 }
