@@ -65,6 +65,7 @@ export class BleScreen {
           _logError('heartbeat failed, connection lost', err)
           this._stopHeartbeat()
           this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+          this.startAdvertising().catch(_logError)
         },
       })
     }, 5000)
@@ -244,6 +245,7 @@ export class BleScreen {
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
         this._connectStore.setConnectStatus(ConnectStatus.Connected)
         this._startHeartbeat()
+        this.stopAdvertising().catch(_logError)
       }
     })
     server.onCharacteristicUnsubscribed((res) => {
@@ -251,6 +253,7 @@ export class BleScreen {
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
         this._stopHeartbeat()
         this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+        this.startAdvertising().catch(_logError)
       }
     })
   }
