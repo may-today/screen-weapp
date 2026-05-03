@@ -92,7 +92,7 @@ onUnload(() => {
   playState.$reset()
   transmit.$reset()
   timeServer.destroy()
-  BleScreen.getInstance().destroy()
+  void BleScreen.getInstance().destroy({ resetInstance: true })
 })
 </script>
 

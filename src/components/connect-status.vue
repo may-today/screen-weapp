@@ -16,8 +16,6 @@ const { connectStatus, rssi } = storeToRefs(connectStore)
 const transmitStore = useTransmitStore()
 const { commandReceivedAt, commandSentAt, largeDataProgress } = storeToRefs(transmitStore)
 
-const isVisible = computed(() => connectStatus.value !== ConnectStatus.Disabled)
-
 const isConnecting = computed(
   () =>
     connectStatus.value === ConnectStatus.Connecting ||
@@ -26,6 +24,8 @@ const isConnecting = computed(
 
 const dotClass = computed(() => {
   switch (connectStatus.value) {
+    case ConnectStatus.Disconnected:
+      return 'dot-disabled'
     case ConnectStatus.Connected:
       return 'dot-connected'
     case ConnectStatus.Connecting:
@@ -38,6 +38,8 @@ const dotClass = computed(() => {
 
 const statusText = computed(() => {
   switch (connectStatus.value) {
+    case ConnectStatus.Disconnected:
+      return '未开启'
     case ConnectStatus.Connected:
       return '已连接'
     case ConnectStatus.Connecting:
@@ -81,7 +83,7 @@ watch(commandSentAt, () => {
 </script>
 
 <template>
-  <view v-if="isVisible" class="status-badge" :class="props.extraClass">
+  <view class="status-badge" :class="props.extraClass">
     <signal-icon :rssi="rssi" />
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
@@ -108,6 +110,10 @@ watch(commandSentAt, () => {
 
 .dot {
   @apply size-2 flex-shrink-0 rounded-full;
+}
+
+.dot-disabled {
+  @apply bg-neutral-700;
 }
 
 .dot-disconnected {

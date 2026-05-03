@@ -42,6 +42,7 @@ export class BleRemote {
   private _commandListener: ((command: Command, payload: string) => void) | null = null
   private _largeDataListener: ((data: string) => void) | null = null
   private readonly _screenChunkBuffer: Map<string, ArrayBuffer[]> = new Map()
+  private readonly _remoteNickName = BleRemote._createRemoteNickName()
 
   constructor() {
     this._connectStore = useConnectStore()
@@ -53,6 +54,15 @@ export class BleRemote {
       BleRemote._instance = new BleRemote()
     }
     return BleRemote._instance
+  }
+
+  private static _createRemoteNickName(): string {
+    const shortId = Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0')
+    return `R-${shortId}`
+  }
+
+  public get remoteNickName(): string {
+    return this._remoteNickName
   }
 
   private _startWatchdog(): void {
@@ -210,7 +220,6 @@ export class BleRemote {
 
     // 阶段2. 前期数据交换、授权阶段
     this._connectStore.setConnectStatus(ConnectStatus.Authorizing)
-    // TODO: 授权流程，需要在 Screen 端确认授权
     const servicesRes = await wx.getBLEDeviceServices({ deviceId })
     _log('getBLEDeviceServices success', servicesRes.services)
     const serviceUuid = servicesRes.services.find((service) => service.uuid.startsWith('19970329-'))?.uuid
@@ -230,8 +239,7 @@ export class BleRemote {
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
     await this._delay(3000)
 
-    // 阶段3. 连接成功、设置 MTU
-    this._connectStore.setConnectStatus(ConnectStatus.Connected)
+    // 阶段3. 设置 MTU
     if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {
       _log('setBLEMTU begin')
       wx.setBLEMTU({
@@ -269,13 +277,6 @@ export class BleRemote {
     _log('notifyBLECharacteristicValueChange success')
     wx.offBLECharacteristicValueChange()
     this._startWatchdog()
-    wx.getBLEDeviceRSSI({
-      deviceId,
-      success: (rssiRes) => {
-        this._connectStore.setRssi(rssiRes.RSSI)
-        this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
-      },
-    })
     wx.onBLECharacteristicValueChange((res) => {
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
         const value = new Uint8Array(res.value)
@@ -283,7 +284,9 @@ export class BleRemote {
         _log('heartbeat received', value)
         if (value[0] === 0x01) {
           this._transmitStore.onCommandReceived()
-          this._connectStore.setConnectStatus(ConnectStatus.Connected)
+          if (this._connectStore.connectStatus.value !== ConnectStatus.Authorizing) {
+            this._connectStore.setConnectStatus(ConnectStatus.Connected)
+          }
           wx.getBLEDeviceRSSI({
             deviceId: this._screenDeviceId,
             success: (rssiRes) => {
@@ -297,11 +300,22 @@ export class BleRemote {
       } else if (res.characteristicId === MayScreenCharacteristicUuid.read) {
         const cmd = parseShortPacket(res.value)
         _log(`command from screen: ${Command[cmd.command] || 'unknown'} (${cmd.payload || null})`)
+        if (cmd.command === Command.ReplyAuthorize) {
+          this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        }
         this._commandListener?.(cmd.command, cmd.payload)
         this._transmitStore.onCommandReceived()
       } else if (res.characteristicId === MayScreenCharacteristicUuid.readLarge) {
         this._handleParseLargeData(res.value)
       }
+    })
+    await this.sendCommand(Command.Authorize, this._remoteNickName, true)
+    wx.getBLEDeviceRSSI({
+      deviceId,
+      success: (rssiRes) => {
+        this._connectStore.setRssi(rssiRes.RSSI)
+        this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
+      },
     })
   }
 

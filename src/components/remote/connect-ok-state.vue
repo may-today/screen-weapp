@@ -2,10 +2,12 @@
 import { computed } from 'wevu'
 import { storeToRefs } from 'wevu/store'
 import { useConnectStore } from '@/stores/connect'
-import { BleRemote } from '@/utils/bleRemote'
 
 const connectStore = useConnectStore()
 const { currentScreenMeta } = storeToRefs(connectStore)
+const emit = defineEmits<{
+  disconnect: []
+}>()
 
 const deviceImgSrc = computed(() => {
   if (currentScreenMeta.value) {
@@ -14,9 +16,8 @@ const deviceImgSrc = computed(() => {
   return `../../assets/device-unknown.png`
 })
 
-const handleDisconnect = async () => {
-  await BleRemote.getInstance().disconnect()
-  connectStore.setCurrentScreenMeta(null)
+const handleDisconnect = () => {
+  emit('disconnect')
 }
 </script>
 

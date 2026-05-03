@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import ConnectSearchDeviceListItem from './connect-search-device-list-item.vue'
-import { BleRemote } from '@/utils/bleRemote'
 
 const props = defineProps<{
   list: WechatMiniprogram.BlueToothDevice[]
+  disabled?: boolean
 }>()
 
-const bleRemote = BleRemote.getInstance()
+const emit = defineEmits<{
+  select: [device: WechatMiniprogram.BlueToothDevice]
+}>()
 
-const handleSelectItem = async (item: WechatMiniprogram.BlueToothDevice) => {
+const handleSelectItem = (item: WechatMiniprogram.BlueToothDevice) => {
+  if (props.disabled) return
   wx.vibrateShort({ type: 'light' })
-  try {
-    await bleRemote.connectDevice(item.deviceId)
-  } catch {
-    // connectDevice 内部已 toast 错误
-  }
+  emit('select', item)
 }
 </script>
 

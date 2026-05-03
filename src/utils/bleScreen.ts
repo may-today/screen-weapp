@@ -29,6 +29,7 @@ export class BleScreen {
   private _heartbeatTimer: ReturnType<typeof setInterval> | null = null
   private _commandListener: ((command: Command, payload: string) => void) | null = null
   private _largeDataListener: ((data: string) => void) | null = null
+  private _centralDeviceId = ''
   
   constructor() {
     this._connectStore = useConnectStore()
@@ -56,9 +57,7 @@ export class BleScreen {
         needNotify: true,
         fail: (err) => {
           _logError('heartbeat failed, connection lost', err)
-          this._stopHeartbeat()
-          this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-          this.startAdvertising().catch(_logError)
+          this._handleRemoteDisconnected()
         },
       })
     }, 5000)
@@ -71,13 +70,53 @@ export class BleScreen {
     }
   }
 
-  public destroy() {
+  private _clearRemoteState(): void {
+    this._centralDeviceId = ''
+    this._connectStore.setCurrentRemoteMeta(null)
+    this._connectStore.setRssi(null)
+  }
+
+  private _handleRemoteDisconnected(): void {
     this._stopHeartbeat()
-    wx.closeBluetoothAdapter()
-    this._commandListener = null
-    this._largeDataListener = null
+    this._clearRemoteState()
+    this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+    if (this._server) {
+      this.startAdvertising().catch(_logError)
+    }
+  }
+
+  public async destroy(options: { resetInstance?: boolean } = {}): Promise<void> {
+    this._stopHeartbeat()
+    this._clearRemoteState()
+    wx.offBLEPeripheralConnectionStateChanged()
+    wx.offBLEConnectionStateChange()
+    wx.offBLEMTUChange()
+    const server = this._server
+    if (server) {
+      server.offCharacteristicWriteRequest()
+      server.offCharacteristicReadRequest()
+      server.offCharacteristicSubscribed()
+      server.offCharacteristicUnsubscribed()
+      if (this._isAdvertising) {
+        await this.stopAdvertising().catch(() => {})
+      }
+      await new Promise<void>((resolve) => {
+        server.close({
+          complete: () => resolve(),
+        })
+      })
+    }
+    this._server = null
+    await wx.closeBluetoothAdapter().catch(() => {})
+    this._isAdvertising = false
+    if (options.resetInstance) {
+      this._commandListener = null
+      this._largeDataListener = null
+    }
     this._chunkBuffer.clear()
-    BleScreen._instance = null
+    if (options.resetInstance) {
+      BleScreen._instance = null
+    }
     this._connectStore.setConnectStatus(ConnectStatus.Disabled)
     _log('destroy')
   }
@@ -193,6 +232,16 @@ export class BleScreen {
         // 短指令
         const commandDetail = parseShortPacket(res.value)
         _log(`receiveCommand: ${Command[commandDetail.command] || 'unknown'} (${commandDetail.payload || null})`)
+        if (commandDetail.command === Command.Authorize) {
+          const nickName = commandDetail.payload.trim()
+          this._connectStore.setCurrentRemoteMeta({
+            nickName: nickName || '遥控器',
+            deviceId: this._centralDeviceId || undefined,
+            connectedAt: Date.now(),
+          })
+          this.sendCommand(Command.ReplyAuthorize, 'ok').catch(_logError)
+          this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        }
         this._commandListener?.(commandDetail.command, commandDetail.payload)
         this._transmitStore.onCommandReceived()
       } else if (res.characteristicId === MayScreenCharacteristicUuid.writeLarge) {
@@ -237,7 +286,7 @@ export class BleScreen {
     server.onCharacteristicSubscribed((res) => {
       _log('onCharacteristicSubscribed', res)
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
-        this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        this._connectStore.setConnectStatus(ConnectStatus.Authorizing)
         this._startHeartbeat()
         this.stopAdvertising().catch(_logError)
       }
@@ -245,9 +294,7 @@ export class BleScreen {
     server.onCharacteristicUnsubscribed((res) => {
       _log('onCharacteristicUnsubscribed', res)
       if (res.characteristicId === MayScreenCharacteristicUuid.status) {
-        this._stopHeartbeat()
-        this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-        this.startAdvertising().catch(_logError)
+        this._handleRemoteDisconnected()
       }
     })
   }
@@ -257,17 +304,29 @@ export class BleScreen {
     wx.onBLEPeripheralConnectionStateChanged((res) => {
       _log(`peripheral connection state changed: ${res.connected}`)
       if (res.connected) {
-        this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        this._centralDeviceId = res.deviceId
+        this._connectStore.setCurrentRemoteMeta({
+          nickName: '等待握手',
+          deviceId: res.deviceId,
+          connectedAt: Date.now(),
+        })
+        this._connectStore.setConnectStatus(ConnectStatus.Connecting)
       } else {
-        this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+        this._handleRemoteDisconnected()
       }
     })
     wx.onBLEConnectionStateChange((res) => {
       _log(`connection state changed: ${res.connected}`)
       if (res.connected) {
-        this._connectStore.setConnectStatus(ConnectStatus.Connected)
+        this._centralDeviceId = res.deviceId
+        this._connectStore.setCurrentRemoteMeta({
+          nickName: '等待握手',
+          deviceId: res.deviceId,
+          connectedAt: Date.now(),
+        })
+        this._connectStore.setConnectStatus(ConnectStatus.Connecting)
       } else {
-        this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
+        this._handleRemoteDisconnected()
       }
     })
     wx.onBLEMTUChange((res) => {
@@ -394,6 +453,17 @@ export class BleScreen {
   /** 设置长数据监听器 */
   public setLargeDataListener(listener: (data: string) => void): void {
     this._largeDataListener = listener
+  }
+
+  /** 断开当前遥控器，保持屏幕端遥控器功能启用 */
+  public async disconnectRemote(): Promise<void> {
+    const deviceId = this._centralDeviceId
+    if (deviceId) {
+      await wx.closeBLEConnection({ deviceId }).catch((err) => {
+        _logError('closeBLEConnection fail', err)
+      })
+    }
+    this._handleRemoteDisconnected()
   }
 
   /** 延迟函数 */
