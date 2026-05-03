@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { computed } from 'wevu'
+import { ref, watch, computed } from 'wevu'
 import { storeToRefs } from 'wevu/store'
 import { useConnectStore } from '@/stores/connect'
+import { useTransmitStore } from '@/stores/transmit'
 import { ConnectStatus } from '@/types/connect'
 
 const connectStore = useConnectStore()
 const { connectStatus } = storeToRefs(connectStore)
+
+const transmitStore = useTransmitStore()
+const { commandReceivedAt, commandSentAt, largeDataProgress } = storeToRefs(transmitStore)
 
 const isVisible = computed(() => connectStatus.value !== ConnectStatus.Disabled)
 
@@ -38,12 +42,54 @@ const statusText = computed(() => {
       return '等待连接'
   }
 })
+
+const showTransmit = computed(() => connectStatus.value === ConnectStatus.Connected)
+const isLargeData = computed(() => largeDataProgress.value !== null)
+const progressPercent = computed(() =>
+  largeDataProgress.value
+    ? Math.round((largeDataProgress.value.current / largeDataProgress.value.total) * 100)
+    : 0,
+)
+
+const flashReceive = ref(false)
+const flashSend = ref(false)
+let receiveTimer: ReturnType<typeof setTimeout> | null = null
+let sendTimer: ReturnType<typeof setTimeout> | null = null
+
+watch(commandReceivedAt, () => {
+  if (receiveTimer !== null) clearTimeout(receiveTimer)
+  flashReceive.value = true
+  receiveTimer = setTimeout(() => {
+    flashReceive.value = false
+    receiveTimer = null
+  }, 700)
+})
+
+watch(commandSentAt, () => {
+  if (sendTimer !== null) clearTimeout(sendTimer)
+  flashSend.value = true
+  sendTimer = setTimeout(() => {
+    flashSend.value = false
+    sendTimer = null
+  }, 700)
+})
 </script>
 
 <template>
   <view v-if="isVisible" class="status-badge">
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
+    <template v-if="showTransmit">
+      <view class="tx-sep" />
+      <view v-if="isLargeData" class="tx-progress-track">
+        <view class="tx-progress-fill" :style="{ width: progressPercent + '%' }" />
+      </view>
+      <view
+        v-else
+        class="tx-dot"
+        :class="{ 'tx-flash-receive': flashReceive, 'tx-flash-send': flashSend }"
+      />
+    </template>
   </view>
 </template>
 
@@ -79,6 +125,31 @@ const statusText = computed(() => {
   @apply text-xs text-white/80;
 }
 
+.tx-sep {
+  @apply w-px self-stretch bg-white/20;
+}
+
+.tx-dot {
+  @apply size-2 flex-shrink-0 rounded-full bg-white/15;
+}
+
+.tx-flash-receive {
+  animation: flash-receive 0.7s ease-out forwards;
+}
+
+.tx-flash-send {
+  animation: flash-send 0.7s ease-out forwards;
+}
+
+.tx-progress-track {
+  @apply h-1 w-10 overflow-hidden rounded-full bg-white/20;
+}
+
+.tx-progress-fill {
+  @apply h-full rounded-full bg-cyan-400;
+  transition: width 0.15s ease-out;
+}
+
 @keyframes pulse-dot {
   0%, 100% {
     opacity: 1;
@@ -87,6 +158,32 @@ const statusText = computed(() => {
   50% {
     opacity: 0.4;
     transform: scale(0.75);
+  }
+}
+
+@keyframes flash-receive {
+  0% {
+    background-color: rgb(34 211 238);
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    background-color: rgb(255 255 255 / 0.15);
+    transform: scale(1);
+    opacity: 0.3;
+  }
+}
+
+@keyframes flash-send {
+  0% {
+    background-color: rgb(251 191 36);
+    transform: scale(1.5);
+    opacity: 1;
+  }
+  100% {
+    background-color: rgb(255 255 255 / 0.15);
+    transform: scale(1);
+    opacity: 0.3;
   }
 }
 </style>

@@ -1,4 +1,5 @@
 import { useConnectStore } from '@/stores/connect'
+import { useTransmitStore } from '@/stores/transmit'
 import { type BaseError, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
@@ -34,12 +35,14 @@ export class BleScreen {
   private _serviceUuid = ''
   private _mtu = 20 // 默认MTU为20字节，实际值需要在连接后通过onBLEMTUChange事件获取
   private _connectStore = useConnectStore()
+  private _transmitStore = useTransmitStore()
   private _heartbeatTimer: ReturnType<typeof setInterval> | null = null
   private _commandListener: ((command: Command, payload: string) => void) | null = null
   private _largeDataListener: ((data: string) => void) | null = null
   
   constructor() {
     this._connectStore = useConnectStore()
+    this._transmitStore = useTransmitStore()
   }
 
   public static getInstance(): BleScreen {
@@ -201,6 +204,7 @@ export class BleScreen {
         const commandDetail = parseShortPacket(res.value)
         _log(`receiveCommand: ${Command[commandDetail.command] || 'unknown'} (${commandDetail.payload || null})`)
         this._commandListener?.(commandDetail.command, commandDetail.payload)
+        this._transmitStore.onCommandReceived()
       } else if (res.characteristicId === MayScreenCharacteristicUuid.writeLarge) {
         // 长数据
         this._handleParseLargeData(res.value)
@@ -315,6 +319,7 @@ export class BleScreen {
     this._chunkBuffer.set(targetSessionId, chunks)
 
     _log(`已接收包 ${info.currentIndex + 1}/${info.totalPackets}`)
+    this._transmitStore.onLargeDataChunk(info.currentIndex + 1, info.totalPackets)
 
     // 检查是否接收完所有包
     if (chunks.length === info.totalPackets) {
@@ -329,6 +334,7 @@ export class BleScreen {
         this._chunkBuffer.delete(targetSessionId)
         _log(`传输会话 ${targetSessionId} 完成，已清理缓冲区`)
         this._largeDataListener?.(completeData)
+        this._transmitStore.onLargeDataComplete()
       } catch (error) {
         _logError('重组数据失败:', error)
         // 清理失败的缓冲区
@@ -437,5 +443,6 @@ export class BleScreen {
     const chunks = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
     await this._sendChunk(deviceId, chunks)
+    this._transmitStore.onCommandSent()
   }
 }

@@ -8,6 +8,7 @@ import { useDataStore } from '@/stores/data'
 import { usePlayStateStore } from '@/stores/playState'
 import { useUiStore } from '@/stores/ui'
 import { useConnectStore } from '@/stores/connect'
+import { useTransmitStore } from '@/stores/transmit'
 import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
 import { BleScreen } from '@/utils/bleScreen'
@@ -16,7 +17,8 @@ import { Command } from '@/types'
 const playState = usePlayStateStore()
 const data = useDataStore()
 const ui = useUiStore()
-const connect = useConnectStore()
+useConnectStore()
+const transmit = useTransmitStore()
 const { allDataDict } = storeToRefs(data)
 
 const bleScreen = BleScreen.getInstance()
@@ -85,6 +87,7 @@ onUnload(() => {
   ui.$reset()
   data.$reset()
   playState.$reset()
+  transmit.$reset()
   timeServer.destroy()
   BleScreen.getInstance().destroy()
 })
