@@ -516,7 +516,7 @@ export class BleScreen {
       await this._sendChunk(chunks[i], MayScreenCharacteristicUuid.readLarge)
       this._transmitStore.onLargeDataChunk(i + 1, chunks.length)
       if (i < chunks.length - 1) {
-        await this._delay(100)
+        await this._delay(20)
       }
     }
     this._transmitStore.onLargeDataComplete()

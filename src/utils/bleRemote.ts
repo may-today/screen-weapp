@@ -407,9 +407,8 @@ export class BleRemote {
       })
       this._transmitStore.onLargeDataChunk(i + 1, chunks.length)
       _log(`sendLargeData success, chunk ${i + 1}/${chunks.length}`)
-      // 如果不是最后一个包，延迟100毫秒后发送下一个包
       if (i < chunks.length - 1) {
-        await this._delay(100)
+        await this._delay(20)
       }
     }
     this._transmitStore.onLargeDataComplete()
