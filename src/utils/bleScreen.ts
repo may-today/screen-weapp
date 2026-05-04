@@ -499,6 +499,10 @@ export class BleScreen {
 
   /** 发送短指令给已连接的遥控端 */
   public async sendCommand(command: Command, payload: string): Promise<void> {
+    // 传输前判断
+    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
+      return
+    }
     const packet = shortCommandToPacket(command, payload)
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
     await this._sendChunk(packet, MayScreenCharacteristicUuid.read)
@@ -507,6 +511,15 @@ export class BleScreen {
 
   /** 发送长数据给已连接的遥控端 */
   public async sendLargeData(data: string): Promise<void> {
+    // 传输前判断
+    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
+      return
+    }
+    // 前置提示-数据过大需等待
+    wx.showToast({
+      title: '数据传输中，请稍候...',
+      icon: 'none',
+    })
     const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
     _log(`sendLargeData: (${chunks.length} chunks)`)
     for (let i = 0; i < chunks.length; i++) {

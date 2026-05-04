@@ -237,7 +237,8 @@ export class BleRemote {
       serviceId: serviceUuid,
     })
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    // await this._delay(3000)
+    // await this._delay(1000)
+    this._connectStore.setConnectStatus(ConnectStatus.Connected)
 
     // 阶段3. 设置 MTU
     if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {
@@ -284,9 +285,9 @@ export class BleRemote {
         _log('heartbeat received', value)
         if (value[0] === 0x01) {
           this._transmitStore.onCommandReceived()
-          if (this._connectStore.connectStatus.value !== ConnectStatus.Authorizing) {
+          // if (this._connectStore.connectStatus.value !== ConnectStatus.Authorizing) {
             this._connectStore.setConnectStatus(ConnectStatus.Connected)
-          }
+          // }
           wx.getBLEDeviceRSSI({
             deviceId: this._screenDeviceId,
             success: (rssiRes) => {
@@ -389,6 +390,11 @@ export class BleRemote {
       _toastError(err as any, '发送数据失败')
       throw err
     }
+    // 前置提示-数据过大需等待
+    wx.showToast({
+      title: '数据传输中，请稍候...',
+      icon: 'none',
+    })
     const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
     _log(`sendLargeData: ${data} (${chunks.length} chunks)`)
     for (let i = 0; i < chunks.length; i++) {
