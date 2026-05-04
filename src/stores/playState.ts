@@ -109,18 +109,18 @@ export const usePlayStateStore = defineStore('playState', () => {
   /** 切换到下一行歌词 */
   const nextLyricLine = () => {
     if (currentSongData.value?.detail && currentLyricIndex.value < currentSongData.value.detail.length - 1) {
-      currentLyricIndex.value += 1
+      setCurrentLyricIndex(currentLyricIndex.value + 1)
     } else {
-      currentLyricIndex.value = -1
+      setCurrentLyricIndex(-1)
     }
   }
 
   /** 切换到上一行歌词 */
   const prevLyricLine = () => {
     if (currentSongData.value?.detail && currentLyricIndex.value > 0) {
-      currentLyricIndex.value -= 1
+      setCurrentLyricIndex(currentLyricIndex.value - 1)
     } else {
-      currentLyricIndex.value = -1
+      setCurrentLyricIndex(-1)
     }
   }
 

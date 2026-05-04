@@ -14,7 +14,7 @@ const props = defineProps<{
 }>()
 
 const playState = usePlayStateStore()
-const { currentSongData, currentLyricIndex, autoPlay } = storeToRefs(playState)
+const { currentSongData, currentLyricIndex } = storeToRefs(playState)
 const currentSongDetail = computed(() => currentSongData.value?.detail || [])
 
 const bleRemote = BleRemote.getInstance()
@@ -39,12 +39,6 @@ const handlePrev = async () => {
 const handleNext = async () => {
   playState.nextLyricLine()
   await bleRemote.sendCommand(Command.LyricSetIndex, String(currentLyricIndex.value))
-}
-
-const handleToggleAutoPlay = async () => {
-  const next = !autoPlay.value
-  playState.setAutoPlay(next)
-  await bleRemote.sendCommand(Command.LyricAutoPlay, next ? '1' : '0')
 }
 </script>
 
@@ -76,12 +70,13 @@ const handleToggleAutoPlay = async () => {
       <AutoPlaySwitchButton :mode="props.mode" />
     </view>
     <!-- 遥控器模式控制栏 -->
-    <view v-if="props.mode === 'remote'" class="flex flex-row items-center justify-between h-14 px-4 border-t border-border gap-2">
-      <button size="mini" @tap="handlePrev">◀ 上一句</button>
-      <button size="mini" :type="autoPlay ? 'primary' : 'default'" @tap="handleToggleAutoPlay">
-        {{ autoPlay ? '自动 ON' : '自动 OFF' }}
-      </button>
-      <button size="mini" @tap="handleNext">下一句 ▶</button>
+    <view v-if="props.mode === 'remote'" class="flex flex-row items-center h-18 border-t border-border">
+      <view class="flex-1 flex h-full items-center justify-center border-r border-border" hover-class="bg-accent text-accent-foreground" @tap="handlePrev">
+        <view class="i-lucide-chevron-left size-8" />
+      </view>
+      <view class="flex-1 flex h-full items-center justify-center" hover-class="bg-accent text-accent-foreground" @tap="handleNext">
+        <view class="i-lucide-chevron-right size-8" />
+      </view>
     </view>
   </ControlPanelPage>
 </template>

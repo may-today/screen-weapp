@@ -58,9 +58,6 @@ const handleSelectSong = async (slug: string) => {
       scroll-y
       enable-passive
       enable-back-to-top
-      :scroll-into-view="`id:${currentSongData && currentSongData.slug}`"
-      scroll-into-view-offset="-60"
-      scroll-into-view-alignment="center"
       scroll-with-animation
     >
       <block v-for="item in metaGroupList" :key="item.index">
