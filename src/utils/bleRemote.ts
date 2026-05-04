@@ -237,7 +237,7 @@ export class BleRemote {
       serviceId: serviceUuid,
     })
     _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    await this._delay(3000)
+    // await this._delay(3000)
 
     // 阶段3. 设置 MTU
     if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {

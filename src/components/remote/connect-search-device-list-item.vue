@@ -36,11 +36,10 @@ const handleSelectItem = () => {
       <image :src="deviceImgSrc" class="h-full w-full" mode="aspectFit" />
     </view>
     <view class="flex-1 flex flex-col gap-1.5 overflow-hidden">
-      <text class="w-full font-medium" overflow="ellipsis">{{ props.device.name }}</text>
+      <text class="w-full font-medium" overflow="ellipsis">{{ parsedDeviceInfo?.nickName || props.device.name }}</text>
       <view class="flex flex-row items-center gap-1.5 text-sm">
         <signal-icon :rssi="props.device.RSSI" />
         <text class="text-muted-foreground text-xs">{{ parsedDeviceInfo?.displayName }}</text>
-        <text v-if="parsedDeviceInfo?.nickName" class="text-muted-foreground text-xs font-mono">{{ parsedDeviceInfo.nickName }}</text>
       </view>
     </view>
     <button size="mini" @tap="handleSelectItem" class="shrink-0">

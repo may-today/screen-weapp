@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { onReady, onShow, onUnload } from 'wevu'
-import { useRouter } from 'wevu/router'
 import RemoteHeader from '@/components/remote/remote-header.vue'
-// import RemoteFooterTab from '@/components/remote/remote-footer-tab.vue';
 import ControlPanel from '@/components/control/control-panel.vue'
 import { timeServer } from '@/utils/timeServer'
 import { hooks } from '@/utils/hook'
@@ -10,11 +8,13 @@ import { BleRemote } from '@/utils/bleRemote'
 import { useTransmitStore } from '@/stores/transmit'
 import { usePlayStateStore } from '@/stores/playState'
 import { useDataStore } from '@/stores/data'
+import { useUiStore } from '@/stores/ui'
 import { Command } from '@/types'
 
 const transmit = useTransmitStore()
 const playState = usePlayStateStore()
 const dataStore = useDataStore()
+const ui = useUiStore()
 
 const bleRemote = BleRemote.getInstance()
 bleRemote.setCommandListener((command, payload) => {
@@ -74,6 +74,9 @@ onUnload(() => {
   })
   hooks.removeAllHooks()
   transmit.$reset()
+  playState.$reset()
+  ui.$reset()
+  dataStore.$reset()
   timeServer.destroy()
   BleRemote.getInstance().destroy()
 })
@@ -83,6 +86,5 @@ onUnload(() => {
   <view class="flex flex-col h-full">
     <remote-header />
     <ControlPanel panel-class="flex-1 overflow-hidden" mode="remote" />
-    <!-- <remote-footer-tab /> -->
   </view>
 </template>
