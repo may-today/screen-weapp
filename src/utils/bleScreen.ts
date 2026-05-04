@@ -497,20 +497,8 @@ export class BleScreen {
     })
   }
 
-  /** 发送短指令给已连接的遥控端 */
-  public async sendCommand(command: Command, payload: string): Promise<void> {
-    // 传输前判断
-    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
-      return
-    }
-    const packet = shortCommandToPacket(command, payload)
-    _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
-    await this._sendChunk(packet, MayScreenCharacteristicUuid.read)
-    this._transmitStore.onCommandSent()
-  }
-
   /** 发送长数据给已连接的遥控端 */
-  public async sendLargeData(data: string): Promise<void> {
+  private async _sendLargeData(data: string): Promise<void> {
     // 传输前判断
     if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
       return
@@ -533,9 +521,21 @@ export class BleScreen {
     _log('sendLargeData success')
   }
 
-  /** 发送完整歌曲数据给已连接的遥控端 */
-  public async sendSongData(song: SongDetail): Promise<void> {
-    const envelope = JSON.stringify({ cmd: Command.ChangeSongData, data: song })
-    await this.sendLargeData(envelope)
+  /** 发送短指令给已连接的遥控端 */
+  public async sendCommand(command: Command, payload: string): Promise<void> {
+    // 传输前判断
+    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
+      return
+    }
+    const packet = shortCommandToPacket(command, payload)
+    _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
+    await this._sendChunk(packet, MayScreenCharacteristicUuid.read)
+    this._transmitStore.onCommandSent()
+  }
+
+  /** 发送长指令 */
+  public async sendLongCommand(command: Command, payload: any): Promise<void> {
+    const envelope = JSON.stringify({ cmd: command, data: payload })
+    await this._sendLargeData(envelope)
   }
 }

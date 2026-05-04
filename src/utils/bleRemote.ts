@@ -383,7 +383,7 @@ export class BleRemote {
   }
 
   /** 发送长数据 */
-  public async sendLargeData(data: string): Promise<void> {
+  private async _sendLargeData(data: string): Promise<void> {
     // 前置判断
     if (!this._screenDeviceId || !this._screenServiceUuid) {
       const err = new Error('未连接设备')
@@ -414,12 +414,6 @@ export class BleRemote {
     _log('sendLargeData success')
   }
 
-  /** 发送完整歌曲数据（长数据指令） */
-  public async sendSongData(song: SongDetail): Promise<void> {
-    const envelope = JSON.stringify({ cmd: Command.ChangeSongData, data: song })
-    await this.sendLargeData(envelope)
-  }
-
   /** 发送短指令 */
   public async sendCommand(command: Command, payload: string, silent = false): Promise<void> {
     // 前置判断
@@ -432,5 +426,11 @@ export class BleRemote {
     _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
     await this._sendChunk(this._screenDeviceId, chunks, 3, { silent })
     this._transmitStore.onCommandSent()
+  }
+
+  /** 发送长指令 */
+  public async sendLongCommand(command: Command, payload: any): Promise<void> {
+    const envelope = JSON.stringify({ cmd: command, data: payload })
+    await this._sendLargeData(envelope)
   }
 }

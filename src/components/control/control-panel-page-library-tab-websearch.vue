@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SongDetail } from '@/types'
+import { Command } from '@/types'
 import { ref } from 'wevu'
 import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
@@ -80,9 +81,9 @@ const handleSelectSong = async (item: WebSearchTrackItem) => {
   }
   playState.setCurrentSongData(singleTrack)
   if (props.mode === 'screen') {
-    await BleScreen.getInstance().sendSongData(singleTrack).catch(() => {})
+    await BleScreen.getInstance().sendLongCommand(Command.ChangeSongData, singleTrack).catch(() => {})
   } else {
-    await bleRemote.sendSongData(singleTrack)
+    await bleRemote.sendLongCommand(Command.ChangeSongData, singleTrack)
   }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
