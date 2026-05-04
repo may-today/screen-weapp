@@ -28,7 +28,11 @@ bleScreen.setCommandListener((command, payload) => {
       playState.setCurrentLyricIndex(parseInt(payload))
       break
     case Command.LyricAutoPlay:
-      playState.setAutoPlay(payload === '1')
+      if (payload === '1') {
+        timeServer.start()
+      } else {
+        timeServer.pause()
+      }
       break
     case Command.ChangeSongId: {
       const song = allDataDict.value[payload]

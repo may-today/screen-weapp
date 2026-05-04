@@ -4,6 +4,7 @@ import { usePlayStateStore } from '@/stores/playState'
 import { formatDuration } from '@/utils/format'
 import { timeServer } from '@/utils/timeServer'
 import { BleScreen } from '@/utils/bleScreen'
+import { BleRemote } from '@/utils/bleRemote'
 import { Command } from '@/types'
 
 const props = withDefaults(defineProps<{
@@ -28,6 +29,8 @@ const handleButtonTap = () => {
   }
   if (props.mode === 'screen') {
     BleScreen.getInstance().sendCommand(Command.LyricAutoPlay, next ? '1' : '0').catch(() => {})
+  } else {
+    BleRemote.getInstance().sendCommand(Command.LyricAutoPlay, next ? '1' : '0').catch(() => {})
   }
 }
 </script>
