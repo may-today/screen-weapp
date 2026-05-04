@@ -1,6 +1,25 @@
+import { deflate, inflate } from 'pako'
 import TextDecoder from 'miniprogram-text-decoder'
 import TextEncoder from 'miniprogram-text-encoder'
 import type { Command } from '@/types'
+
+const COMPRESS_MAGIC = 0x1f
+
+export const compressPayload = (data: Uint8Array): Uint8Array => {
+  const compressed = deflate(data)
+  const result = new Uint8Array(1 + compressed.length)
+  result[0] = COMPRESS_MAGIC
+  result.set(compressed, 1)
+  return result
+}
+
+export const decompressPayload = (data: Uint8Array): string => {
+  const decoder = new TextDecoder()
+  if (data[0] === COMPRESS_MAGIC) {
+    return decoder.decode(inflate(data.subarray(1)))
+  }
+  return decoder.decode(data)
+}
 
 const LARGE_DATA_HEADER_SIZE = 4 // 协议头大小：2字节总包数 + 2字节当前包index
 
@@ -10,18 +29,17 @@ const LARGE_DATA_HEADER_SIZE = 4 // 协议头大小：2字节总包数 + 2字节
  * @returns ArrayBuffer数组，每个包最大20字节
  */
 export const largeDataToChunks = (
-  input: string,
+  input: string | Uint8Array,
   options: {
     maxPacketSize: number
   }
 ): ArrayBuffer[] => {
-  if (!input) {
+  if (!input || (input instanceof Uint8Array && input.length === 0)) {
     return []
   }
   const MAX_PAYLOAD_SIZE = options.maxPacketSize - LARGE_DATA_HEADER_SIZE // 实际数据最大大小
-  // 将字符串转换为UTF-8字节数组
   const encoder = new TextEncoder()
-  const data = encoder.encode(input)
+  const data: Uint8Array = typeof input === 'string' ? encoder.encode(input) : input
   // 计算需要的包数量
   const totalPackets = Math.ceil(data.length / MAX_PAYLOAD_SIZE)
   if (totalPackets > 65_535) {
@@ -79,31 +97,22 @@ export const parseLargeDataPacket = (
   }
 }
 
-/**
- * 重组多个包为原始字符串
- * @param packets ArrayBuffer数组
- * @returns 重组后的字符串
- */
-export const reassembleLargeData = (packets: ArrayBuffer[]): string => {
+export const reassembleLargeDataRaw = (packets: ArrayBuffer[]): Uint8Array => {
   if (packets.length === 0) {
-    return ''
+    return new Uint8Array(0)
   }
-  // 按照包的index排序
   const sortedPackets = packets
     .map((packet) => ({ packet, info: parseLargeDataPacket(packet) }))
     .sort((a, b) => a.info.currentIndex - b.info.currentIndex)
-  // 验证包的完整性
   const totalPackets = sortedPackets[0].info.totalPackets
   if (sortedPackets.length !== totalPackets) {
     throw new Error(`包数量不匹配，期望${totalPackets}个，实际收到${sortedPackets.length}个`)
   }
-  // 检查是否有遗漏的包
   for (let i = 0; i < totalPackets; i++) {
     if (sortedPackets[i].info.currentIndex !== i) {
       throw new Error(`缺少第${i}个包`)
     }
   }
-  // 重组数据
   const totalDataSize = sortedPackets.reduce((sum, item) => sum + item.info.data.length, 0)
   const combinedData = new Uint8Array(totalDataSize)
   let offset = 0
@@ -111,9 +120,12 @@ export const reassembleLargeData = (packets: ArrayBuffer[]): string => {
     combinedData.set(item.info.data, offset)
     offset += item.info.data.length
   }
-  // 转换为字符串
+  return combinedData
+}
+
+export const reassembleLargeData = (packets: ArrayBuffer[]): string => {
   const decoder = new TextDecoder()
-  return decoder.decode(combinedData)
+  return decoder.decode(reassembleLargeDataRaw(packets))
 }
 
 /**

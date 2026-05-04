@@ -5,15 +5,19 @@
     "": {
       "name": "weapp-vite-wevu-tailwindcss-tdesign-template",
       "dependencies": {
+        "@iconify-json/lucide": "^1.2.105",
         "hookable": "^6.1.1",
+        "miniprogram-text-decoder": "^2.0.0",
+        "miniprogram-text-encoder": "^2.0.0",
+        "pako": "^2.1.0",
         "tdesign-miniprogram": "^1.14.0",
       },
       "devDependencies": {
         "@egoist/tailwindcss-icons": "^1.9.2",
         "@icebreakers/eslint-config": "^4.0.9",
-        "@iconify-json/mdi": "^1.2.3",
         "@tailwindcss/postcss": "^4.2.4",
         "@types/node": "^25.6.0",
+        "@types/pako": "^2.0.4",
         "autoprefixer": "^10.5.0",
         "eslint": "^10.2.1",
         "miniprogram-api-typings": "^5.1.3",
@@ -253,7 +257,7 @@
 
     "@icebreakers/stylelint-config": ["@icebreakers/stylelint-config@3.0.6", "", { "dependencies": { "comment-json": "^5.0.0", "postcss-html": "^1.8.1", "stylelint-config-recess-order": "^7.6.1", "stylelint-config-recommended-scss": "^17.0.1", "stylelint-config-recommended-vue": "^1.6.1", "stylelint-config-standard-scss": "^17.0.0", "stylelint-plugin-tailwindcss": "2.0.3" }, "bin": { "stylelint-config": "bin/init.js" } }, "sha512-x2uIzg8mEKW3BGucic7aMiWqfZhR/FEhrKq6Dz5OAV+qPqpAsS1jCCqYi4OvUaP1PwmXPWzR6cp7AIK5fhGWWw=="],
 
-    "@iconify-json/mdi": ["@iconify-json/mdi@1.2.3", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-O3cLwbDOK7NNDf2ihaQOH5F9JglnulNDFV7WprU2dSoZu3h3cWH//h74uQAB87brHmvFVxIOkuBX2sZSzYhScg=="],
+    "@iconify-json/lucide": ["@iconify-json/lucide@1.2.105", "", { "dependencies": { "@iconify/types": "*" } }, "sha512-tbE+cGEixWcRFtW8xkzX1HaGRqp7CDhZb01uPBh7PnRoxXzVET9E73rHOXDdsLKUGoTuYGZKhhX6oirvoy5NDg=="],
 
     "@iconify/types": ["@iconify/types@2.0.0", "", {}, "sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg=="],
 
@@ -580,6 +584,8 @@
     "@types/ms": ["@types/ms@2.1.0", "", {}, "sha512-GsCCIZDE/p3i96vtEqx+7dBUGXrc7zeSK3wwPHIaRThS+9OhWIXRqzs4d6k1SVU8g91DrNRWxWUGhp5KXQb2VA=="],
 
     "@types/node": ["@types/node@25.6.0", "", { "dependencies": { "undici-types": "~7.19.0" } }, "sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ=="],
+
+    "@types/pako": ["@types/pako@2.0.4", "", {}, "sha512-VWDCbrLeVXJM9fihYodcLiIv0ku+AlOa/TQ1SvYOaBuyrSKgEcro95LJyIsJ4vSo6BXIxOKxiJAat04CmST9Fw=="],
 
     "@types/supports-color": ["@types/supports-color@8.1.3", "", {}, "sha512-Hy6UMpxhE3j1tLpl27exp1XqHD7n8chAiNPzWfz16LPZoMMoSc4dzLl6w9qijkEb/r5O1ozdu1CWGA2L83ZeZg=="],
 
@@ -1567,6 +1573,10 @@
 
     "miniprogram-api-typings": ["miniprogram-api-typings@5.1.3", "", {}, "sha512-qU9YqepEvUJ8wcqw3Kku2hPBN8IuSQjbhnIlkm/8GVyP7WftTboc6fC68AVoc/TfOSfugotMg5XknQhH2J8/kg=="],
 
+    "miniprogram-text-decoder": ["miniprogram-text-decoder@2.0.0", "", {}, "sha512-H1yh6mzDSVma7Dr1OW1IfDkC2GMW4WLZoCR8x2Vw1Rr9xPDuw7tyRevTysfJAzjZ8+zWZ41DQxUIloln+/j56w=="],
+
+    "miniprogram-text-encoder": ["miniprogram-text-encoder@2.0.0", "", {}, "sha512-3qkLGt7MfHSgS/qiGnkhJzZfwAc8caR9I9tL1HSGs6LbrlDZnO4o/BXMmjUR5+tCfsSQReXhyizFWSKRZ1OZyA=="],
+
     "mlly": ["mlly@1.8.2", "", { "dependencies": { "acorn": "^8.16.0", "pathe": "^2.0.3", "pkg-types": "^1.3.1", "ufo": "^1.6.3" } }, "sha512-d+ObxMQFmbt10sretNDytwt85VrbkhhUA/JBGm1MPaWJ65Cl4wOgLaB1NYvJSZ0Ef03MMEU/0xpPMXUIQ29UfA=="],
 
     "module-replacements": ["module-replacements@2.11.0", "", {}, "sha512-j5sNQm3VCpQQ7nTqGeOZtoJtV3uKERgCBm9QRhmGRiXiqkf7iRFOkfxdJRZWLkqYY8PNf4cDQF/WfXUYLENrRA=="],
@@ -1648,6 +1658,8 @@
     "package-json-from-dist": ["package-json-from-dist@1.0.1", "", {}, "sha512-UEZIS3/by4OC8vL3P2dTXRETpebLI2NiI5vIrjaD/5UtrkFX/tNbwjTSRAGC/+7CAo2pIcBaRgWmcBBHcsaCIw=="],
 
     "package-manager-detector": ["package-manager-detector@1.6.0", "", {}, "sha512-61A5ThoTiDG/C8s8UMZwSorAGwMJ0ERVGj2OjoW5pAalsNOg15+iQiPzrLJ4jhZ1HJzmC2PIHT2oEiH3R5fzNA=="],
+
+    "pako": ["pako@2.1.0", "", {}, "sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug=="],
 
     "parent-module": ["parent-module@1.0.1", "", { "dependencies": { "callsites": "^3.0.0" } }, "sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g=="],
 

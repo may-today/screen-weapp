@@ -1,9 +1,10 @@
+import TextEncoder from 'miniprogram-text-encoder'
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
-import { type SongDetail, Command } from '@/types'
+import { Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
-import { largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeData, shortCommandToPacket } from './packet'
+import { compressPayload, decompressPayload, largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeDataRaw, shortCommandToPacket } from './packet'
 import { generateServiceUuid } from './uuid'
 
 const _log = (...args: any[]) => {
@@ -380,7 +381,8 @@ export class BleScreen {
     if (chunks.length === info.totalPackets) {
       try {
         // 重组完整数据
-        const completeData = reassembleLargeData(chunks)
+        const rawBytes = reassembleLargeDataRaw(chunks)
+        const completeData = decompressPayload(rawBytes)
         _log('========== 完整数据接收完成 ==========')
         _log('重组后的完整数据:', completeData)
         _log('=====================================')
@@ -498,7 +500,7 @@ export class BleScreen {
   }
 
   /** 发送长数据给已连接的遥控端 */
-  private async _sendLargeData(data: string): Promise<void> {
+  private async _sendLargeData(data: string | Uint8Array): Promise<void> {
     // 传输前判断
     if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
       return
@@ -536,6 +538,12 @@ export class BleScreen {
   /** 发送长指令 */
   public async sendLongCommand(command: Command, payload: any): Promise<void> {
     const envelope = JSON.stringify({ cmd: command, data: payload })
-    await this._sendLargeData(envelope)
+    if (command === Command.ChangeSongData) {
+      const bytes = new TextEncoder().encode(envelope)
+      await this._sendLargeData(compressPayload(bytes))
+    }
+    else {
+      await this._sendLargeData(envelope)
+    }
   }
 }

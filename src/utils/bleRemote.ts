@@ -1,10 +1,11 @@
+import TextEncoder from 'miniprogram-text-encoder'
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
-import { type BaseError, type SongDetail, Command } from '@/types'
+import { type BaseError, Command } from '@/types'
 import { ConnectStatus } from '@/types/connect'
 import { ScreenSystem } from '@/types/device'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
-import { largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeData, shortCommandToPacket } from './packet'
+import { compressPayload, decompressPayload, largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeDataRaw, shortCommandToPacket } from './packet'
 import { getDeviceInfoFromUuid } from './uuid'
 
 const _log = (...args: any[]) => {
@@ -154,7 +155,8 @@ export class BleRemote {
 
     if (chunks.length === info.totalPackets) {
       try {
-        const completeData = reassembleLargeData(chunks)
+        const rawBytes = reassembleLargeDataRaw(chunks)
+        const completeData = decompressPayload(rawBytes)
         this._screenChunkBuffer.delete(targetSessionId)
         this._largeDataListener?.(completeData)
         this._transmitStore.onLargeDataComplete()
@@ -383,7 +385,7 @@ export class BleRemote {
   }
 
   /** 发送长数据 */
-  private async _sendLargeData(data: string): Promise<void> {
+  private async _sendLargeData(data: string | Uint8Array): Promise<void> {
     // 前置判断
     if (!this._screenDeviceId || !this._screenServiceUuid) {
       const err = new Error('未连接设备')
@@ -396,7 +398,7 @@ export class BleRemote {
       icon: 'none',
     })
     const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
-    _log(`sendLargeData: ${data} (${chunks.length} chunks)`)
+    _log(`sendLargeData: (${chunks.length} chunks)`)
     for (let i = 0; i < chunks.length; i++) {
       const chunk = chunks[i]
       // 发送当前包（包含重试机制）
@@ -431,6 +433,12 @@ export class BleRemote {
   /** 发送长指令 */
   public async sendLongCommand(command: Command, payload: any): Promise<void> {
     const envelope = JSON.stringify({ cmd: command, data: payload })
-    await this._sendLargeData(envelope)
+    if (command === Command.ChangeSongData) {
+      const bytes = new TextEncoder().encode(envelope)
+      await this._sendLargeData(compressPayload(bytes))
+    }
+    else {
+      await this._sendLargeData(envelope)
+    }
   }
 }

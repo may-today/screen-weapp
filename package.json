@@ -18,15 +18,19 @@
     "postinstall": "weapp-tw patch && wv prepare"
   },
   "dependencies": {
+    "@iconify-json/lucide": "^1.2.105",
     "hookable": "^6.1.1",
+    "miniprogram-text-decoder": "^2.0.0",
+    "miniprogram-text-encoder": "^2.0.0",
+    "pako": "^2.1.0",
     "tdesign-miniprogram": "^1.14.0"
   },
   "devDependencies": {
     "@egoist/tailwindcss-icons": "^1.9.2",
     "@icebreakers/eslint-config": "^4.0.9",
-    "@iconify-json/mdi": "^1.2.3",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^25.6.0",
+    "@types/pako": "^2.0.4",
     "autoprefixer": "^10.5.0",
     "eslint": "^10.2.1",
     "miniprogram-api-typings": "^5.1.3",
