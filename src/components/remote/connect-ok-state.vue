@@ -30,6 +30,7 @@ const handleDisconnect = () => {
       <image :src="deviceImgSrc" class="w-full" mode="aspectFit" />
     </view>
     <text class="w-full font-medium text-center" overflow="ellipsis">{{ currentScreenMeta?.displayName }}</text>
+    <text v-if="currentScreenMeta?.nickName" class="text-sm text-muted-foreground font-mono text-center">{{ currentScreenMeta.nickName }}</text>
     <button class="mt-6" @tap="handleDisconnect">断开连接</button>
   </view>
 </template>

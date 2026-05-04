@@ -16,11 +16,6 @@ const isDisconnecting = ref(false)
 const screenNickName = ref<string | null>(null)
 let durationTimer: ReturnType<typeof setInterval> | null = null
 
-const createScreenNickName = (): string => {
-  const shortId = Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0')
-  return `S-${shortId}`
-}
-
 const isConnected = computed(() => connectStatus.value === ConnectStatus.Connected)
 const isConnecting = computed(() => connectStatus.value === ConnectStatus.Connecting)
 const isAuthorizing = computed(() => connectStatus.value === ConnectStatus.Authorizing)
@@ -30,10 +25,10 @@ const remoteDeviceIdText = computed(() => currentRemoteMeta.value?.deviceId || '
 const startListeningRemote = async () => {
   if (isStarting.value) return
   isStarting.value = true
-  screenNickName.value = createScreenNickName()
   try {
     const bleScreen = BleScreen.getInstance()
     await bleScreen.prepare()
+    screenNickName.value = bleScreen.screenNickName
     await bleScreen.startAdvertising()
   }
   finally {
@@ -79,7 +74,7 @@ onUnload(() => {
 </script>
 
 <template>
-  <ControlPanelPage title="遥控器">
+  <ControlPanelPage title="连接到遥控器">
     <template v-if="screenNickName" #header>
       <text class="text-xs text-muted-foreground font-mono">{{ screenNickName }}</text>
     </template>

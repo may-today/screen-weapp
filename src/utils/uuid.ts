@@ -35,7 +35,7 @@ const getDeviceEnum = (options: {
  *
  * sendAdvertising 传输自定义数据有较多限制，因此使用 uuid 来传输信息
  */
-export const generateServiceUuid = (): string => {
+export const generateServiceUuid = (screenId?: string): string => {
   // 将设备较为固定的信息封装为 uuid 格式的字符串
   // 结构：
   // 19970329-[deviceType(1)|system(1)|00]-[screenWidth(4)]-[screenHeight(4)]-[blank(12)]
@@ -64,12 +64,13 @@ export const generateServiceUuid = (): string => {
   ])
   const systemEnum = systemMap.get(deviceInfo.platform) || ScreenSystem.Other
 
+  const id = screenId ?? Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0')
   const uuid = [
     '19970329',
     `${deviceEnum}${systemEnum}00`,
     `${screenMax.toString(16).padStart(4, '0').slice(0, 4)}`,
     `${screenMin.toString(16).padStart(4, '0').slice(0, 4)}`,
-    '000000000000',
+    `${id}00000000`,
   ]
     .join('-')
     .toUpperCase()
@@ -125,6 +126,8 @@ export const getDeviceInfoFromUuid = (
     displayName = 'Mac'
   }
 
+  const nickName = `S-${(_userId ?? '0000').slice(0, 4)}`
+
   return {
     serviceUuid: uuid,
     device: deviceType as ScreenDevice,
@@ -132,5 +135,6 @@ export const getDeviceInfoFromUuid = (
     screenMax: screenMaxNum,
     screenMin: screenMinNum,
     displayName,
+    nickName,
   }
 }

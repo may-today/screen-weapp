@@ -23,6 +23,7 @@ export class BleScreen {
   /** 缓冲区，key为sessionId，value为chunks数组 */
   private readonly _chunkBuffer: Map<string, ArrayBuffer[]> = new Map()
   private _serviceUuid = ''
+  private _screenNickName = ''
   private _mtu = 20 // 默认MTU为20字节，实际值需要在连接后通过onBLEMTUChange事件获取
   private _connectStore = useConnectStore()
   private _transmitStore = useTransmitStore()
@@ -35,6 +36,8 @@ export class BleScreen {
     this._connectStore = useConnectStore()
     this._transmitStore = useTransmitStore()
   }
+
+  get screenNickName(): string { return this._screenNickName }
 
   public static getInstance(): BleScreen {
     if (!BleScreen._instance) {
@@ -107,6 +110,7 @@ export class BleScreen {
       })
     }
     this._server = null
+    this._screenNickName = ''
     await wx.closeBluetoothAdapter().catch(() => {})
     this._isAdvertising = false
     if (options.resetInstance) {
@@ -122,7 +126,9 @@ export class BleScreen {
   }
 
   public async prepare(): Promise<void> {
-    this._serviceUuid = generateServiceUuid()
+    const shortId = Math.floor(Math.random() * 0x10000).toString(16).toUpperCase().padStart(4, '0')
+    this._screenNickName = `S-${shortId}`
+    this._serviceUuid = generateServiceUuid(shortId)
     await openBluetoothAdapter('peripheral')
     const serverRes = await wx.createBLEPeripheralServer()
     const server = serverRes?.server

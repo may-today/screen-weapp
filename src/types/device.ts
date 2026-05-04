@@ -20,4 +20,5 @@ export interface ScreenMeta {
   screenMax: number
   screenMin: number
   displayName: string
+  nickName: string
 }
