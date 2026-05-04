@@ -1,15 +1,32 @@
 <script setup lang="ts">
-import { onReady, onUnload, ref } from 'wevu'
+import { computed, onReady, onUnload, ref, storeToRefs } from 'wevu'
+import { useRouter } from 'wevu/router'
 import { hooks } from '@/utils/hook'
+import { useConnectStore } from '@/stores/connect'
+import { ConnectStatus } from '@/types/connect'
 import ControlPanelNavButton from './control-panel-nav-button.vue'
 import ControlPanelPageLibrary from './control-panel-page-library.vue'
 import ControlPanelPagePlaying from './control-panel-page-playing.vue'
 import ControlPanelPageRemote from './control-panel-page-remote.vue'
+import Empty from '../empty.vue'
 
 const props = defineProps<{
   panelClass?: string
   mode?: 'remote' | 'screen'
 }>()
+
+const router = useRouter()
+const connectStore = useConnectStore()
+const { connectStatus } = storeToRefs(connectStore)
+
+const isRemoteConnected = computed(() => connectStatus.value === ConnectStatus.Connected)
+const isRemoteConnecting = computed(
+  () => connectStatus.value === ConnectStatus.Connecting || connectStatus.value === ConnectStatus.Authorizing,
+)
+
+const handleConnectTap = () => {
+  router.push('/pages/remote/device-connect')
+}
 
 const headerHeight = ref(0)
 const rightMargin = ref(0)
@@ -70,9 +87,23 @@ const handleExit = () => {
       </block>
     </view>
     <view class="flex-1 overflow-hidden">
-      <ControlPanelPagePlaying v-if="currentTab === 'playing'" :mode="props.mode" />
-      <ControlPanelPageLibrary v-if="currentTab === 'library'" :mode="props.mode" />
-      <ControlPanelPageRemote v-if="currentTab === 'remote'" />
+      <Empty
+        v-if="props.mode === 'remote' && !isRemoteConnected && !isRemoteConnecting"
+        type="none"
+        text="尚未连接到屏幕"
+        action-text="去连接"
+        @action="handleConnectTap"
+      />
+      <Empty
+        v-else-if="props.mode === 'remote' && isRemoteConnecting"
+        type="loading"
+        text="正在连接屏幕..."
+      />
+      <block v-else>
+        <ControlPanelPagePlaying v-if="currentTab === 'playing'" :mode="props.mode" />
+        <ControlPanelPageLibrary v-if="currentTab === 'library'" :mode="props.mode" />
+        <ControlPanelPageRemote v-if="currentTab === 'remote'" />
+      </block>
     </view>
   </view>
 </template>
