@@ -306,7 +306,7 @@ export class BleScreen {
       if (res.connected) {
         this._centralDeviceId = res.deviceId
         this._connectStore.setCurrentRemoteMeta({
-          nickName: '等待握手',
+          nickName: '',
           deviceId: res.deviceId,
           connectedAt: Date.now(),
         })
@@ -320,7 +320,7 @@ export class BleScreen {
       if (res.connected) {
         this._centralDeviceId = res.deviceId
         this._connectStore.setCurrentRemoteMeta({
-          nickName: '等待握手',
+          nickName: '',
           deviceId: res.deviceId,
           connectedAt: Date.now(),
         })

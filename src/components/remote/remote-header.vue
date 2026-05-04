@@ -13,7 +13,7 @@ const jumpToDeviceConnect = () => {
 
 <template>
   <view class="flex flex-row items-center justify-between gap-2 px-2 py-2 bg-background border-b border-border">
-    <connect-status extra-class="bg-card border border-border" @tap="jumpToDeviceConnect" />
+    <connect-status extra-class="bg-card border border-border" @tap="jumpToDeviceConnect" mode="remote" />
     <text class="text-sm font-mono font-medium text-muted-foreground opacity-70">{{ remoteNickName }}</text>
   </view>
 </template>

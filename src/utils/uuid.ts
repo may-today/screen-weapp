@@ -38,14 +38,14 @@ const getDeviceEnum = (options: {
 export const generateServiceUuid = (): string => {
   // 将设备较为固定的信息封装为 uuid 格式的字符串
   // 结构：
-  // 19970329-[deviceType(1)|system(1)|00]-[screenWidth(4)]-[screenHeight(4)]-[userId(12)]
+  // 19970329-[deviceType(1)|system(1)|00]-[screenWidth(4)]-[screenHeight(4)]-[blank(12)]
   // 19970319: 固定值，便于根据前缀过滤为 Screen 设备
   // deviceType: 设备类型
   // system: 系统类型
   // 00: 占位符，用于后续扩展
   // screenMax: 屏幕分辨率，4位 16进制
   // screenMin: 屏幕分辨率，4位 16进制
-  // userId: 用户id，12位 16进制
+  // blank: 占位符，12位 16进制
 
   const deviceInfo = wx.getDeviceInfo()
   const windowInfo = wx.getWindowInfo()

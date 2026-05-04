@@ -18,7 +18,7 @@ const handleSelectItem = (item: WechatMiniprogram.BlueToothDevice) => {
 </script>
 
 <template>
-  <view class="flex-1 flex flex-col px-4 pb-8 gap-3">
+  <view class="flex-1 flex flex-col gap-3">
     <connect-search-device-list-item v-for="item in props.list" :key="item.deviceId" :device="item"
       @select="handleSelectItem(item)" />
   </view>

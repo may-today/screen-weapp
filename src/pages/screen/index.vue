@@ -74,7 +74,7 @@ onReady(() => {
   })
   timeServer.prepare()
   wx.enableAlertBeforeUnload({
-    message: '确定要退出屏幕吗？',
+    message: '确定要退出屏幕吗？将会断开与所有遥控器的连接',
   })
 })
 onShow(() => {
@@ -101,9 +101,8 @@ onUnload(() => {
     <ScreenPage />
     <FloatControlBar />
     <view class="absolute bottom-4 left-4">
-      <ConnectStatus />
+      <ConnectStatus mode="screen" />
     </view>
-    <!-- <float-status-bar /> -->
   </view>
 </template>
 

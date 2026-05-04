@@ -12,7 +12,6 @@ import { usePlayStateStore } from '@/stores/playState'
 import { useDataStore } from '@/stores/data'
 import { Command } from '@/types'
 
-const router = useRouter()
 const transmit = useTransmitStore()
 const playState = usePlayStateStore()
 const dataStore = useDataStore()
@@ -27,7 +26,7 @@ bleRemote.setCommandListener((command, payload) => {
       playState.setAutoPlay(payload === '1')
       break
     case Command.ChangeSongId: {
-      const song = dataStore.allDataDict[payload]
+      const song = dataStore.allDataDict.value[payload]
       if (song) playState.setCurrentSongData(song)
       break
     }
@@ -61,7 +60,7 @@ onReady(() => {
   })
   timeServer.prepare()
   wx.enableAlertBeforeUnload({
-    message: '确定要退出遥控器吗？',
+    message: '确定要退出遥控器吗？将会断开与屏幕的连接',
   })
 })
 onShow(() => {
@@ -78,13 +77,6 @@ onUnload(() => {
   timeServer.destroy()
   BleRemote.getInstance().destroy()
 })
-function jumpToScreenPage() {
-  router.push('/pages/screen/index')
-}
-function jumpToRemotePage() {
-  router.push('/pages/remote/playing')
-}
-
 </script>
 
 <template>

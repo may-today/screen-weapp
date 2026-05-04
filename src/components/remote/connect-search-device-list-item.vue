@@ -32,7 +32,7 @@ const handleSelectItem = () => {
 <template>
   <view class="bg-card p-3 pr-4 rounded-xl border border-border flex flex-row items-center gap-3">
     <view
-      class="shrink-0 flex items-center justify-center size-14 p-2 rounded-md bg-neutral-100 dark:bg-neutral-700/30">
+      class="shrink-0 flex items-center justify-center size-14 p-2 rounded-md bg-neutral-700/30">
       <image :src="deviceImgSrc" class="h-full w-full" mode="aspectFit" />
     </view>
     <view class="flex-1 flex flex-col gap-1.5 overflow-hidden">

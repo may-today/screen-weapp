@@ -6,6 +6,7 @@ import ConnectOkState from '@/components/remote/connect-ok-state.vue'
 import { useConnectStore } from '@/stores/connect'
 import { BleRemote } from '@/utils/bleRemote'
 import { ConnectStatus } from '@/types/connect'
+import { sign } from 'node:crypto'
 
 const connectStore = useConnectStore()
 const { connectStatus, currentScreenMeta, rssi } = storeToRefs(connectStore)
@@ -44,31 +45,10 @@ const selectedDeviceName = computed(() => {
   return '屏幕设备'
 })
 
-const rssiText = computed(() => {
-  if (rssi.value === null) return ''
-  return `${rssi.value} dBm`
-})
-
-const mergeDeviceList = (deviceList: WechatMiniprogram.BlueToothDevice[]) => {
-  const dict = new Map<string, WechatMiniprogram.BlueToothDevice>()
-  for (const device of searchedDeviceList.value) {
-    dict.set(device.deviceId, device)
-  }
-  for (const device of deviceList) {
-    const old = dict.get(device.deviceId)
-    dict.set(device.deviceId, {
-      ...old,
-      ...device,
-      RSSI: Math.max(old?.RSSI ?? -Infinity, device.RSSI),
-    })
-  }
-  searchedDeviceList.value = Array.from(dict.values()).sort((a, b) => b.RSSI - a.RSSI)
-}
-
 const stopScan = async () => {
   if (!isScanning.value) return
   isScanning.value = false
-  await bleRemote.stopScanning().catch(() => {})
+  await bleRemote.stopScanning().catch(() => { })
 }
 
 onUnload(() => {
@@ -85,7 +65,7 @@ const handleStartScan = async () => {
       await bleRemote.prepare()
     }
     bleRemote.startScanning((deviceList) => {
-      mergeDeviceList(deviceList)
+      searchedDeviceList.value = deviceList
     })
     isScanning.value = true
   }
@@ -140,15 +120,16 @@ const handleRefreshScan = async () => {
 
 <template>
   <view class="flex h-full flex-col bg-background text-foreground">
-    <view class="flex flex-1 flex-col overflow-hidden">
-      <view class="shrink-0 px-5 pt-6 pb-4">
+    <view class="flex flex-1 px-4 pt-6 pb-4 flex-col overflow-hidden gap-4">
+      <view class="shrink-0">
         <text class="block text-2xl font-semibold">{{ statusTitle }}</text>
         <text class="mt-2 block text-sm text-muted-foreground">
           {{ connectStatus === ConnectStatus.Connected ? '遥控器已准备好发送控制指令' : '选择附近的 MayScreen 屏幕设备' }}
         </text>
       </view>
 
-      <view v-if="connectStatus === ConnectStatus.Disabled" class="flex flex-1 flex-col items-center justify-center gap-5 px-6 pb-12">
+      <view v-if="connectStatus === ConnectStatus.Disabled"
+        class="flex flex-1 flex-col items-center justify-center gap-5">
         <view class="flex size-20 items-center justify-center rounded-full bg-card text-theme-foreground">
           <view class="i-lucide-bluetooth-searching size-10" />
         </view>
@@ -159,32 +140,26 @@ const handleRefreshScan = async () => {
         <button :loading="isStartingScan" @tap="handleStartScan">搜索设备</button>
       </view>
 
-      <view v-else-if="connectStatus === ConnectStatus.Disconnected" class="flex min-h-0 flex-1 flex-col">
-        <view class="shrink-0 px-5 pb-3">
-          <view class="flex flex-row items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
-            <view class="flex flex-row items-center gap-2">
-              <view class="i-lucide-radar size-5 text-theme-foreground" :class="{ 'animate-pulse': isScanning }" />
-              <text class="text-sm text-muted-foreground">{{ isScanning ? '搜索中' : '搜索已停止' }}</text>
-            </view>
-            <view class="flex flex-row items-center gap-2">
-              <button v-if="isScanning" size="mini" @tap="stopScan">停止</button>
-              <button v-else size="mini" :loading="isStartingScan" @tap="handleRefreshScan">刷新</button>
-            </view>
+      <view v-else-if="connectStatus === ConnectStatus.Disconnected" class="flex min-h-0 flex-1 flex-col gap-4">
+        <view class="flex flex-row items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
+          <view class="flex flex-row items-center gap-2">
+            <view class="i-lucide-radar size-5 text-theme-foreground" :class="{ 'animate-pulse': isScanning }" />
+            <text class="text-sm text-muted-foreground">{{ isScanning ? '搜索中...' : '搜索已停止' }}</text>
+          </view>
+          <view class="flex flex-row items-center gap-2">
+            <button v-if="isScanning" size="mini" @tap="stopScan">停止</button>
+            <button v-else size="mini" :loading="isStartingScan" @tap="handleRefreshScan">开始搜索</button>
           </view>
         </view>
 
-        <connect-search-device-list
-          v-if="searchedDeviceList.length > 0"
-          :list="searchedDeviceList"
-          @select="handleSelectDevice"
-        />
-        <view v-else class="flex flex-1 flex-col items-center justify-center gap-3 px-6 pb-16">
-          <view class="i-lucide-monitor-off size-9 text-muted-foreground/50" />
-          <text class="text-sm text-muted-foreground">{{ isScanning ? '暂未发现屏幕设备' : '点击刷新重新查找' }}</text>
+        <connect-search-device-list v-if="searchedDeviceList.length > 0" :list="searchedDeviceList"
+          @select="handleSelectDevice" />
+        <view v-else class="flex flex-1 flex-col items-center justify-center gap-3 pb-16">
+          <text class="text-sm text-muted-foreground">{{ isScanning ? '暂未发现屏幕设备' : '搜索已停止' }}</text>
         </view>
       </view>
 
-      <view v-else-if="isConnecting" class="flex flex-1 flex-col items-center justify-center gap-4 px-6 pb-12">
+      <view v-else-if="isConnecting" class="flex flex-1 flex-col items-center justify-center gap-4">
         <view class="flex size-20 items-center justify-center rounded-full bg-card text-theme-foreground">
           <view class="i-lucide-loader-circle size-10 animate-spin" />
         </view>
@@ -196,14 +171,14 @@ const handleRefreshScan = async () => {
         </view>
       </view>
 
-      <view v-else-if="connectStatus === ConnectStatus.Connected" class="flex min-h-0 flex-1 flex-col">
-        <view class="mx-5 rounded-lg border border-border bg-card px-4 py-3">
+      <view v-else-if="connectStatus === ConnectStatus.Connected" class="flex min-h-0 flex-1 flex-col gap-4">
+        <view class="rounded-lg border border-border bg-card px-4 py-3">
           <view class="flex flex-row items-center justify-between gap-3">
             <view class="flex flex-col gap-1">
               <text class="text-sm text-muted-foreground">已连接</text>
               <text class="font-medium">{{ selectedDeviceName }}</text>
             </view>
-            <text v-if="rssiText" class="font-mono text-sm text-theme-foreground">{{ rssiText }}</text>
+            <signal-icon :rssi="rssi" />
           </view>
         </view>
         <connect-ok-state v-if="currentScreenMeta" @disconnect="handleDisconnect" />

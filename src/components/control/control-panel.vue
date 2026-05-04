@@ -59,7 +59,7 @@ const handleTriggerTab = (payload: { tab: string }) => {
 
 const handleExit = () => {
   wx.showModal({
-    content: '确定要退出屏幕吗？',
+    content: '确定要退出屏幕吗？将会断开与所有遥控器的连接',
     success(res) {
       if (res.confirm) {
         wx.reLaunch({

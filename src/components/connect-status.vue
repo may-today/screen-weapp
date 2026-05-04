@@ -8,6 +8,7 @@ import SignalIcon from './signal-icon.vue'
 
 const props = defineProps<{
   extraClass?: string
+  mode?: 'remote' | 'screen'
 }>()
 
 const connectStore = useConnectStore()
@@ -83,7 +84,8 @@ watch(commandSentAt, () => {
 </script>
 
 <template>
-  <view class="status-badge" :class="props.extraClass">
+  <view v-if="!(props.mode === 'screen' && connectStatus === ConnectStatus.Disabled)" class="status-badge"
+    :class="props.extraClass">
     <signal-icon :rssi="rssi" />
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
@@ -92,11 +94,7 @@ watch(commandSentAt, () => {
       <view v-if="isLargeData" class="tx-progress-track">
         <view class="tx-progress-fill" :style="{ width: progressPercent + '%' }" />
       </view>
-      <view
-        v-else
-        class="tx-dot"
-        :class="{ 'tx-flash-receive': flashReceive, 'tx-flash-send': flashSend }"
-      />
+      <view v-else class="tx-dot" :class="{ 'tx-flash-receive': flashReceive, 'tx-flash-send': flashSend }" />
     </template>
   </view>
 </template>
@@ -109,7 +107,7 @@ watch(commandSentAt, () => {
 }
 
 .dot {
-  @apply size-2 flex-shrink-0 rounded-full;
+  @apply size-2 shrink-0 rounded-full;
 }
 
 .dot-disabled {
@@ -141,7 +139,7 @@ watch(commandSentAt, () => {
 }
 
 .tx-dot {
-  @apply size-2 flex-shrink-0 rounded-full bg-white/15;
+  @apply size-2 shrink-0 rounded-full bg-white/15;
 }
 
 .tx-flash-receive {
@@ -162,10 +160,13 @@ watch(commandSentAt, () => {
 }
 
 @keyframes pulse-dot {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: scale(1);
   }
+
   50% {
     opacity: 0.4;
     transform: scale(0.75);
@@ -178,6 +179,7 @@ watch(commandSentAt, () => {
     transform: scale(1.5);
     opacity: 1;
   }
+
   100% {
     background-color: rgb(255 255 255 / 0.15);
     transform: scale(1);
@@ -191,6 +193,7 @@ watch(commandSentAt, () => {
     transform: scale(1.5);
     opacity: 1;
   }
+
   100% {
     background-color: rgb(255 255 255 / 0.15);
     transform: scale(1);
