@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { storeToRefs } from 'wevu'
+import { storeToRefs, computed } from 'wevu'
 import { usePlayStateStore } from '@/stores/playState'
 import ScreenPageFullControlLayer from './screen-page-full-control-layer.vue'
 
 const playState = usePlayStateStore()
 const { currentSongData, currentLyricLine, currentLyricIndex } = storeToRefs(playState)
+
+const currentLyricText = computed(() => {
+  if (currentLyricLine.value) {
+    return currentLyricLine.value.text
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -17,7 +24,7 @@ const { currentSongData, currentLyricLine, currentLyricIndex } = storeToRefs(pla
         <text class="title-text">{{ currentSongData.title }}</text>
       </block>
       <block v-if="currentLyricIndex >= 0 && currentLyricLine">
-        <text class="lyric-text">{{ currentLyricLine.text }}</text>
+        <text class="lyric-text">{{ currentLyricText }}</text>
       </block>
     </block>
     <screen-page-full-control-layer />
