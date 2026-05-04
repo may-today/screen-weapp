@@ -63,46 +63,40 @@ const handleSetList = (id: string) => {
   if (id && !datasetDict[id]) {
     return
   }
-  wx.showLoading({
-    title: '加载中',
-  })
-  // read cache
-  if (cacheKeys.value.includes(id)) {
+
+  const hasCached = cacheKeys.value.includes(id)
+
+  // 有缓存：立即显示，后台静默刷新
+  if (hasCached) {
     const detailList = wx.getStorageSync<SongDetail[]>(`dataset:${id}`)
     if (Array.isArray(detailList)) {
-      data.saveDetailList(detailList, {
-        id,
-        name: datasetDict[id].name,
-      })
-      wx.hideLoading()
-      return
+      data.saveDetailList(detailList, { id, name: datasetDict[id].name })
     }
   }
-  // request download
-  ui.setGlobalLoading(true)
+  else {
+    wx.showLoading({ title: '加载中' })
+    ui.setGlobalLoading(true)
+  }
+
   wx.request({
     url: datasetDict[id].downUrl,
     success: async (res) => {
-      ui.setGlobalLoading(false)
-      wx.hideLoading()
+      if (!hasCached) {
+        ui.setGlobalLoading(false)
+        wx.hideLoading()
+      }
       if (Array.isArray(res.data)) {
-        data.saveDetailList(res.data, {
-          id,
-          name: datasetDict[id].name,
-        })
-        await wx.setStorage({
-          key: `dataset:${id}`,
-          data: res.data,
-        })
+        data.saveDetailList(res.data, { id, name: datasetDict[id].name })
+        await wx.setStorage({ key: `dataset:${id}`, data: res.data })
         refreshCacheKeys()
       }
     },
     fail: (err) => {
-      ui.setGlobalLoading(false)
-      wx.showToast({
-        title: '加载失败',
-        icon: 'error',
-      })
+      if (!hasCached) {
+        ui.setGlobalLoading(false)
+        wx.hideLoading()
+        wx.showToast({ title: '加载失败', icon: 'error' })
+      }
       console.log('request failed', err)
     },
   })
