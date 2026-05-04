@@ -10,6 +10,7 @@ import { usePlayStateStore } from '@/stores/playState'
 import { useDataStore } from '@/stores/data'
 import { useUiStore } from '@/stores/ui'
 import { Command } from '@/types'
+import { enableShare } from '@/utils/share'
 
 const transmit = useTransmitStore()
 const playState = usePlayStateStore()
@@ -17,6 +18,46 @@ const dataStore = useDataStore()
 const ui = useUiStore()
 
 const bleRemote = BleRemote.getInstance()
+
+definePageJson({
+  backgroundColor: '#171717',
+  backgroundColorBottom: '#171717',
+  backgroundColorContent: '#171717',
+  backgroundColorTop: '#171717',
+  disableScroll: true,
+  navigationBarBackgroundColor: '#171717',
+  navigationBarTitleText: '遥控器',
+})
+
+enableShare({ timeline: false })
+
+onReady(() => {
+  wx.setKeepScreenOn({
+    keepScreenOn: true,
+  })
+  timeServer.prepare()
+  wx.enableAlertBeforeUnload({
+    message: '确定要退出遥控器吗？将会断开与屏幕的连接',
+  })
+})
+onShow(() => {
+  wx.setKeepScreenOn({
+    keepScreenOn: true,
+  })
+})
+onUnload(() => {
+  wx.setKeepScreenOn({
+    keepScreenOn: false,
+  })
+  hooks.removeAllHooks()
+  transmit.$reset()
+  playState.$reset()
+  ui.$reset()
+  dataStore.$reset()
+  timeServer.destroy()
+  BleRemote.getInstance().destroy()
+})
+
 bleRemote.setCommandListener((command, payload) => {
   switch (command) {
     case Command.LyricSetIndex:
@@ -46,43 +87,6 @@ bleRemote.setLargeDataListener((raw) => {
   catch (e) {
     console.error('[Remote] Failed to parse large data from screen:', e)
   }
-})
-
-definePageJson({
-  backgroundColor: '#171717',
-  backgroundColorBottom: '#171717',
-  backgroundColorContent: '#171717',
-  backgroundColorTop: '#171717',
-  disableScroll: true,
-  navigationBarBackgroundColor: '#171717',
-  navigationBarTitleText: '遥控器',
-})
-
-onReady(() => {
-  wx.setKeepScreenOn({
-    keepScreenOn: true,
-  })
-  timeServer.prepare()
-  wx.enableAlertBeforeUnload({
-    message: '确定要退出遥控器吗？将会断开与屏幕的连接',
-  })
-})
-onShow(() => {
-  wx.setKeepScreenOn({
-    keepScreenOn: true,
-  })
-})
-onUnload(() => {
-  wx.setKeepScreenOn({
-    keepScreenOn: false,
-  })
-  hooks.removeAllHooks()
-  transmit.$reset()
-  playState.$reset()
-  ui.$reset()
-  dataStore.$reset()
-  timeServer.destroy()
-  BleRemote.getInstance().destroy()
 })
 </script>
 

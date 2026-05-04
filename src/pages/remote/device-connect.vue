@@ -6,7 +6,7 @@ import ConnectOkState from '@/components/remote/connect-ok-state.vue'
 import { useConnectStore } from '@/stores/connect'
 import { BleRemote } from '@/utils/bleRemote'
 import { ConnectStatus } from '@/types/connect'
-import { sign } from 'node:crypto'
+import { enableShare } from '@/utils/share'
 
 const connectStore = useConnectStore()
 const { connectStatus, currentScreenMeta, rssi } = storeToRefs(connectStore)
@@ -27,6 +27,8 @@ definePageJson({
   navigationBarBackgroundColor: '#171717',
   navigationBarTitleText: '连接屏幕',
 })
+
+enableShare({ timeline: false })
 
 const isConnecting = computed(
   () => connectStatus.value === ConnectStatus.Connecting || connectStatus.value === ConnectStatus.Authorizing,

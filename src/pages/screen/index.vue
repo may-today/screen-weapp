@@ -13,6 +13,7 @@ import { hooks } from '@/utils/hook'
 import { timeServer } from '@/utils/timeServer'
 import { BleScreen } from '@/utils/bleScreen'
 import { Command } from '@/types'
+import { enableShare } from '@/utils/share'
 
 const playState = usePlayStateStore()
 const data = useDataStore()
@@ -71,6 +72,8 @@ definePageJson({
   navigationStyle: 'custom',
   pageOrientation: 'landscape',
 })
+
+enableShare({ timeline: false })
 
 onReady(() => {
   wx.setKeepScreenOn({

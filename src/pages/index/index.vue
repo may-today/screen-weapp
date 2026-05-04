@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { enableShare } from '@/utils/share'
 import { useRouter } from 'wevu/router'
 
 const router = useRouter()
@@ -13,6 +14,9 @@ definePageJson({
   navigationBarTextStyle: 'white',
   navigationStyle: 'custom',
 })
+
+enableShare()
+
 function jumpToScreenPage() {
   router.push('/pages/screen/index')
 }
