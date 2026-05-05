@@ -19,7 +19,6 @@ MayScreen is a WeChat Mini Program teleprompter. It turns one phone into a lands
 - **Mini Program runtime**: `weapp-vite` with the `wevu` runtime layer
 - **State management**: Pinia-style stores from `wevu/store`
 - **Styling**: Tailwind CSS v4 through `weapp-tailwindcss`, with scoped SCSS where needed
-- **UI components**: TDesign Mini Program components, auto-imported by the TDesign resolver
 - **BLE payload tools**: custom packet helpers with `pako` compression and text encoder/decoder polyfills
 
 ## BLE Model

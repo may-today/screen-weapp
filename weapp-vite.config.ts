@@ -1,7 +1,6 @@
 import type { UserConfig } from 'weapp-vite/config'
 import path from 'node:path'
 import { weappTailwindcss } from 'weapp-tailwindcss/vite'
-import { TDesignResolver } from 'weapp-vite/auto-import-components/resolvers'
 import { defineConfig } from 'weapp-vite/config'
 
 export default defineConfig({
@@ -15,18 +14,8 @@ export default defineConfig({
     worker: {
       entry: 'index.ts',
     },
-    typescript: {
-      app: {
-        compilerOptions: {
-          paths: {
-            'tdesign-miniprogram/*': ['./node_modules/tdesign-miniprogram/miniprogram_dist/*'],
-          },
-        },
-      },
-    },
     autoRoutes: true,
     autoImportComponents: {
-      resolvers: [TDesignResolver()],
       htmlCustomData: true,
       typedComponents: true,
       vueComponents: false,

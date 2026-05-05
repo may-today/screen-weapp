@@ -60,10 +60,6 @@ Auto-routing is enabled (`autoRoutes: true` in `weapp-vite.config.ts`). Pages pl
 
 Tailwind CSS v4 via `weapp-tailwindcss`. rpx conversion is configured in `weapp-vite.config.ts`. Global entry is `src/app.css`. Component-level styles use scoped SCSS.
 
-### Component Auto-import
-
-TDesign Mini Program components are auto-imported via the TDesign resolver configured in `weapp-vite.config.ts`. No explicit import needed in SFCs.
-
 ## Weapp-vite Workflow
 
 - Keep `vite.config.ts` as the source of truth for `weapp` config, output behavior, and IDE/MCP automation.
