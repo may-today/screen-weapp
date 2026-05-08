@@ -12,19 +12,27 @@ const props = defineProps<{
 }>()
 
 const connectStore = useConnectStore()
-const { connectStatus, rssi } = storeToRefs(connectStore)
+const { connectStatus, rssi, adapterReady, _screenConnectStatus, _screenRssi } = storeToRefs(connectStore)
 
 const transmitStore = useTransmitStore()
 const { commandReceivedAt, commandSentAt, largeDataProgress } = storeToRefs(transmitStore)
 
+// Screen 模式读 _screenConnectStatus，Remote 模式读聚合 connectStatus
+const effectiveStatus = computed(() =>
+  props.mode === 'screen' ? _screenConnectStatus.value : connectStatus.value,
+)
+const effectiveRssi = computed(() =>
+  props.mode === 'screen' ? _screenRssi.value : rssi.value,
+)
+
 const isConnecting = computed(
   () =>
-    connectStatus.value === ConnectStatus.Connecting ||
-    connectStatus.value === ConnectStatus.Authorizing,
+    effectiveStatus.value === ConnectStatus.Connecting ||
+    effectiveStatus.value === ConnectStatus.Authorizing,
 )
 
 const dotClass = computed(() => {
-  switch (connectStatus.value) {
+  switch (effectiveStatus.value) {
     case ConnectStatus.Disconnected:
       return 'dot-disconnected'
     case ConnectStatus.Connected:
@@ -38,7 +46,7 @@ const dotClass = computed(() => {
 })
 
 const statusText = computed(() => {
-  switch (connectStatus.value) {
+  switch (effectiveStatus.value) {
     case ConnectStatus.Disconnected:
       return '未连接'
     case ConnectStatus.Connected:
@@ -51,7 +59,7 @@ const statusText = computed(() => {
   }
 })
 
-const showTransmit = computed(() => connectStatus.value === ConnectStatus.Connected)
+const showTransmit = computed(() => effectiveStatus.value === ConnectStatus.Connected)
 const isLargeData = computed(() => largeDataProgress.value !== null)
 const progressPercent = computed(() =>
   largeDataProgress.value
@@ -84,9 +92,9 @@ watch(commandSentAt, () => {
 </script>
 
 <template>
-  <view v-if="!(props.mode === 'screen' && connectStatus === ConnectStatus.Disabled)" class="status-badge"
+  <view v-if="!(props.mode === 'screen' && !adapterReady && effectiveStatus === ConnectStatus.Disabled)" class="status-badge"
     :class="props.extraClass">
-    <signal-icon :rssi="rssi" />
+    <signal-icon :rssi="effectiveRssi" />
     <view class="dot" :class="[dotClass, { 'dot-pulse': isConnecting }]" />
     <text class="status-text">{{ statusText }}</text>
     <template v-if="showTransmit">

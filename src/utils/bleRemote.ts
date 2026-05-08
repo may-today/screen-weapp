@@ -2,7 +2,7 @@ import TextEncoder from 'miniprogram-text-encoder'
 import { useConnectStore } from '@/stores/connect'
 import { useTransmitStore } from '@/stores/transmit'
 import { type BaseError, Command } from '@/types'
-import { ConnectStatus } from '@/types/connect'
+import { ConnectStatus, type ScreenConnectionState } from '@/types/connect'
 import { ScreenSystem } from '@/types/device'
 import { MayScreenCharacteristicUuid, openBluetoothAdapter } from './ble'
 import { compressPayload, decompressPayload, largeDataToChunks, parseLargeDataPacket, parseShortPacket, reassembleLargeDataRaw, shortCommandToPacket } from './packet'
@@ -32,17 +32,14 @@ export class BleRemote {
   private static _instance: BleRemote | null = null
   private static readonly _HEARTBEAT_TIMEOUT = 12_000
   private static readonly _RECONNECT_MAX_RETRIES = 3
-  private _screenDeviceId = ''
-  private _screenServiceUuid = ''
-  private _mtu = 20
+
+  private readonly _screens: Map<string, ScreenConnectionState> = new Map()
+  private _listenerRegistered = false
+
   private _connectStore = useConnectStore()
   private _transmitStore = useTransmitStore()
-  private _lastHeartbeatAt = 0
-  private _watchdogTimer: ReturnType<typeof setInterval> | null = null
-  private _reconnectRetryCount = 0
   private _commandListener: ((command: Command, payload: string) => void) | null = null
   private _largeDataListener: ((data: string) => void) | null = null
-  private readonly _screenChunkBuffer: Map<string, ArrayBuffer[]> = new Map()
   private readonly _remoteNickName = BleRemote._createRemoteNickName()
 
   constructor() {
@@ -66,60 +63,284 @@ export class BleRemote {
     return this._remoteNickName
   }
 
-  private _startWatchdog(): void {
-    this._stopWatchdog()
-    this._lastHeartbeatAt = Date.now()
-    this._watchdogTimer = setInterval(() => {
-      if (Date.now() - this._lastHeartbeatAt > BleRemote._HEARTBEAT_TIMEOUT) {
-        _log('heartbeat timeout, reconnecting...')
-        this._stopWatchdog()
-        this._handleReconnect()
+  public get connectedScreens(): ScreenConnectionState[] {
+    return [...this._screens.values()].filter(s => s.status === ConnectStatus.Connected)
+  }
+
+  public get hasConnectedScreen(): boolean {
+    return this.connectedScreens.length > 0
+  }
+
+  // ── 全局特征值变化路由 ────────────────────────────────────────────────
+
+  private _handleCharacteristicValueChange(
+    res: WechatMiniprogram.OnBLECharacteristicValueChangeCallbackResult,
+  ): void {
+    const screen = this._screens.get(res.deviceId)
+    if (!screen) return
+
+    if (res.characteristicId === MayScreenCharacteristicUuid.status) {
+      const value = new Uint8Array(res.value)
+      screen.lastHeartbeatAt = Date.now()
+      _log(`heartbeat from ${res.deviceId}`, value)
+      if (value[0] === 0x01) {
+        this._transmitStore.onCommandReceived()
+        this._connectStore.updateScreen(res.deviceId, {
+          status: ConnectStatus.Connected,
+          lastHeartbeatAt: screen.lastHeartbeatAt,
+        })
+        wx.getBLEDeviceRSSI({
+          deviceId: res.deviceId,
+          success: (rssiRes) => {
+            this._connectStore.updateScreen(res.deviceId, { rssi: rssiRes.RSSI })
+            this._sendCommandToDevice(res.deviceId, Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
+          },
+        })
+      }
+      else {
+        this._connectStore.updateScreen(res.deviceId, { status: ConnectStatus.Disconnected })
+      }
+    }
+    else if (res.characteristicId === MayScreenCharacteristicUuid.read) {
+      const cmd = parseShortPacket(res.value)
+      _log(`command from screen ${res.deviceId}: ${Command[cmd.command] || 'unknown'} (${cmd.payload || null})`)
+      if (cmd.command === Command.ReplyAuthorize) {
+        this._connectStore.updateScreen(res.deviceId, { status: ConnectStatus.Connected })
+      }
+      this._commandListener?.(cmd.command, cmd.payload)
+      this._transmitStore.onCommandReceived()
+    }
+    else if (res.characteristicId === MayScreenCharacteristicUuid.readLarge) {
+      this._handleParseLargeData(res.deviceId, res.value)
+    }
+  }
+
+  // ── Per-device 看门狗 ──────────────────────────────────────────────────
+
+  private _startWatchdog(deviceId: string): void {
+    const screen = this._screens.get(deviceId)
+    if (!screen) return
+    this._stopWatchdog(deviceId)
+    screen.lastHeartbeatAt = Date.now()
+    screen.watchdogTimer = setInterval(() => {
+      const s = this._screens.get(deviceId)
+      if (!s) return
+      if (Date.now() - s.lastHeartbeatAt > BleRemote._HEARTBEAT_TIMEOUT) {
+        _log(`heartbeat timeout for ${deviceId}, reconnecting...`)
+        clearInterval(s.watchdogTimer!)
+        s.watchdogTimer = null
+        this._handleReconnect(deviceId)
       }
     }, 3000)
   }
 
-  private _stopWatchdog(): void {
-    if (this._watchdogTimer) {
-      clearInterval(this._watchdogTimer)
-      this._watchdogTimer = null
-      this._lastHeartbeatAt = 0
-      this._reconnectRetryCount = 0
-    }
+  private _stopWatchdog(deviceId: string): void {
+    const s = this._screens.get(deviceId)
+    if (!s?.watchdogTimer) return
+    clearInterval(s.watchdogTimer)
+    s.watchdogTimer = null
+    s.lastHeartbeatAt = 0
+    s.reconnectRetryCount = 0
   }
 
-  private async _handleReconnect(): Promise<void> {
-    this._connectStore.setRssi(null)
-    if (!this._screenDeviceId || this._reconnectRetryCount >= BleRemote._RECONNECT_MAX_RETRIES) {
-      _logError('reconnect exhausted, giving up')
-      this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-      this._screenDeviceId = ''
-      this._screenServiceUuid = ''
+  private async _handleReconnect(deviceId: string): Promise<void> {
+    const screen = this._screens.get(deviceId)
+    if (!screen) return
+    this._connectStore.updateScreen(deviceId, { rssi: null })
+    if (screen.reconnectRetryCount >= BleRemote._RECONNECT_MAX_RETRIES) {
+      _logError(`reconnect exhausted for ${deviceId}, removing`)
+      this._screens.delete(deviceId)
+      this._connectStore.removeScreen(deviceId)
       return
     }
-    this._reconnectRetryCount++
-    _log(`reconnect attempt ${this._reconnectRetryCount}/${BleRemote._RECONNECT_MAX_RETRIES}`)
-    const deviceId = this._screenDeviceId
+    screen.reconnectRetryCount++
+    _log(`reconnect attempt ${screen.reconnectRetryCount}/${BleRemote._RECONNECT_MAX_RETRIES} for ${deviceId}`)
     try {
       await wx.closeBLEConnection({ deviceId }).catch(() => {})
       await this._delay(2000)
+      this._screens.delete(deviceId)
+      this._connectStore.removeScreen(deviceId)
       await this.connectDevice(deviceId)
-      _log('reconnect success')
-    } catch (err) {
-      _logError('reconnect failed', err)
-      await this._handleReconnect()
+      _log(`reconnect success for ${deviceId}`)
+    }
+    catch (err) {
+      _logError(`reconnect failed for ${deviceId}`, err)
+      await this._handleReconnect(deviceId)
+    }
+  }
+
+  // ── 生命周期 ────────────────────────────────────────────────────────────
+
+  public async prepare(): Promise<void> {
+    await openBluetoothAdapter('central')
+    this._connectStore.setAdapterReady(true)
+    if (!this._listenerRegistered) {
+      this._listenerRegistered = true
+      wx.onBLECharacteristicValueChange(res => this._handleCharacteristicValueChange(res))
     }
   }
 
   public destroy() {
-    this._stopWatchdog()
+    void this.disconnect()
     wx.closeBluetoothAdapter()
     this._commandListener = null
     this._largeDataListener = null
-    this._screenChunkBuffer.clear()
+    this._listenerRegistered = false
     BleRemote._instance = null
-    this._connectStore.setConnectStatus(ConnectStatus.Disabled)
+    this._connectStore.$reset()
     _log('destroy')
   }
+
+  // ── 扫描 ───────────────────────────────────────────────────────────────
+
+  public startScanning(onFound: (deviceList: WechatMiniprogram.BlueToothDevice[]) => void) {
+    wx.startBluetoothDevicesDiscovery({
+      allowDuplicatesKey: true,
+      interval: 2000,
+    }).catch((err) => {
+      _toastError(err, '搜索设备失败')
+    })
+    wx.onBluetoothDeviceFound((res) => {
+      if (res.devices !== undefined) {
+        const filteredDevices = res.devices
+          .filter((device) => {
+            if (!device.name) return false
+            if (device.advertisServiceUUIDs?.length !== 1) return false
+            if (!device.advertisServiceUUIDs[0].startsWith('19970329-')) return false
+            return true
+          })
+          .sort((a, b) => b.RSSI - a.RSSI)
+        onFound(filteredDevices)
+      }
+    })
+  }
+
+  public async stopScanning(): Promise<void> {
+    await wx.stopBluetoothDevicesDiscovery()
+  }
+
+  // ── 连接 ───────────────────────────────────────────────────────────────
+
+  public async connectDevice(deviceId: string): Promise<void> {
+    if (this._screens.has(deviceId)) {
+      _log(`connectDevice: ${deviceId} already tracked, skipping`)
+      return
+    }
+
+    const initialState: ScreenConnectionState = {
+      deviceId,
+      serviceUuid: '',
+      meta: null,
+      status: ConnectStatus.Connecting,
+      mtu: 20,
+      rssi: null,
+      lastHeartbeatAt: 0,
+      reconnectRetryCount: 0,
+      watchdogTimer: null,
+      chunkBuffer: new Map(),
+    }
+    this._screens.set(deviceId, initialState)
+    this._connectStore.upsertScreen(initialState)
+
+    try {
+      // 阶段1. 建立连接
+      await wx.createBLEConnection({ deviceId, timeout: 10_000 }).catch(async (e) => {
+        _toastError(e, '连接设备失败')
+        throw e
+      })
+      _log('createBLEConnection success', deviceId)
+
+      // 阶段2. 服务发现 + 授权阶段
+      this._connectStore.updateScreen(deviceId, { status: ConnectStatus.Authorizing })
+      const servicesRes = await wx.getBLEDeviceServices({ deviceId })
+      _log('getBLEDeviceServices success', servicesRes.services)
+      const serviceUuid = servicesRes.services.find(service => service.uuid.startsWith('19970329-'))?.uuid
+      if (!serviceUuid) {
+        throw new Error('服务UUID不存在')
+      }
+      _log(`screen serviceUuid: ${serviceUuid}`)
+      const deviceInfo = getDeviceInfoFromUuid(serviceUuid)
+      _log(`screen deviceInfo: ${JSON.stringify(deviceInfo)}`)
+
+      const screen = this._screens.get(deviceId)!
+      screen.serviceUuid = serviceUuid
+      screen.meta = deviceInfo
+      this._connectStore.updateScreen(deviceId, { serviceUuid, meta: deviceInfo })
+
+      await wx.getBLEDeviceCharacteristics({ deviceId, serviceId: serviceUuid })
+      _log('getBLEDeviceCharacteristics success')
+      this._connectStore.updateScreen(deviceId, { status: ConnectStatus.Connected })
+
+      // 阶段3. 设置 MTU（Android/HarmonyOS）
+      if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {
+        _log('setBLEMTU begin')
+        wx.setBLEMTU({
+          deviceId,
+          mtu: 512,
+          success: () => {
+            _log('setBLEMTU success (mtu=512)')
+            this._screens.get(deviceId)!.mtu = 512
+            this._connectStore.updateScreen(deviceId, { mtu: 512 })
+          },
+          fail: (err) => {
+            _logError('setBLEMTU fail', err)
+          },
+        })
+      }
+
+      // 阶段4. 开启通知（复用 prepare() 中注册的全局监听器，无需 off/on）
+      await wx.notifyBLECharacteristicValueChange({
+        deviceId,
+        serviceId: serviceUuid,
+        characteristicId: MayScreenCharacteristicUuid.status,
+        state: true,
+      })
+      await wx.notifyBLECharacteristicValueChange({
+        deviceId,
+        serviceId: serviceUuid,
+        characteristicId: MayScreenCharacteristicUuid.read,
+        state: true,
+      })
+      await wx.notifyBLECharacteristicValueChange({
+        deviceId,
+        serviceId: serviceUuid,
+        characteristicId: MayScreenCharacteristicUuid.readLarge,
+        state: true,
+      })
+      _log('notifyBLECharacteristicValueChange success')
+
+      this._startWatchdog(deviceId)
+      await this._sendCommandToDevice(deviceId, Command.Authorize, this._remoteNickName, true)
+      wx.getBLEDeviceRSSI({
+        deviceId,
+        success: (rssiRes) => {
+          this._connectStore.updateScreen(deviceId, { rssi: rssiRes.RSSI })
+          this._sendCommandToDevice(deviceId, Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
+        },
+      })
+    }
+    catch (err) {
+      this._screens.delete(deviceId)
+      this._connectStore.removeScreen(deviceId)
+      throw err
+    }
+  }
+
+  public async disconnectDevice(deviceId: string): Promise<void> {
+    this._stopWatchdog(deviceId)
+    this._screens.delete(deviceId)
+    this._connectStore.removeScreen(deviceId)
+    await wx.closeBLEConnection({ deviceId }).catch((err) => {
+      _toastError(err, '断开连接失败')
+    })
+  }
+
+  public async disconnect(): Promise<void> {
+    const deviceIds = [...this._screens.keys()]
+    await Promise.all(deviceIds.map(id => this.disconnectDevice(id)))
+  }
+
+  // ── 监听器 ─────────────────────────────────────────────────────────────
 
   public setCommandListener(listener: (command: Command, payload: string) => void): void {
     this._commandListener = listener
@@ -129,18 +350,21 @@ export class BleRemote {
     this._largeDataListener = listener
   }
 
-  /** 处理来自屏幕端的长数据包（与 BleScreen._handleParseLargeData 对称） */
-  private _handleParseLargeData(data: ArrayBuffer): void {
+  // ── 大数据重组（per-device buffer）────────────────────────────────────
+
+  private _handleParseLargeData(deviceId: string, data: ArrayBuffer): void {
+    const screen = this._screens.get(deviceId)
+    if (!screen) return
     const info = parseLargeDataPacket(data)
     const sessionId = `${info.totalPackets}`
 
     if (info.currentIndex === 0) {
-      this._screenChunkBuffer.set(sessionId, [])
+      screen.chunkBuffer.set(sessionId, [])
     }
 
     let targetSessionId = sessionId
     if (info.currentIndex > 0) {
-      for (const [sid, chunks] of this._screenChunkBuffer.entries()) {
+      for (const [sid, chunks] of screen.chunkBuffer.entries()) {
         if (sid === sessionId && chunks.length === info.currentIndex) {
           targetSessionId = sid
           break
@@ -148,206 +372,32 @@ export class BleRemote {
       }
     }
 
-    const chunks = this._screenChunkBuffer.get(targetSessionId) || []
+    const chunks = screen.chunkBuffer.get(targetSessionId) || []
     chunks.push(data)
-    this._screenChunkBuffer.set(targetSessionId, chunks)
+    screen.chunkBuffer.set(targetSessionId, chunks)
     this._transmitStore.onLargeDataChunk(info.currentIndex + 1, info.totalPackets)
 
     if (chunks.length === info.totalPackets) {
       try {
         const rawBytes = reassembleLargeDataRaw(chunks)
         const completeData = decompressPayload(rawBytes)
-        this._screenChunkBuffer.delete(targetSessionId)
+        screen.chunkBuffer.delete(targetSessionId)
         this._largeDataListener?.(completeData)
         this._transmitStore.onLargeDataComplete()
-      } catch (error) {
+      }
+      catch (error) {
         _logError('重组屏幕端数据失败:', error)
-        this._screenChunkBuffer.delete(targetSessionId)
+        screen.chunkBuffer.delete(targetSessionId)
       }
     }
   }
 
-  public async prepare(): Promise<void> {
-    await openBluetoothAdapter('central')
-    this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-  }
+  // ── 数据发送 ───────────────────────────────────────────────────────────
 
-  /** 开始扫描 Screen 设备 */
-  public startScanning(onFound: (deviceList: WechatMiniprogram.BlueToothDevice[]) => void) {
-    wx.startBluetoothDevicesDiscovery({
-      allowDuplicatesKey: true,
-      // services: [MayScreenServiceUuid],
-      interval: 2000,
-    }).catch((err) => {
-      _toastError(err, '搜索设备失败')
-      wx.hideNavigationBarLoading()
-    })
-    wx.onBluetoothDeviceFound((res) => {
-      // console.log('onBluetoothDeviceFound', res)
-      if (res.devices !== undefined) {
-        const filteredDevices = res.devices
-          .filter((device) => {
-            if (!device.name) {
-              return false
-            }
-            if (device.advertisServiceUUIDs?.length !== 1) {
-              return false
-            }
-            if (!device.advertisServiceUUIDs[0].startsWith('19970329-')) {
-              return false
-            }
-            return true
-          })
-          .sort((a, b) => b.RSSI - a.RSSI)
-        onFound(filteredDevices)
-      }
-    })
-  }
-
-  /** 停止扫描 Screen 设备 */
-  public async stopScanning(): Promise<void> {
-    await wx.stopBluetoothDevicesDiscovery()
-  }
-
-  /** 连接到某一个 Screen 设备 */
-  public async connectDevice(deviceId: string): Promise<void> {
-    // 阶段1. 建立连接
-    this._connectStore.setConnectStatus(ConnectStatus.Connecting)
-    await wx.createBLEConnection({ deviceId, timeout: 10_000 }).catch(async (e) => {
-      _toastError(e, '连接设备失败')
-      // wx.hideLoading()
-      throw e
-    })
-    _log('createBLEConnection success')
-
-    // 阶段2. 前期数据交换、授权阶段
-    this._connectStore.setConnectStatus(ConnectStatus.Authorizing)
-    const servicesRes = await wx.getBLEDeviceServices({ deviceId })
-    _log('getBLEDeviceServices success', servicesRes.services)
-    const serviceUuid = servicesRes.services.find((service) => service.uuid.startsWith('19970329-'))?.uuid
-    if (!serviceUuid) {
-      throw new Error('服务UUID不存在')
-    }
-    _log(`screen serviceUuid: ${serviceUuid}`)
-    const deviceInfo = getDeviceInfoFromUuid(serviceUuid)
-    _log(`screen deviceInfo: ${JSON.stringify(deviceInfo)}`)
-    this._screenServiceUuid = serviceUuid
-    this._screenDeviceId = deviceId
-    this._connectStore.setCurrentScreenMeta(deviceInfo)
-    const characteristicRes = await wx.getBLEDeviceCharacteristics({
-      deviceId,
-      serviceId: serviceUuid,
-    })
-    _log('getBLEDeviceCharacteristics success', characteristicRes.characteristics)
-    // await this._delay(1000)
-    this._connectStore.setConnectStatus(ConnectStatus.Connected)
-
-    // 阶段3. 设置 MTU
-    if (deviceInfo?.system === ScreenSystem.Android || deviceInfo?.system === ScreenSystem.HarmonyOS) {
-      _log('setBLEMTU begin')
-      wx.setBLEMTU({
-        deviceId,
-        mtu: 512,
-        success: () => {
-          _log('setBLEMTU success (mtu=512)')
-          this._mtu = 512
-        },
-        fail: (err) => {
-          _logError('setBLEMTU fail', err)
-        },
-      })
-    }
-
-    // 阶段4. 监听 notify 特征值
-    await wx.notifyBLECharacteristicValueChange({
-      deviceId,
-      serviceId: serviceUuid,
-      characteristicId: MayScreenCharacteristicUuid.status,
-      state: true,
-    })
-    await wx.notifyBLECharacteristicValueChange({
-      deviceId,
-      serviceId: serviceUuid,
-      characteristicId: MayScreenCharacteristicUuid.read,
-      state: true,
-    })
-    await wx.notifyBLECharacteristicValueChange({
-      deviceId,
-      serviceId: serviceUuid,
-      characteristicId: MayScreenCharacteristicUuid.readLarge,
-      state: true,
-    })
-    _log('notifyBLECharacteristicValueChange success')
-    wx.offBLECharacteristicValueChange()
-    this._startWatchdog()
-    wx.onBLECharacteristicValueChange((res) => {
-      if (res.characteristicId === MayScreenCharacteristicUuid.status) {
-        const value = new Uint8Array(res.value)
-        this._lastHeartbeatAt = Date.now()
-        _log('heartbeat received', value)
-        if (value[0] === 0x01) {
-          this._transmitStore.onCommandReceived()
-          // if (this._connectStore.connectStatus.value !== ConnectStatus.Authorizing) {
-            this._connectStore.setConnectStatus(ConnectStatus.Connected)
-          // }
-          wx.getBLEDeviceRSSI({
-            deviceId: this._screenDeviceId,
-            success: (rssiRes) => {
-              this._connectStore.setRssi(rssiRes.RSSI)
-              this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
-            },
-          })
-        } else {
-          this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-        }
-      } else if (res.characteristicId === MayScreenCharacteristicUuid.read) {
-        const cmd = parseShortPacket(res.value)
-        _log(`command from screen: ${Command[cmd.command] || 'unknown'} (${cmd.payload || null})`)
-        if (cmd.command === Command.ReplyAuthorize) {
-          this._connectStore.setConnectStatus(ConnectStatus.Connected)
-        }
-        this._commandListener?.(cmd.command, cmd.payload)
-        this._transmitStore.onCommandReceived()
-      } else if (res.characteristicId === MayScreenCharacteristicUuid.readLarge) {
-        this._handleParseLargeData(res.value)
-      }
-    })
-    await this.sendCommand(Command.Authorize, this._remoteNickName, true)
-    wx.getBLEDeviceRSSI({
-      deviceId,
-      success: (rssiRes) => {
-        this._connectStore.setRssi(rssiRes.RSSI)
-        this.sendCommand(Command.Rssi, rssiRes.RSSI.toString(), true).catch(() => {})
-      },
-    })
-  }
-
-  /** 断开与 Screen 设备的连接 */
-  public async disconnectDevice(deviceId: string): Promise<void> {
-    this._stopWatchdog()
-    this._screenDeviceId = ''
-    this._screenServiceUuid = ''
-    this._connectStore.setRssi(null)
-    await wx.closeBLEConnection({ deviceId }).catch((err) => {
-      _toastError(err, '断开连接失败')
-    })
-    this._connectStore.setConnectStatus(ConnectStatus.Disconnected)
-  }
-
-  /** 断开当前已连接的 Screen 设备 */
-  public async disconnect(): Promise<void> {
-    if (!this._screenDeviceId) return
-    await this.disconnectDevice(this._screenDeviceId)
-    this._screenDeviceId = ''
-    this._screenServiceUuid = ''
-  }
-
-  /** 延迟函数 */
   private _delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms))
+    return new Promise(resolve => setTimeout(resolve, ms))
   }
 
-  /** 发送单个数据包，带重试机制 */
   private async _sendChunk(
     deviceId: string,
     chunk: ArrayBuffer,
@@ -355,15 +405,17 @@ export class BleRemote {
     options: {
       largeData?: boolean
       silent?: boolean
-    } = {}
+    } = {},
   ): Promise<void> {
-    let retryCount = 0
+    const screen = this._screens.get(deviceId)
+    if (!screen) throw new Error(`Device ${deviceId} not connected`)
 
+    let retryCount = 0
     while (retryCount <= maxRetries) {
       try {
         await wx.writeBLECharacteristicValue({
           deviceId,
-          serviceId: this._screenServiceUuid,
+          serviceId: screen.serviceUuid,
           characteristicId: options.largeData
             ? MayScreenCharacteristicUuid.writeLarge
             : MayScreenCharacteristicUuid.write,
@@ -371,7 +423,8 @@ export class BleRemote {
           value: chunk,
         })
         return
-      } catch (err) {
+      }
+      catch (err) {
         retryCount++
         if (retryCount > maxRetries) {
           _logError(`包发送失败，已重试 ${maxRetries} 次`, err)
@@ -384,60 +437,81 @@ export class BleRemote {
     }
   }
 
-  /** 发送长数据 */
-  private async _sendLargeData(data: string | Uint8Array): Promise<void> {
-    // 前置判断
-    if (!this._screenDeviceId || !this._screenServiceUuid) {
+  private async _sendCommandToDevice(
+    deviceId: string,
+    command: Command,
+    payload: string,
+    silent = false,
+  ): Promise<void> {
+    const chunk = shortCommandToPacket(command, payload)
+    await this._sendChunk(deviceId, chunk, 3, { silent })
+  }
+
+  /** 发送短指令（广播到所有已连接的 Screen） */
+  public async sendCommand(command: Command, payload: string, silent = false): Promise<void> {
+    const connected = [...this._screens.values()].filter(
+      s => s.status === ConnectStatus.Connected && s.serviceUuid,
+    )
+    if (!connected.length) {
+      const err = new Error('未连接设备')
+      if (!silent) _toastError(err as any, '发送数据失败')
+      throw err
+    }
+    const chunk = shortCommandToPacket(command, payload)
+    _log(`sendCommand broadcast: ${Command[command] || 'unknown'} (${payload || null}) → ${connected.length} screens`)
+    const results = await Promise.allSettled(
+      connected.map(s => this._sendChunk(s.deviceId, chunk, 3, { silent })),
+    )
+    this._transmitStore.onCommandSent()
+    const failures = results.filter(r => r.status === 'rejected')
+    if (failures.length === connected.length) {
+      throw (failures[0] as PromiseRejectedResult).reason
+    }
+  }
+
+  /** 发送长指令（广播到所有已连接的 Screen，逐块并行） */
+  public async sendLongCommand(command: Command, payload: any): Promise<void> {
+    const connected = [...this._screens.values()].filter(
+      s => s.status === ConnectStatus.Connected && s.serviceUuid,
+    )
+    if (!connected.length) {
       const err = new Error('未连接设备')
       _toastError(err as any, '发送数据失败')
       throw err
     }
-    // 前置提示-数据过大需等待
+
+    // 取所有已连接设备中的最小 MTU，确保分包后每台设备都能接收
+    const effectiveMtu = Math.min(...connected.map(s => s.mtu))
+
+    const envelope = JSON.stringify({ cmd: command, data: payload })
+    let data: string | Uint8Array
+    if (command === Command.ChangeSongData) {
+      const bytes = new TextEncoder().encode(envelope)
+      data = compressPayload(bytes)
+    }
+    else {
+      data = envelope
+    }
+
     wx.showToast({
       title: '数据传输中，请稍候...',
       icon: 'none',
     })
-    const chunks = largeDataToChunks(data, { maxPacketSize: this._mtu })
-    _log(`sendLargeData: (${chunks.length} chunks)`)
+    const chunks = largeDataToChunks(data, { maxPacketSize: effectiveMtu })
+    _log(`sendLargeData broadcast: ${chunks.length} chunks → ${connected.length} screens`)
+
     for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i]
-      // 发送当前包（包含重试机制）
-      await this._sendChunk(this._screenDeviceId, chunk, 3, {
-        largeData: true,
-      })
+      // 每块先并行发到所有设备，再发下一块
+      await Promise.all(
+        connected.map(s => this._sendChunk(s.deviceId, chunks[i], 3, { largeData: true })),
+      )
       this._transmitStore.onLargeDataChunk(i + 1, chunks.length)
-      _log(`sendLargeData success, chunk ${i + 1}/${chunks.length}`)
+      _log(`sendLargeData chunk ${i + 1}/${chunks.length} sent to ${connected.length} screens`)
       if (i < chunks.length - 1) {
         await this._delay(20)
       }
     }
     this._transmitStore.onLargeDataComplete()
-    _log('sendLargeData success')
-  }
-
-  /** 发送短指令 */
-  public async sendCommand(command: Command, payload: string, silent = false): Promise<void> {
-    // 前置判断
-    if (!this._screenDeviceId || !this._screenServiceUuid) {
-      const err = new Error('未连接设备')
-      _toastError(err as any, '发送数据失败')
-      throw err
-    }
-    const chunks = shortCommandToPacket(command, payload)
-    _log(`sendCommand: ${Command[command] || 'unknown'} (${payload || null})`)
-    await this._sendChunk(this._screenDeviceId, chunks, 3, { silent })
-    this._transmitStore.onCommandSent()
-  }
-
-  /** 发送长指令 */
-  public async sendLongCommand(command: Command, payload: any): Promise<void> {
-    const envelope = JSON.stringify({ cmd: command, data: payload })
-    if (command === Command.ChangeSongData) {
-      const bytes = new TextEncoder().encode(envelope)
-      await this._sendLargeData(compressPayload(bytes))
-    }
-    else {
-      await this._sendLargeData(envelope)
-    }
+    _log('sendLargeData broadcast complete')
   }
 }

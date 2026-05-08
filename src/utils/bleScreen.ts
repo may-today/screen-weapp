@@ -502,7 +502,7 @@ export class BleScreen {
   /** 发送长数据给已连接的遥控端 */
   private async _sendLargeData(data: string | Uint8Array): Promise<void> {
     // 传输前判断
-    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
+    if (this._connectStore._screenConnectStatus.value !== ConnectStatus.Connected) {
       return
     }
     // 前置提示-数据过大需等待
@@ -526,7 +526,7 @@ export class BleScreen {
   /** 发送短指令给已连接的遥控端 */
   public async sendCommand(command: Command, payload: string): Promise<void> {
     // 传输前判断
-    if (this._connectStore.connectStatus.value !== ConnectStatus.Connected) {
+    if (this._connectStore._screenConnectStatus.value !== ConnectStatus.Connected) {
       return
     }
     const packet = shortCommandToPacket(command, payload)
