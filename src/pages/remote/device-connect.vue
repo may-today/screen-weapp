@@ -170,8 +170,8 @@ const handleRefreshScan = async () => {
           >
             <image :src="deviceImgSrc(screen.meta?.device)" class="size-10 shrink-0" mode="aspectFit" />
             <view class="flex-1 flex flex-col gap-0.5 min-w-0">
-              <text class="font-medium" :numberOfLines="1">{{ screen.meta?.displayName || screen.deviceId }}</text>
-              <text v-if="screen.meta?.nickName" class="text-xs text-muted-foreground font-mono">{{ screen.meta.nickName }}</text>
+              <text class="font-medium" :numberOfLines="1">{{ screen.meta?.nickName || '设备信息获取中' }}</text>
+              <text v-if="screen.meta?.displayName" class="text-xs text-muted-foreground font-mono">{{ screen.meta?.displayName }}</text>
               <view
                 v-if="screen.status === ConnectStatus.Connecting || screen.status === ConnectStatus.Authorizing"
                 class="flex flex-row items-center gap-1"
