@@ -40,6 +40,7 @@ const connectingScreens = computed(() =>
 )
 
 const hasAnyScreen = computed(() => screens.value.size > 0)
+const screenList = computed(() => [...screens.value.values()])
 
 // 过滤掉已在 screens Map 中的设备（已连接或正在连接）
 const filteredSearchList = computed(() =>
@@ -163,7 +164,7 @@ const handleRefreshScan = async () => {
         <view v-if="hasAnyScreen" class="shrink-0 flex flex-col gap-2">
           <text class="text-xs font-medium text-muted-foreground uppercase tracking-wide">已连接的屏幕</text>
           <view
-            v-for="screen in screens.values()"
+            v-for="screen in screenList"
             :key="screen.deviceId"
             class="rounded-lg border border-border bg-card px-4 py-3 flex flex-row items-center gap-3"
           >

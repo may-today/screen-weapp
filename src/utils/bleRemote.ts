@@ -84,6 +84,7 @@ export class BleRemote {
       screen.lastHeartbeatAt = Date.now()
       _log(`heartbeat from ${res.deviceId}`, value)
       if (value[0] === 0x01) {
+        screen.status = ConnectStatus.Connected
         this._transmitStore.onCommandReceived()
         this._connectStore.updateScreen(res.deviceId, {
           status: ConnectStatus.Connected,
@@ -98,6 +99,7 @@ export class BleRemote {
         })
       }
       else {
+        screen.status = ConnectStatus.Disconnected
         this._connectStore.updateScreen(res.deviceId, { status: ConnectStatus.Disconnected })
       }
     }
@@ -105,6 +107,7 @@ export class BleRemote {
       const cmd = parseShortPacket(res.value)
       _log(`command from screen ${res.deviceId}: ${Command[cmd.command] || 'unknown'} (${cmd.payload || null})`)
       if (cmd.command === Command.ReplyAuthorize) {
+        screen.status = ConnectStatus.Connected
         this._connectStore.updateScreen(res.deviceId, { status: ConnectStatus.Connected })
       }
       this._commandListener?.(cmd.command, cmd.payload)
@@ -251,6 +254,7 @@ export class BleRemote {
       _log('createBLEConnection success', deviceId)
 
       // 阶段2. 服务发现 + 授权阶段
+      initialState.status = ConnectStatus.Authorizing
       this._connectStore.updateScreen(deviceId, { status: ConnectStatus.Authorizing })
       const servicesRes = await wx.getBLEDeviceServices({ deviceId })
       _log('getBLEDeviceServices success', servicesRes.services)
@@ -269,6 +273,7 @@ export class BleRemote {
 
       await wx.getBLEDeviceCharacteristics({ deviceId, serviceId: serviceUuid })
       _log('getBLEDeviceCharacteristics success')
+      screen.status = ConnectStatus.Connected
       this._connectStore.updateScreen(deviceId, { status: ConnectStatus.Connected })
 
       // 阶段3. 设置 MTU（Android/HarmonyOS）
