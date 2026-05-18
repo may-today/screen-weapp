@@ -54,7 +54,7 @@ export const usePlayStateStore = defineStore('playState', () => {
     currentSongData.value = null
     currentLyricIndex.value = -1
     autoPlay.value = false
-    currentTime.value = 0
+    timeServer.clear()
   }
 
   /** 设置当前歌曲数据 */
@@ -62,6 +62,8 @@ export const usePlayStateStore = defineStore('playState', () => {
     console.log('setCurrentSongData', data)
     currentSongData.value = data
     currentLyricIndex.value = -1
+    autoPlay.value = false
+    timeServer.clear()
   }
 
   /** 设置当前时间 */
