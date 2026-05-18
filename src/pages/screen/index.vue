@@ -54,6 +54,10 @@ bleScreen.setLargeDataListener((raw) => {
     if (envelope.cmd === Command.ChangeSongData && envelope.data) {
       playState.setCurrentSongData(envelope.data)
     }
+    if (envelope.cmd === Command.ChangeSongId && envelope.data) {
+      const song = allDataDict.value[envelope.data]
+      if (song) playState.setCurrentSongData(song)
+    }
   }
   catch (e) {
     console.error('[Screen] Failed to parse large data:', e)

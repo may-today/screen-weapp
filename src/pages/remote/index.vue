@@ -70,11 +70,6 @@ bleRemote.setCommandListener((command, payload) => {
         timeServer.pause()
       }
       break
-    case Command.ChangeSongId: {
-      const song = dataStore.allDataDict.value[payload]
-      if (song) playState.setCurrentSongData(song)
-      break
-    }
   }
 })
 bleRemote.setLargeDataListener((raw) => {
@@ -82,6 +77,10 @@ bleRemote.setLargeDataListener((raw) => {
     const envelope = JSON.parse(raw)
     if (envelope.cmd === Command.ChangeSongData && envelope.data) {
       playState.setCurrentSongData(envelope.data)
+    }
+    if (envelope.cmd === Command.ChangeSongId && envelope.data) {
+      const song = dataStore.allDataDict.value[envelope.data]
+      if (song) playState.setCurrentSongData(song)
     }
   }
   catch (e) {

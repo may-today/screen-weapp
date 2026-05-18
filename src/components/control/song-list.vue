@@ -48,6 +48,19 @@ const handleSelectSong = async (slug: string) => {
   }
   hooks.callHook('trigger-tab', { tab: 'playing' })
 }
+
+const handleSelectSongWithIdOnly = async (slug: string) => {
+  const songData = allDataDict.value[slug] || null
+  playState.setCurrentSongData(songData)
+  if (songData) {
+    if (props.mode === 'screen') {
+      BleScreen.getInstance().sendLongCommand(Command.ChangeSongId, slug).catch(() => {})
+    } else {
+      bleRemote.sendLongCommand(Command.ChangeSongId, slug)
+    }
+  }
+  hooks.callHook('trigger-tab', { tab: 'playing' })
+}
 </script>
 
 <template>
@@ -69,6 +82,7 @@ const handleSelectSong = async (slug: string) => {
           :active="!!currentSongData && currentSongData.slug === songItem.slug"
           :detail="songItem"
           @tap="handleSelectSong(songItem.slug)"
+          @longtap="handleSelectSongWithIdOnly(songItem.slug)"
         />
       </block>
     </scroll-view>

@@ -210,8 +210,8 @@ const handleRefreshScan = async () => {
           @select="handleSelectDevice"
         />
         <view v-else class="flex flex-1 flex-col items-center justify-center gap-3 pb-16">
-          <text class="text-sm text-muted-foreground">
-            {{ isScanning ? '暂未发现新的屏幕设备' : '搜索已停止' }}
+          <text class="text-sm text-muted-foreground text-center">
+            {{ isScanning ? '暂未发现新的屏幕设备\n请在屏幕端开启遥控器功能' : '搜索已停止' }}
           </text>
         </view>
 
