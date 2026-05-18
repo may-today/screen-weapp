@@ -70,7 +70,7 @@ const handleNext = async () => {
       <AutoPlaySwitchButton :mode="props.mode" />
     </view>
     <!-- 遥控器模式控制栏 -->
-    <view v-if="props.mode === 'remote'" class="flex flex-row items-center h-18 border-t border-border">
+    <view v-if="props.mode === 'remote'" class="flex flex-row items-center h-40 max-h-1/3 border-t border-border">
       <view class="flex-1 flex h-full items-center justify-center border-r border-border" hover-class="bg-accent text-accent-foreground" @tap="handlePrev">
         <view class="i-lucide-chevron-left size-8" />
       </view>
