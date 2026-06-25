@@ -28,6 +28,49 @@ export const generateMetaGroupList = (list: SongDetail[]) => {
   return groupList
 }
 
+export const generateYearGroupList = (list: SongDetail[]) => {
+  const groups: Record<string, SongMeta[]> = {}
+  const others: SongMeta[] = []
+  list.forEach((song) => {
+    const meta: SongMeta = { title: song.title, slug: song.slug, index: song.index, meta: song.meta }
+    const year = song.meta?.year
+    if (year) {
+      const key = String(year)
+      if (!groups[key]) groups[key] = []
+      groups[key].push(meta)
+    }
+    else {
+      others.push(meta)
+    }
+  })
+  const groupList = Object.keys(groups)
+    .sort((a, b) => Number(b) - Number(a))
+    .map(year => ({ index: year, list: groups[year] }))
+  if (others.length) groupList.push({ index: '其他', list: others })
+  return groupList
+}
+
+export const generateAlbumGroupList = (list: SongDetail[]) => {
+  const groups: Record<string, SongMeta[]> = {}
+  const others: SongMeta[] = []
+  list.forEach((song) => {
+    const meta: SongMeta = { title: song.title, slug: song.slug, index: song.index, meta: song.meta }
+    const album = song.meta?.album?.trim()
+    if (album) {
+      if (!groups[album]) groups[album] = []
+      groups[album].push(meta)
+    }
+    else {
+      others.push(meta)
+    }
+  })
+  const groupList = Object.keys(groups)
+    .sort((a, b) => a.localeCompare(b))
+    .map(album => ({ index: album, list: groups[album] }))
+  if (others.length) groupList.push({ index: '其他', list: others })
+  return groupList
+}
+
 export const searchByString = (str: string, list: SongDetail[]) => {
   const searchValue = str.replace(/\s*/g, '').toLowerCase()
   if (!searchValue) {

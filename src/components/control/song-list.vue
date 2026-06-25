@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Command, type SearchItem } from '@/types'
-import { ref, storeToRefs } from 'wevu'
+import { computed, ref, storeToRefs } from 'wevu'
 import { useDataStore } from '@/stores/data'
 import { usePlayStateStore } from '@/stores/playState'
 import { hooks } from '@/utils/hook'
-import { searchByString } from '@/utils/songList'
+import { generateAlbumGroupList, generateYearGroupList, searchByString } from '@/utils/songList'
 import { BleRemote } from '@/utils/bleRemote'
 import { BleScreen } from '@/utils/bleScreen'
 import SongListItem from './song-list-item.vue'
@@ -20,6 +20,22 @@ const playState = usePlayStateStore()
 const { metaGroupList, allDataList, allDataDict } = storeToRefs(data)
 const { currentSongData } = storeToRefs(playState)
 const bleRemote = BleRemote.getInstance()
+
+type SortMode = 'name' | 'year' | 'album'
+const sortMode = ref<SortMode>('name')
+const sortModeLabel = computed(() => ({ name: '名称', year: '年份', album: '专辑' }[sortMode.value]))
+const sortModes: SortMode[] = ['name', 'year', 'album']
+
+const sortedGroupList = computed(() => {
+  if (sortMode.value === 'year') return generateYearGroupList(allDataList.value)
+  if (sortMode.value === 'album') return generateAlbumGroupList(allDataList.value)
+  return metaGroupList.value
+})
+
+const handleToggleSort = () => {
+  const idx = sortModes.indexOf(sortMode.value)
+  sortMode.value = sortModes[(idx + 1) % sortModes.length]
+}
 
 const handleSearch = (event: WechatMiniprogram.Input) => {
   const searchValue = event.detail.value.trim()
@@ -73,7 +89,7 @@ const handleSelectSongWithIdOnly = async (slug: string) => {
       enable-back-to-top
       scroll-with-animation
     >
-      <block v-for="item in metaGroupList" :key="item.index">
+      <block v-for="item in sortedGroupList" :key="item.index">
         <text class="text-xs font-medium text-muted-foreground my-1 px-4">{{ item.index }}</text>
         <SongListItem
           v-for="songItem in item.list"
@@ -113,6 +129,15 @@ const handleSelectSongWithIdOnly = async (slug: string) => {
         hover-class="text-accent-foreground"
         @tap="handleClearSearch"
       />
+      <view
+        v-if="!searchInputValue"
+        class="flex items-center gap-0.5 text-muted-foreground"
+        hover-class="text-accent-foreground"
+        @tap="handleToggleSort"
+      >
+        <view class="i-lucide-arrow-up-down text-xs" />
+        <text class="text-xs">{{ sortModeLabel }}</text>
+      </view>
     </view>
   </view>
 </template>
