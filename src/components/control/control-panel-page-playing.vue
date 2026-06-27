@@ -15,10 +15,20 @@ const props = defineProps<{
 }>()
 
 const playState = usePlayStateStore()
-const { currentSongData, currentLyricIndex, currentCustomText } = storeToRefs(playState)
+const { currentSongData, currentLyricIndex, currentCustomText, screenBlack } = storeToRefs(playState)
 const currentSongDetail = computed(() => currentSongData.value?.detail || [])
 
 const bleRemote = BleRemote.getInstance()
+
+const handleBlackScreen = async () => {
+  const next = !screenBlack.value
+  playState.setScreenBlack(next)
+  if (props.mode === 'screen') {
+    BleScreen.getInstance().sendCommand(Command.ScreenBlackScreen, next ? '1' : '0').catch(() => {})
+  } else {
+    await bleRemote.sendCommand(Command.ScreenBlackScreen, next ? '1' : '0')
+  }
+}
 
 const handleCustomText = () => {
   wx.showModal({
@@ -84,8 +94,9 @@ const handleNext = async () => {
       <AutoPlaySwitchButton :mode="props.mode" />
     </view>
     <!-- 遥控器模式控制栏 -->
-    <view v-if="props.mode === 'remote'"
+    <view
       class="flex flex-row items-center justify-end gap-2 h-12 px-4 border-t border-border">
+      <MiniSwitchButton iconClass="i-lucide-eye-off size-4" title="关闭屏幕" :active="screenBlack" @tap="handleBlackScreen" />
       <MiniSwitchButton iconClass="i-lucide-text size-4" title="文字" :active="!!currentCustomText" @tap="handleCustomText" />
     </view>
     <view v-if="props.mode === 'remote'" class="flex flex-row items-center h-40 max-h-1/3 border-t border-border">

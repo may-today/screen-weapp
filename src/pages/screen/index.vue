@@ -41,7 +41,7 @@ bleScreen.setCommandListener((command, payload) => {
       break
     }
     case Command.ScreenBlackScreen:
-      console.log('[Screen] TODO: black screen')
+      playState.setScreenBlack(payload === '1')
       break
     case Command.Rssi:
       connectStore.setRssi(parseInt(payload))

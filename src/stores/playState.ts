@@ -13,6 +13,8 @@ export const usePlayStateStore = defineStore('playState', () => {
   const currentTime = ref(0)
   /** 当前自定义文字 */
   const currentCustomText = ref('')
+  /** 屏幕黑屏状态 */
+  const screenBlack = ref(false)
 
   /** 当前歌词行 */
   const currentLyricLine = computed(() => {
@@ -138,12 +140,18 @@ export const usePlayStateStore = defineStore('playState', () => {
     currentCustomText.value = text
   }
 
+  /** 设置屏幕黑屏状态 */
+  const setScreenBlack = (val: boolean) => {
+    screenBlack.value = val
+  }
+
   return {
     currentSongData,
     currentLyricIndex,
     autoPlay,
     currentTime,
     currentCustomText,
+    screenBlack,
     currentLyricLine,
     currentSongTimelineIndexMap,
     supportAutoPlay,
@@ -156,5 +164,6 @@ export const usePlayStateStore = defineStore('playState', () => {
     prevLyricLine,
     setAutoPlay,
     setCurrentCustomText,
+    setScreenBlack,
   }
 })

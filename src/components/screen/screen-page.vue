@@ -4,7 +4,7 @@ import { usePlayStateStore } from '@/stores/playState'
 import ScreenPageFullControlLayer from './screen-page-full-control-layer.vue'
 
 const playState = usePlayStateStore()
-const { currentSongData, currentLyricLine, currentLyricIndex, currentCustomText } = storeToRefs(playState)
+const { currentSongData, currentLyricLine, currentLyricIndex, currentCustomText, screenBlack } = storeToRefs(playState)
 
 const currentLyricText = computed(() => {
   if (currentLyricLine.value) {
@@ -16,18 +16,20 @@ const currentLyricText = computed(() => {
 
 <template>
   <view class="screen">
-    <block v-if="currentCustomText">
-      <text class="lyric-text">{{ currentCustomText }}</text>
-    </block>
-    <block v-else-if="currentSongData">
-      <block v-if="currentLyricIndex < 0">
-        <text v-if="currentSongData.meta && currentSongData.meta.year" class="subtitle-text">
-          {{ currentSongData.meta.year }}
-        </text>
-        <text class="title-text">{{ currentSongData.title }}</text>
+    <block v-if="!screenBlack">
+      <block v-if="currentCustomText">
+        <text class="lyric-text">{{ currentCustomText }}</text>
       </block>
-      <block v-if="currentLyricIndex >= 0 && currentLyricLine">
-        <text class="lyric-text">{{ currentLyricText }}</text>
+      <block v-else-if="currentSongData">
+        <block v-if="currentLyricIndex < 0">
+          <text v-if="currentSongData.meta && currentSongData.meta.year" class="subtitle-text">
+            {{ currentSongData.meta.year }}
+          </text>
+          <text class="title-text">{{ currentSongData.title }}</text>
+        </block>
+        <block v-if="currentLyricIndex >= 0 && currentLyricLine">
+          <text class="lyric-text">{{ currentLyricText }}</text>
+        </block>
       </block>
     </block>
     <screen-page-full-control-layer />
