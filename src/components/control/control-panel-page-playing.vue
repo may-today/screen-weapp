@@ -23,9 +23,7 @@ const bleRemote = BleRemote.getInstance()
 const handleBlackScreen = async () => {
   const next = !screenBlack.value
   playState.setScreenBlack(next)
-  if (props.mode === 'screen') {
-    BleScreen.getInstance().sendCommand(Command.ScreenBlackScreen, next ? '1' : '0').catch(() => {})
-  } else {
+  if (props.mode === 'remote') {
     await bleRemote.sendCommand(Command.ScreenBlackScreen, next ? '1' : '0')
   }
 }
@@ -40,9 +38,7 @@ const handleCustomText = () => {
       if (!res.confirm) return
       const text = res.content?.trim() ?? ''
       playState.setCurrentCustomText(text)
-      if (props.mode === 'screen') {
-        BleScreen.getInstance().sendLongCommand(Command.ScreenCustomText, text).catch(() => {})
-      } else {
+      if (props.mode === 'remote') {
         await bleRemote.sendLongCommand(Command.ScreenCustomText, text)
       }
     },
