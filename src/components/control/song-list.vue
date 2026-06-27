@@ -110,6 +110,7 @@ const handleSelectSongWithIdOnly = async (slug: string) => {
         :detail="item.data"
         :extra-info="item.matchLines"
         @tap="handleSelectSong(item.slug)"
+        @longtap="handleSelectSongWithIdOnly(item.slug)"
       />
     </scroll-view>
     <view class="flex items-center gap-1.5 h-10 border-t border-border px-4 text-sm">
