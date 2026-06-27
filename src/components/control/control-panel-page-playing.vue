@@ -5,6 +5,7 @@ import { formatDuration } from '@/utils/format'
 import AutoPlaySwitchButton from './auto-play-switch-button.vue'
 import Empty from '../empty.vue'
 import ControlPanelPage from './control-panel-page.vue'
+import MiniSwitchButton from './mini-switch-button.vue'
 import { BleRemote } from '@/utils/bleRemote'
 import { BleScreen } from '@/utils/bleScreen'
 import { Command } from '@/types'
@@ -14,17 +15,36 @@ const props = defineProps<{
 }>()
 
 const playState = usePlayStateStore()
-const { currentSongData, currentLyricIndex } = storeToRefs(playState)
+const { currentSongData, currentLyricIndex, currentCustomText } = storeToRefs(playState)
 const currentSongDetail = computed(() => currentSongData.value?.detail || [])
 
 const bleRemote = BleRemote.getInstance()
+
+const handleCustomText = () => {
+  wx.showModal({
+    title: '输入文字',
+    editable: true,
+    editorText: currentCustomText.value,
+    placeholderText: '要展示的文字',
+    success: async (res) => {
+      if (!res.confirm) return
+      const text = res.content?.trim() ?? ''
+      playState.setCurrentCustomText(text)
+      if (props.mode === 'screen') {
+        BleScreen.getInstance().sendLongCommand(Command.ScreenCustomText, text).catch(() => {})
+      } else {
+        await bleRemote.sendLongCommand(Command.ScreenCustomText, text)
+      }
+    },
+  })
+}
 
 const handleLyricLineTap = async (e: WechatMiniprogram.TouchEvent) => {
   const { index, time } = e.currentTarget.dataset
   if (typeof index === 'number') {
     playState.setCurrentLyricIndex(index, time)
     if (props.mode === 'screen') {
-      BleScreen.getInstance().sendCommand(Command.LyricSetIndex, String(index)).catch(() => {})
+      BleScreen.getInstance().sendCommand(Command.LyricSetIndex, String(index)).catch(() => { })
     } else {
       await bleRemote.sendCommand(Command.LyricSetIndex, String(index))
     }
@@ -49,17 +69,11 @@ const handleNext = async () => {
     </view>
     <scroll-view :hidden="!currentSongData" class="flex-1 overflow-hidden" scroll-y enable-passive enable-back-to-top>
       <template v-for="(item, index) in currentSongDetail" :key="item.time">
-        <view
-          class="lyric-line"
-          :class="{
-            'line-highlight': item.isHighlight,
-            'line-current': currentLyricIndex === index,
-          }"
-          hover-class="bg-accent text-accent-foreground"
-          :data-index="index"
-          :data-time="item.time"
-          @tap="handleLyricLineTap"
-        >
+        <view class="lyric-line" :class="{
+          'line-highlight': item.isHighlight,
+          'line-current': currentLyricIndex === index,
+        }" hover-class="bg-accent text-accent-foreground" :data-index="index" :data-time="item.time"
+          @tap="handleLyricLineTap">
           <text v-if="item.time >= 0" class="text-xs font-mono opacity-60">{{ formatDuration(item.time) }}</text>
           <text class="text-sm">{{ item.text || '' }}</text>
         </view>
@@ -70,11 +84,17 @@ const handleNext = async () => {
       <AutoPlaySwitchButton :mode="props.mode" />
     </view>
     <!-- 遥控器模式控制栏 -->
+    <view v-if="props.mode === 'remote'"
+      class="flex flex-row items-center justify-end gap-2 h-12 px-4 border-t border-border">
+      <MiniSwitchButton iconClass="i-lucide-text size-4" title="文字" :active="!!currentCustomText" @tap="handleCustomText" />
+    </view>
     <view v-if="props.mode === 'remote'" class="flex flex-row items-center h-40 max-h-1/3 border-t border-border">
-      <view class="flex-1 flex h-full items-center justify-center border-r border-border" hover-class="bg-accent text-accent-foreground" @tap="handlePrev">
+      <view class="flex-1 flex h-full items-center justify-center border-r border-border"
+        hover-class="bg-accent text-accent-foreground" @tap="handlePrev">
         <view class="i-lucide-chevron-left size-8" />
       </view>
-      <view class="flex-1 flex h-full items-center justify-center" hover-class="bg-accent text-accent-foreground" @tap="handleNext">
+      <view class="flex-1 flex h-full items-center justify-center" hover-class="bg-accent text-accent-foreground"
+        @tap="handleNext">
         <view class="i-lucide-chevron-right size-8" />
       </view>
     </view>

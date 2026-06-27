@@ -63,6 +63,8 @@ export enum Command {
   LyricAutoPlay = 14,
   /** 屏幕黑屏 */
   ScreenBlackScreen = 21,
+  /** 发送自定义文字 */
+  ScreenCustomText = 22,
   /** 信号强度（遥控端推送 RSSI 给屏幕端，payload 为 dBm 整数字符串） */
   Rssi = 31,
 }

@@ -11,6 +11,8 @@ export const usePlayStateStore = defineStore('playState', () => {
   const autoPlay = ref(false)
   /** 当前时间 */
   const currentTime = ref(0)
+  /** 当前自定义文字 */
+  const currentCustomText = ref('')
 
   /** 当前歌词行 */
   const currentLyricLine = computed(() => {
@@ -131,11 +133,17 @@ export const usePlayStateStore = defineStore('playState', () => {
     autoPlay.value = autoPlayState
   }
 
+  /** 设置当前自定义文字 */
+  const setCurrentCustomText = (text: string) => {
+    currentCustomText.value = text
+  }
+
   return {
     currentSongData,
     currentLyricIndex,
     autoPlay,
     currentTime,
+    currentCustomText,
     currentLyricLine,
     currentSongTimelineIndexMap,
     supportAutoPlay,
@@ -147,5 +155,6 @@ export const usePlayStateStore = defineStore('playState', () => {
     nextLyricLine,
     prevLyricLine,
     setAutoPlay,
+    setCurrentCustomText,
   }
 })
