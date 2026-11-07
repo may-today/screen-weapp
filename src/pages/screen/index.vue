@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onReady, onShow, onUnload } from 'wevu'
+import { onLoad, onReady, onShow, onUnload } from 'wevu'
 import { storeToRefs } from 'wevu/store'
 import FloatControlBar from '@/components/screen/float-control-bar.vue'
 import ConnectStatus from '@/components/connect-status.vue'
@@ -14,6 +14,7 @@ import { timeServer } from '@/utils/timeServer'
 import { BleScreen } from '@/utils/bleScreen'
 import { Command } from '@/types'
 import { enableShare } from '@/utils/share'
+import { downloadDataset, getCachedDataset, getDataset } from '@/utils/datasets'
 
 const playState = usePlayStateStore()
 const data = useDataStore()
@@ -82,6 +83,61 @@ definePageJson({
 
 enableShare({ timeline: false })
 
+let screenUnloaded = false
+
+onLoad((query) => {
+  const datasetId = query.dataset
+  const songSlug = query.song
+  if (typeof datasetId !== 'string' && typeof songSlug !== 'string') return
+
+  if (typeof datasetId !== 'string' || typeof songSlug !== 'string' || !getDataset(datasetId) || !songSlug) {
+    wx.showToast({ title: '歌曲链接无效', icon: 'none' })
+    return
+  }
+
+  void openLinkedSong(datasetId, songSlug)
+})
+
+async function openLinkedSong(datasetId: string, songSlug: string) {
+  const dataset = getDataset(datasetId)!
+  const cached = getCachedDataset(datasetId)
+  const cachedSong = cached?.find(song => song.slug === songSlug)
+  if (cached && cachedSong) {
+    data.saveDetailList(cached, { id: datasetId, name: dataset.name })
+    playState.setCurrentSongData(cachedSong)
+    return
+  }
+
+  wx.showLoading({ title: '加载歌曲中' })
+  let errorTitle = ''
+  try {
+    const songs = await downloadDataset(datasetId)
+    if (screenUnloaded) return
+
+    const song = songs.find(item => item.slug === songSlug)
+    if (!song) {
+      errorTitle = '曲库中没有这首歌'
+      return
+    }
+
+    data.saveDetailList(songs, { id: datasetId, name: dataset.name })
+    playState.setCurrentSongData(song)
+    void wx.setStorage({ key: `dataset:${datasetId}`, data: songs })
+  }
+  catch (error) {
+    if (!screenUnloaded) {
+      console.error('[Screen] Failed to load linked song:', error)
+      errorTitle = '曲库加载失败'
+    }
+  }
+  finally {
+    wx.hideLoading()
+    if (!screenUnloaded && errorTitle) {
+      wx.showToast({ title: errorTitle, icon: 'none' })
+    }
+  }
+}
+
 onReady(() => {
   wx.setKeepScreenOn({
     keepScreenOn: true,
@@ -97,6 +153,7 @@ onShow(() => {
   })
 })
 onUnload(() => {
+  screenUnloaded = true
   wx.setKeepScreenOn({
     keepScreenOn: false,
   })

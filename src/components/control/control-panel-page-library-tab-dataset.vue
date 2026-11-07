@@ -3,6 +3,7 @@ import type { SongDetail } from '@/types'
 import { onReady, ref, storeToRefs } from 'wevu'
 import { useDataStore } from '@/stores/data'
 import { useUiStore } from '@/stores/ui'
+import { datasetDict } from '@/utils/datasets'
 import SongList from './song-list.vue'
 import ControlPanelPage from './control-panel-page.vue'
 
@@ -16,23 +17,6 @@ const props = withDefaults(
     mode: 'remote',
   },
 )
-
-const datasetDict = {
-  mayday: {
-    name: '五月天曲库',
-    downUrl: 'https://wx-static.ddiu.site/dataset/mayday.json',
-  },
-  jayzhou: {
-    name: '周杰伦曲库',
-    downUrl: 'https://wx-static.ddiu.site/dataset/jayzhou.json',
-  },
-} as Record<
-  string,
-  {
-    name: string
-    downUrl: string
-  }
->
 
 const dataset = Object.entries(datasetDict).map(([key, item]) => ({
   id: key,

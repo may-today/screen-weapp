@@ -67,3 +67,13 @@ Open the project in WeChat DevTools:
 ```bash
 bun open
 ```
+
+# 直达屏幕歌曲
+
+外部入口的目标小程序页面是 `pages/screen/index`，携带两个 query 参数：
+
+```text
+pages/screen/index?dataset=mayday&song=<歌曲 slug>
+```
+
+`dataset` 可取 `mayday`、`jayzhou`、`fhcq`；`song` 必须是相应曲库 JSON 里的 `slug`，生成链接时应做 URL 编码。将此页面路径和 query 用于微信 URL Link 的生成流程。进入后屏幕会显示歌曲标题，歌词从第一行之前开始，自动播放保持关闭。无参数进入屏幕页仍是普通空白屏幕。
